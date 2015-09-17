@@ -1,0 +1,290 @@
+.navbar-brand {
+    padding-top: 4px;
+    padding-bottom: 0;
+}
+
+th,
+td.acciones {
+    white-space: nowrap;
+}
+
+.concepto {
+    cursor: pointer;
+}
+
+.precio {
+    text-align: right;
+}
+
+h5 {
+    font-weight: bold;
+}
+
+.nombre-concepto input::-webkit-input-placeholder {
+    color: #F95978;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.nombre-concepto input,
+.nombre-concepto input::-moz-placeholder {
+    color: #F95978;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.nombre-concepto-subtitulo input::-webkit-input-placeholder {
+    color: #F95978;
+    font-weight: bold;
+}
+
+.nombre-concepto-subtitulo input,
+.nombre-concepto-subtitulo input::-moz-placeholder {
+    color: #F95978;
+    font-weight: bold;
+}
+
+.titulo-1 input::-webkit-input-placeholder {
+    color: #999;
+    font-weight: bold;
+}
+
+.titulo-1 input,
+.titulo-1 input::-moz-placeholder {
+    color: #999;
+    font-weight: bold;
+}
+
+.titulo-2 input::-webkit-input-placeholder {
+    color: #999;
+    text-align: right;
+}
+
+.titulo-2 input,
+.titulo-2 input::-moz-placeholder {
+    color: #999;
+    text-align: right;
+}
+
+.texto-concepto textarea,
+.texto-concepto .precio {
+    color: #999;
+}
+
+.titulo-3 input::-webkit-input-placeholder {
+    color: #F95978;
+    font-weight: bold;
+    font-size: 102%;
+}
+
+.titulo-3 input,
+.titulo-3 input::-moz-placeholder {
+    color: #F95978;
+    font-weight: bold;
+    font-size: 102%;
+}
+
+input.precio::-webkit-input-placeholder {
+    text-transform: none !important;
+}
+
+input.precio,
+input.precio::-moz-placeholder {
+    text-transform: none !important;
+}
+
+.wrap-concepto {
+    background-color: rgba(249, 89, 120, 0.2);
+    border-radius: 3px;
+    margin-bottom: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.wrap-concepto .form-group {
+    margin: 0 auto !important;
+}
+
+button.add-concepto {
+    margin-bottom: 20px;
+}
+
+.buttons {
+    margin-bottom: 30px;
+}
+
+legend {
+    display: none;
+}
+
+fieldset {
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.buscar-cliente {
+    cursor: pointer;
+}
+
+#cliente-modal table {
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+#cliente-modal .modal-body {
+    max-height: 350px !important;
+    overflow: auto !important;
+}
+
+.check-column {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.sortable-highlight {
+    border: 2px dashed #f95978;
+    display: block;
+}
+
+a.logo,
+a.logo:hover {
+    color: #333;
+    text-decoration: none;
+}
+
+.navbar {
+    margin-bottom: 0 !important;
+}
+
+.page-header {
+    margin-top: 0 !important;
+}
+
+.listado table th {
+    cursor: pointer;
+}
+
+.listado table th a {
+    text-decoration: none;
+    display: block;
+    color: #333;
+}
+
+.acciones a,
+.acciones a:active {
+    text-decoration: none;
+}
+
+.cat-concepto button.add {
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 1;
+    padding: 4px 5px;
+    margin-right: 10px;
+}
+
+.acciones a:hover {
+    text-decoration: none;
+}
+
+#suma {
+    font-size: 120%;
+}
+
+.inputs-cliente .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.inputs-cliente .form-control:focus {
+    z-index: 2;
+}
+
+#nombre-cliente {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#direccion-cliente {
+    border-radius: 0;
+    margin-bottom: -1px;
+}
+
+#cp-cliente {
+    border-radius: 0;
+    margin-bottom: -1px;
+}
+
+#cif-cliente {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.table-curved {
+    border-collapse: separate;
+}
+
+.table-curved {
+    border: solid #ddd 1px;
+    border-radius: 3px;
+    border-left: 0px;
+}
+
+.table-curved td, .table-curved th {
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+}
+
+.table-curved th {
+    border-top: none;
+}
+
+.table-curved th:first-child {
+    border-radius: 3px 0 0 0;
+}
+
+.table-curved th:last-child {
+    border-radius: 0 3px 0 0;
+}
+
+.table-curved th:only-child {
+    border-radius: 3px 3px 0 0;
+}
+
+.table-curved tr:last-child td:first-child {
+    border-radius: 0 0 0 3px;
+}
+
+.table-curved tr:last-child td:last-child {
+    border-radius: 0 0 3px 0;
+}
+
+#po-file-current {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.exportar-presus,
+.exportar-fact {
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+#anyo-export {
+    float: right;
+    width: 120px;
+    margin-bottom: 10px;
+}
+
+#honorarios-modal .modal-dialog {
+    width: 680px;
+}
+
+#honorarios-modal .form-control {
+    text-align: right;
+}
