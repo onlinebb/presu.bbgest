@@ -57,9 +57,11 @@
                 $result->bindParam(':hjhjhjh', $user);
                 $result->bindParam(':asas', $pass);
                 $result->execute();
-                $rows = $result->fetch(PDO::FETCH_NUM);
-                if($rows > 0) {
+                //$rows = $result->fetch(PDO::FETCH_NUM);
+                $login = $result->fetch();
+                if(count($login) > 0) {
                     $_SESSION['valid'] = $user;
+                    $_SESSION['priv'] = $login['priv'];
                     access_log('login usuario: '.$user);
                     header("location: index.php");
                 }

@@ -46,7 +46,13 @@
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
                     <li class=""><a href="index.php">Home</a></li>
+                    <?php
+                    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+                    ?>
                     <li class=""><a href="control.php">Control</a></li>
+                    <?php
+                    endif;
+                    ?>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <form class="navbar-form navbar-right" role="logout" action="logout.php">

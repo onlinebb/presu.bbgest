@@ -17,7 +17,7 @@ class Database
         die('Init function is not allowed');
     }
 
-    public static function connect($db = 'presu')
+    public static function connect($db = 'presu14')
     {
         // One connection through whole application
         if (null == self::$cont) {

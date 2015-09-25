@@ -185,11 +185,18 @@ function savePresupuesto($isUpdate = false)
     } else {
 
         //actualizar datos del presupuesto
+        //actualizar ref presupuesto si hemos modificado el cliente
+        if($_POST['empresa_orig'] != $_POST['empresa']) {
+            $ref_cliente = $_POST['ref_cliente'];
+            $ref_presupuesto = substr($_POST['ref_presu'], 0, 7).$ref_cliente;
+        }
         //$ref_cliente = strtoupper(substr(str_replace(array('.',' ','-', '&', '/'),'',$_POST['cliente']), 0, 3));
         $idPresu = $_POST['id'];
 
         $sql = "UPDATE presupuesto SET fecha = ?,
+                                   ref = ?,
                                    id_empresa = ?,
+                                   ref_cliente = ?,
                                    nombre_cliente = ?,
                                    direccion_cliente = ?,
                                    cif_cliente = ?,
@@ -206,8 +213,9 @@ function savePresupuesto($isUpdate = false)
             $q->execute(
                 array(
                     $fecha,
+                    $ref_presupuesto,
                     $_POST['empresa'],
-                    //$ref_cliente,
+                    $ref_cliente,
                     $_POST['cliente'],
                     $_POST['direccion'],
                     $_POST['cif'],

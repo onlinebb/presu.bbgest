@@ -317,10 +317,10 @@ $html .= '<tr><td colspan="3">&nbsp;</td></tr>
             <td width="20%" colspan="2">&nbsp;</td>
         </tr>
         <tr>
-            <td width="10%" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['entidad'].'</td>
+            <!--<td width="10%" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['entidad'].'</td>
             <td width="10%" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['oficina'].'</td>
-            <td width="10%" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['dc'].'</td>
-            <td width="10%" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['num_cuenta'].'</td>
+            <td width="10%" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['dc'].'</td>-->
+            <td width="40%" colspan="4" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['iban'].'</td>
         </tr>
         <tr>
             <td width="40%" colspan="4" style="color: #F95978; border: 1px solid #999999; text-align: center">'.$cuenta['nombre'].'</td>

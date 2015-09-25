@@ -22,12 +22,18 @@ require_once('header.php');
     </div>
 
     <!--<div class="div-anyo clearfix"><input type="text" class="form-control input-sm" id="anyo-export" name="anyo-export" placeholder="Año exportación"></div>-->
+    <?php
+    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+    ?>
     <a href="lib/functions.php?action=exportExcel&tipo=presupuestos" class="btn btn-primary btn-sm pull-right exportar-presus">
         <span class="glyphicon glyphicon-export"></span> Exportar Presupuestos
     </a>
     <a href="lib/functions.php?action=exportExcel&tipo=facturas" target="_blank" class="btn btn-primary btn-sm pull-right exportar-fact">
         <span class="glyphicon glyphicon-export"></span> Exportar Facturas
     </a>
+    <?php
+    endif;
+    ?>
 
     <div class="listado">
         <div class="row">
@@ -86,13 +92,15 @@ require_once('header.php');
                             include 'lib/database.php';
                             $pdo = Database::connect();
 
+                        if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+
                             if (isset($_GET["allpresus"])) {
                                 $where = "";
                                 $pagAllPresus = "&allpresus=1";
                             } else {
                                 $where = "WHERE estado IN ('pendiente', 'aceptado', 'facturado parcialmente')";
                                 $pagAllPresus = "";
-                            };
+                            }
 
                             $sql_aceptados = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'aceptado'";
                             $sql_pendientes = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'pendiente'";
@@ -111,6 +119,13 @@ require_once('header.php');
                             $data_pendiente_parcial = $q_pendiente_parcial->fetch();
                             ?>
                             A: <?= number_format($data_aceptados['total_presus']+$data_pendiente_parcial['total_presus'], 2, ',', '.') ?> <br>P: <?= number_format($data_pendientes['total_presus'], 2, ',', '.') ?>
+                        <?php
+                        else:
+                        ?>
+                            Total
+                        <?php
+                        endif;
+                        ?>
                         </th>
                         <th>Acciones</th>
                     </tr>
@@ -132,8 +147,18 @@ require_once('header.php');
                         $order = 'ref';
                     };
 
+                    if(!isset($_SESSION['priv']) || isset($_SESSION['priv']) && $_SESSION['priv'] == 0) {
+                        if(empty($where))
+                            $privs = " WHERE autor = '".$_SESSION['valid']."' ";
+                        else
+                            $privs = " AND autor = '".$_SESSION['valid']."' ";
+                    }
+                    else {
+                        $privs = "";
+                    }
+
                     $start_from = ($page - 1) * $rows_per_page;
-                    $result = $pdo->prepare("SELECT * FROM presupuesto ". $where ." ORDER BY $order DESC, ref DESC LIMIT $start_from, $rows_per_page");
+                    $result = $pdo->prepare("SELECT * FROM presupuesto ". $where .$privs." ORDER BY $order DESC, ref DESC LIMIT $start_from, $rows_per_page");
                     $result->execute();
                     for ($i = 0; $row = $result->fetch(); $i++) {
 
@@ -171,9 +196,16 @@ require_once('header.php');
                                 <a class="copy-presupuesto" data-origen="1" href="new.php?id=<?php echo $row['id'] ?>" title="Negociar (con origen)" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
                                     <span class="glyphicon icons-fontawesome-webfont"></span>+
                                 </a>&nbsp;
+                                <?php
+                                if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+                                ?>
                                 <a class="new-fact" href="new-fact.php?pre=<?php echo $row['id'] ?>" title="Nueva factura" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
                                     <span class="glyphicon icons-fontawesome-webfont-11"></span>
-                                </a>&nbsp;</td>
+                                </a>&nbsp;
+                                <?php
+                                endif;
+                                ?>
+                                </td>
                         </tr>
                     <?php
                     }
@@ -186,7 +218,7 @@ require_once('header.php');
             <div class="col-md-12">
                 <ul class="pagination">
                     <?php
-                    $result = $pdo->prepare("SELECT COUNT(id) FROM presupuesto ".$where);
+                    $result = $pdo->prepare("SELECT COUNT(id) FROM presupuesto ".$where.$privs);
                     $result->execute();
                     $row = $result->fetch();
                     $total_records = $row[0];
@@ -208,6 +240,9 @@ require_once('header.php');
         </div>
     </div> <!-- /listado -->
 
+    <?php
+    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+    ?>
     <div class="row center-block text-center">
         <a href="new-fact.php" class="btn btn-primary btn-lg dnew-fact">
             <span class="glyphicon glyphicon-plus"></span> Nueva factura
@@ -482,6 +517,7 @@ require_once('header.php');
         </div>
     </div> <!-- /listado -->
 <?php
+    endif;
 
 require_once('confirmar-modal.php');
 require_once('confirmar-modal-fact.php');

@@ -97,6 +97,7 @@ if (null == $id) {
                         <label class="col-md-6 control-label" for="cliente">Cliente</label>
 
                         <div class="col-md-6 inputs-cliente">
+                            <input id="id-empresa-orig" name="id-empresa-orig" class="form-control input-sm" type="hidden" value="<?= ($load)? $data['id_empresa']:$_POST['empresa'] ?>">
                             <input id="id-empresa" name="id-empresa" class="form-control input-sm" type="hidden" value="<?= ($load)? $data['id_empresa']:$_POST['empresa'] ?>">
                             <input id="ref-empresa" name="ref-empresa" class="form-control input-sm" type="hidden" value="<?= ($load)? $data['ref_cliente']:$_POST['ref_empresa'] ?>">
                             <input id="nombre-cliente" name="nombre-cliente" class="form-control input-sm" type="text" placeholder="Nombre" value="<?= ($load)? $data['nombre_cliente']:$_POST['cliente'] ?>">

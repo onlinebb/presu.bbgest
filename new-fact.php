@@ -115,7 +115,7 @@ if(isset($id)) {
                     foreach ($data as $row) {
                         ?>
                         <option value="<?php echo $row['id']; ?>">
-                            <?php echo $row['nombre'] . ' - ' . $row['entidad'] . ' ' . $row['oficina'] . ' ' . $row['dc'] . ' ' . $row['num_cuenta']; ?>
+                            <?= $row['iban']; ?>
                         </option>
                     <?php
                     }

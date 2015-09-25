@@ -128,7 +128,7 @@ if (null == $id) {
                                 foreach ($data_ent as $row) {
                                     ?>
                                     <option value="<?php echo $row['id']; ?>" <?= ($row['id'] == $data['datos_bancarios'])? 'selected' : ''; ?>>
-                                        <?php echo $row['nombre'] . ' - ' . $row['entidad'] . ' ' . $row['oficina'] . ' ' . $row['dc'] . ' ' . $row['num_cuenta']; ?>
+                                        <?= $row['iban']; ?>
                                     </option>
                                 <?php
                                 }

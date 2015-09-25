@@ -501,14 +501,17 @@ $(function () {
                 dataType: "json",
                 url: "lib/functions.php?action=updatePresu",
                 data: {
+                    ref_presu: $('#ref').val(),
                     fecha: $('#fecha').val(),
                     cliente: $('#nombre-cliente').val(),
+                    ref_cliente: $('#ref-empresa').val(),
                     direccion: $('#direccion-cliente').val(),
                     cif: $('#cif-cliente').val(),
                     cp: $('#cp-cliente').val(),
                     contacto: $('#contacto').val(),
                     proyecto: $('#proyecto').val(),
                     empresa: $('#id-empresa').val(),
+                    empresa_orig: $('#id-empresa-orig').val(),
                     id: $('#id_presupuesto').val(),
                     suma: $('#suma .valor').text(),
                     conceptos: conceptos
