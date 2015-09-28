@@ -59,7 +59,7 @@
                 $result->execute();
                 //$rows = $result->fetch(PDO::FETCH_NUM);
                 $login = $result->fetch();
-                if(count($login) > 0) {
+                if($login && count($login) > 0) {
                     $_SESSION['valid'] = $user;
                     $_SESSION['priv'] = $login['priv'];
                     access_log('login usuario: '.$user);
