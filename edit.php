@@ -70,6 +70,17 @@ if (null == $id) {
     <br>
 
     <div class="row">
+        <div role="complementary" class="col-md-2">
+            <nav class="hidden-print hidden-xs hidden-sm affix">
+                <button type="button" class="btn btn-primary btn-sm" id="preview-presu-link">
+                    <span class="glyphicon glyphicon-eye-open"></span> Previsualizar
+                </button>
+                <br><br>
+                <button type="button" class="btn btn-primary btn-sm save-presu" id="save-presu-link">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                </button>
+            </nav>
+        </div>
         <div class="col-md-10">
             <form id="update-presupuesto-form" class="form-horizontal" method="post" action="lib/pdf.php?preview=1" target="_blank">
                 <input type="hidden" name="id_presupuesto" id="id_presupuesto" value="<?php echo $id; ?>">
@@ -657,13 +668,11 @@ if (null == $id) {
                     <span class="glyphicon glyphicon-plus-sign"></span>
                 </button>
 
-                <div class="text-center buttons">
-
+                <div class="buttons text-center">
                     <button type="submit" class="btn btn-primary btn-lg" id="preview-presu">
                         <span class="glyphicon glyphicon-eye-open"></span> Previsualizar
                     </button>
-
-                    <button type="submit" class="btn btn-primary btn-lg save-presu">
+                    <button type="submit" class="btn btn-primary btn-lg save-presu" id="save-presu">
                         <span class="glyphicon glyphicon-floppy-disk"></span> Guardar Presupuesto
                     </button>
                 </div>

@@ -363,6 +363,22 @@ $(function () {
         preview = true;
     });
 
+    $('#preview-presu-link').on('click', function (e) {
+        $('#preview-presu').click();
+    });
+
+    $('#save-presu-link').on('click', function (e) {
+        $('#save-presu').click();
+    });
+
+    $('#preview-fact-link').on('click', function (e) {
+        $('#preview-fact').click();
+    });
+
+    $('#save-fact-link').on('click', function (e) {
+        $('#save-fact').click();
+    });
+
     //submit formulario y comprobar campos
     $('#presupuesto-form').submit(function (e) {
 

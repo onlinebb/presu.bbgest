@@ -37,6 +37,17 @@ if (null == $id) {
     </div>
 
     <div class="row">
+        <div role="complementary" class="col-md-2">
+            <nav class="hidden-print hidden-xs hidden-sm affix">
+                <button type="button" class="btn btn-primary btn-sm" id="preview-fact-link">
+                    <span class="glyphicon glyphicon-eye-open"></span> Previsualizar
+                </button>
+                <br><br>
+                <button type="button" class="btn btn-primary btn-sm save-presu" id="save-fact-link">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                </button>
+            </nav>
+        </div>
         <div class="col-md-10">
             <form id="update-factura-form" class="form-horizontal fact" method="post" action="lib/pdf-fact.php?preview=1" target="_blank">
                 <input type="hidden" name="id_factura" id="id_factura" value="<?php echo $id; ?>">
@@ -471,7 +482,7 @@ if (null == $id) {
                         <span class="glyphicon glyphicon-eye-open"></span> Previsualizar
                     </button>
 
-                    <button type="submit" class="btn btn-primary btn-lg save-fact">
+                    <button type="submit" class="btn btn-primary btn-lg save-fact" id="save-fact">
                         <span class="glyphicon glyphicon-floppy-disk"></span> Guardar Factura
                     </button>
                 </div>
