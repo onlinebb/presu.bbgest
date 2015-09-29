@@ -1049,32 +1049,46 @@ function deleteFactura($id_fact, $presu)
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    //Buscar Id ultima factura abonada
-    $sql = "SELECT ref_abono from factura where ref_abono like ? order by id desc";
+    //Si la factura a borrar es la ultima insertada, la borramos directamente sin pasarla a abonada
+    $sql = "SELECT MAX(id) from factura";
     $q = $pdo->prepare($sql);
-
-    $curYear = date('y');
-    $q->bindValue(1, "AB$curYear%", PDO::PARAM_STR);
     $q->execute();
     $data = $q->fetch();
 
-    if ($data) {
-        $currentId = (int)(substr($data[0], 4, 3));
-        $id = str_pad($currentId + 1, 3, "0", STR_PAD_LEFT);
-    } else {
-        $id = "001";
+    if ($data && $id_fact == $data[0]) {
+        //Borrar factura
+        $sql = "DELETE FROM factura where id = ?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($id_fact));
     }
+    else {
+        //Buscar Id ultima factura abonada
+        $sql = "SELECT ref_abono from factura where ref_abono like ? order by id desc";
+        $q = $pdo->prepare($sql);
 
-    //construimos ref abono
-    $ref_cliente = substr($_POST['ref'], 7);
-    $ref_abono = "AB" . $curYear . $id . $ref_cliente;
+        $curYear = date('y');
+        $q->bindValue(1, "AB$curYear%", PDO::PARAM_STR);
+        $q->execute();
+        $data = $q->fetch();
 
-    //Abonar factura
-    $sql = "UPDATE factura set estado = 'abonada', ref_abono = ?, fecha_abono = ? where id = ?";
-    $q = $pdo->prepare($sql);
+        if ($data) {
+            $currentId = (int)(substr($data[0], 4, 3));
+            $id = str_pad($currentId + 1, 3, "0", STR_PAD_LEFT);
+        } else {
+            $id = "001";
+        }
 
-    $fecha = date('Y-m-d');
-    $q->execute(array($ref_abono, $fecha, $id_fact));
+        //construimos ref abono
+        $ref_cliente = substr($_POST['ref'], 7);
+        $ref_abono = "AB" . $curYear . $id . $ref_cliente;
+
+        //Abonar factura
+        $sql = "UPDATE factura set estado = 'abonada', ref_abono = ?, fecha_abono = ? where id = ?";
+        $q = $pdo->prepare($sql);
+
+        $fecha = date('Y-m-d');
+        $q->execute(array($ref_abono, $fecha, $id_fact));
+    }
 
     //Eliminar conceptos
     /*$sql = "DELETE from concepto_factura where id_factura = ?";
