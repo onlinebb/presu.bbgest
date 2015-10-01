@@ -14,6 +14,21 @@ $(function () {
         //}
     });
 
+    //Filtrar resultados home
+    $('#form-filtro').submit(function (e) {
+        var texto = $('#texto-busqueda').val();
+        var url = location.pathname + location.search;
+
+        if(location.search == "") {
+            window.location = url + "?search=" + texto;
+        }
+        else {
+            window.location = url + "&search=" + texto;
+        }
+
+        e.preventDefault();
+    });
+
     /**
      * Selección de cliente
      */

@@ -8,9 +8,24 @@
 require_once('header.php');
 ?>
     <div class="page-header">
-        <a class="logo" href="index.php">
-            <h3>Home</h3>
-        </a>
+        <div class="row">
+            <div class="col-md-6">
+                <a class="logo" href="index.php">
+                    <h3>Home<?= (isset($_GET['search']))?": filtrando resultados para <b>".$_GET['search']."</b>":"" ?></h3>
+                </a>
+            </div>
+            <div class="col-md-6 text-right">
+                <form id="form-filtro" class="form-inline" role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control input-lg" id="texto-busqueda" placeholder="Texto a buscar">
+                    </div>
+                    <button type="submit" id="filtrar" class="btn btn-default btn-lg">
+                        <span class="glyphicon glyphicon-search"></span>Filtrar resultados
+                    </button>
+                </form>
+
+            </div>
+        </div>
     </div>
 
     <div class="wizard">
@@ -51,6 +66,7 @@ require_once('header.php');
                     $string = $_SERVER['QUERY_STRING']."&allpresus=1";
                     $boton = "Mostrar Todos";
                 }
+
                 ?>
                 <a href="index.php?<?= $string ?>" class="btn btn-default btn-sm view-all-presus">
                     <?= $boton ?>
@@ -94,11 +110,19 @@ require_once('header.php');
 
                         if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
 
+                            //Busqueda
+                            if (isset($_GET["search"])) {
+                                $search = "concat(ref, nombre_cliente, ifnull(ref_cliente,''), ifnull(ref_proyecto,''), ifnull(nombre_proyecto,'')) like '%".$_GET["search"]."%'";
+                            }
+                            else {
+                                $search = "1=1";
+                            }
+
                             if (isset($_GET["allpresus"])) {
-                                $where = "";
+                                $where = " WHERE ".$search;
                                 $pagAllPresus = "&allpresus=1";
                             } else {
-                                $where = "WHERE estado IN ('pendiente', 'aceptado', 'facturado parcialmente')";
+                                $where = " WHERE estado IN ('pendiente', 'aceptado', 'facturado parcialmente') AND ".$search;
                                 $pagAllPresus = "";
                             }
 
@@ -171,7 +195,7 @@ require_once('header.php');
                             <td><?php echo $row['ref'] ?></td>
                             <td><?php echo $row['nombre_proyecto'] ?></td>
                             <td><?php echo $row['estado'] ?></td>
-                            <td><?php echo date('d-m-Y', strtotime($row['fecha'])); ?></td>
+                            <td class="fecha"><?php echo date('d-m-Y', strtotime($row['fecha'])); ?></td>
                             <td><?php echo $row['nombre_cliente'] ?></td>
                             <td><?= number_format($row['suma']-$restar, 2, ',', '.') ?></td>
                             <td class="acciones">
@@ -305,12 +329,20 @@ require_once('header.php');
                             <?php
                             $pdo = Database::connect();
 
+                            //Busqueda
+                            if (isset($_GET["search"])) {
+                                $searchFact = "concat(ref_factura, ifnull(presupuesto_asoc,''), ifnull(cliente,'')) like '%".$_GET["search"]."%'";
+                            }
+                            else {
+                                $searchFact = "1=1";
+                            }
+
                             if (isset($_GET["allfact"])) {
-                                $whereFact = "";
+                                $whereFact = " WHERE ".$searchFact;
                                 $pagAllFact = "allfact=1";
                                 $sql = "SELECT SUM(subtotal) AS total_fact from factura where estado not IN('abonada') ";
                             } else {
-                                $whereFact = " WHERE estado IN ('emitida') ";
+                                $whereFact = " WHERE estado IN ('emitida') AND ".$searchFact;
                                 $pagAllFact = "";
                                 $sql = "SELECT SUM(subtotal) AS total_fact from factura ".$whereFact." and estado not IN('abonada') ";
                             };
@@ -350,8 +382,8 @@ require_once('header.php');
                             <td><?= $row['ref_factura'] ?></td>
                             <td><?= $row['presupuesto_asoc'] ?></td>
                             <td><?= $row['estado'] ?></td>
-                            <td><?= date('d-m-Y', strtotime($row['fecha_emision'])); ?></td>
-                            <td><?= date('d-m-Y', strtotime($row['fecha_vencimiento'])); ?></td>
+                            <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_emision'])); ?></td>
+                            <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_vencimiento'])); ?></td>
                             <td><?= number_format($row['subtotal'], 2, ',', '.') ?></td>
                             <td class="acciones">
                                 <a href="edit-fact.php?id=<?= $row['id'] ?>" title="Editar">
@@ -458,6 +490,14 @@ require_once('header.php');
                     <?php
                     $rows_per_page = 50;
 
+                    //Busqueda
+                    if (isset($_GET["search"])) {
+                        $searchAbo = "concat(ref_factura, ifnull(presupuesto_asoc,''), ifnull(cliente,'')) like '%".$_GET["search"]."%'";
+                    }
+                    else {
+                        $searchAbo = "1=1";
+                    }
+
                     if (isset($_GET["page_fact"])) {
                         $page_fact = $_GET["page_abonos"];
                     } else {
@@ -471,7 +511,7 @@ require_once('header.php');
                     }
 
                     $start_from = ($page_fact - 1) * $rows_per_page;
-                    $result = $pdo->prepare("SELECT * FROM factura WHERE estado IN ('abonada') ORDER BY $order_fact DESC, ref_abono DESC LIMIT $start_from, $rows_per_page");
+                    $result = $pdo->prepare("SELECT * FROM factura WHERE estado IN ('abonada') AND ".$searchAbo." ORDER BY $order_fact DESC, ref_abono DESC LIMIT $start_from, $rows_per_page");
                     $result->execute();
                     for ($i = 0; $row = $result->fetch(); $i++) {
                         ?>
@@ -479,8 +519,8 @@ require_once('header.php');
                             <td><?= $row['ref_abono'] ?></td>
                             <td><?= $row['ref_factura'] ?></td>
                             <td><?= $row['presupuesto_asoc'] ?></td>
-                            <td><?= date('d-m-Y', strtotime($row['fecha_emision'])); ?></td>
-                            <td><?= date('d-m-Y', strtotime($row['fecha_abono'])); ?></td>
+                            <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_emision'])); ?></td>
+                            <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_abono'])); ?></td>
                             <td><?= number_format($row['subtotal'], 2, ',', '.') ?></td>
                         </tr>
                     <?php

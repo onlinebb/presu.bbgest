@@ -158,7 +158,7 @@ a.logo:hover {
 }
 
 .page-header {
-    margin-top: 0 !important;
+    /*margin-top: 0 !important;*/
 }
 
 .listado table th {
@@ -287,4 +287,8 @@ a.logo:hover {
 
 #honorarios-modal .form-control {
     text-align: right;
+}
+
+td.fecha {
+    white-space: nowrap;
 }
