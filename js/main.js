@@ -427,7 +427,12 @@ $(function () {
                     conceptos: conceptos
                 },
                 success: function (data) {
-                    window.open('lib/pdf.php?id=' + data);
+
+                    if($('#export-en').is(':checked')) {
+                        window.open('lib/pdf_en.php?id=' + data);
+                    }
+                    else
+                        window.open('lib/pdf.php?id=' + data);
 
                     window.location = 'index.php';
                 },
@@ -548,7 +553,11 @@ $(function () {
                     conceptos: conceptos
                 },
                 success: function (data) {
-                    window.open('lib/pdf.php?id=' + data);
+                    if($('#export-en').is(':checked')) {
+                        window.open('lib/pdf_en.php?id=' + data);
+                    }
+                    else
+                        window.open('lib/pdf.php?id=' + data);
                 },
                 error: function (e) {
                     console.log("Error: " + e.message);
