@@ -53,6 +53,7 @@ require_once('header.php');
                 <input type="hidden" id="cp" name="cp" value='<?= $_POST['cp'] ?>'>
                 <input type="hidden" id="contactocl" name="contactocl" value='<?= $_POST['contactocl'] ?>'>
                 <input type="hidden" id="nproyecto" name="nproyecto" value='<?= $_POST['nproyecto'] ?>'>
+                <input type="hidden" id="idproyecto" name="idproyecto" value='<?= $_POST['idproyecto'] ?>'>
                 <input type="hidden" id="total" name="total" value='<?= $_POST['total'] ?>'>
             </form>
         </div>

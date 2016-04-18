@@ -5,10 +5,10 @@ class Database
     //private $dbName = 'bbgest';
     private static $dbHost = 'localhost';
     private static $dbUsername = 'root';
-    private static $dbUserPassword = '4321Mnbv';
+    private static $dbUserPassword = '9876fghj';
 
     private static $bbgestUsername = 'root';//bbgest
-    private static $bbgestUserPassword = '4321Mnbv';//7y6t5r4e
+    private static $bbgestUserPassword = '9876fghj';//7y6t5r4e
 
     private static $cont = null;
 

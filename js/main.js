@@ -56,10 +56,38 @@ $(function () {
             $('#cp-cliente').val(obj.cp);
             $('#id-empresa').val(obj.id);
             $('#ref-empresa').val(obj.ref_cliente);
+
+            $('#proyecto').removeAttr("disabled");
         },
         property: "label",
         minLength: 2
     });
+
+    /**
+     * Selección de proyecto
+     */
+    $('#proyecto').typeahead({
+        source: function (query, response) {
+            return $.getJSON("lib/functions.php?action=searchProyecto&text=" + query + "&cliente=" + $('#id-empresa').val(),
+                function (result, status) {
+                    //console.log(result);
+                    response($.map(result, function (item) {
+                        return {
+                            id: item.id,
+                            label: item.nombre,
+                            ref_proyecto: item.ref_proyecto
+                        }
+                    }));
+                });
+        },
+        onselect: function (element, obj) {
+            element.val(obj.label);
+            $('#id_proyecto').val(obj.id);
+        },
+        property: "label",
+        minLength: 2
+    });
+
 
     /**
      * Eventos de la lista de conceptos

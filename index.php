@@ -349,7 +349,7 @@ require_once('header.php');
 
                             $q = $pdo->prepare($sql);
 
-                            $q->execute(array($id));
+                            $q->execute(/*array($id)*/);
                             $data = $q->fetch();
                             ?>
                             Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)
@@ -479,7 +479,7 @@ require_once('header.php');
                             $sql = "SELECT SUM(subtotal) AS total_fact from factura WHERE estado IN ('abonada')";
                             $q = $pdo->prepare($sql);
 
-                            $q->execute(array($id));
+                            $q->execute(/*array($id)*/);
                             $data = $q->fetch();
                             ?>
                             Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)

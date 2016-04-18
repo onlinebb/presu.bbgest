@@ -68,6 +68,9 @@ if (isset($_GET["action"])) {
         case "exportExcel":
             exportExcel($_GET['tipo']);
             break;
+        case "searchProyecto":
+            searchProyecto($_GET['text'], $_GET['cliente']);
+            break;
     }
 }
 
@@ -2213,4 +2216,40 @@ function exportExcel($tipo) {
     foreach ($list as $ferow) {
         fputcsv($fp, $ferow, ';');
     }
+}
+
+/**
+ * Buscar proyecto que su nombre contenga el texto y pertenezca al cliente en cuestión
+ * @param $text
+ * @param $cliente
+ */
+function searchProyecto($text, $cliente)
+{
+    $pdo = Database::connect('stack_bbgest');
+
+    $sql = "SELECT p.*, c.nombre as campanya, c.year as year FROM proyectos p left join campaigns c on c.id=p.id_campanya where p.nombre like ? and id_cliente = ?";
+
+    $pdo -> exec('SET NAMES utf8'); // METHOD #3
+
+    $q = $pdo->prepare($sql);
+    $q->bindValue(1, "%$text%", PDO::PARAM_STR);
+    $q->bindValue(2, $cliente, PDO::PARAM_INT);
+    $result = array();
+    $count = 0;
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($data as $row) {
+
+        $result[$count]['nombre'] = $row['nombre'];
+        $result[$count]['id'] = $row['id'];
+        $result[$count]['ref_proyecto'] = $row['ref'];
+        $result[$count]['campanya'] = $row['campanya'];
+        $result[$count]['year'] = $row['year'];
+
+        $count++;
+    }
+    print json_encode($result);
+
+    Database::disconnect();
 }

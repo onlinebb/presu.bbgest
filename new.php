@@ -97,7 +97,8 @@ require_once('header.php');
                         <label class="col-md-6 control-label" for="proyecto">Proyecto</label>
 
                         <div class="col-md-6">
-                            <textarea id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm"><?= $_POST['nproyecto'] ?></textarea>
+                            <input type="text" autocomplete="off" disabled id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm"><?= $_POST['nproyecto'] ?>
+                            <input type="hidden" id="id_proyecto" name="id_proyecto" class="form-control input-sm"><?= $_POST['idproyecto'] ?>
                         </div>
                     </div>
 
