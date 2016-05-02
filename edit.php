@@ -133,7 +133,8 @@ if (null == $id) {
                         <label class="col-md-6 control-label" for="proyecto">Proyecto</label>
 
                         <div class="col-md-6">
-                            <textarea id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm"><?= ($load)? $data['nombre_proyecto']:$_POST['nproyecto'] ?></textarea>
+                            <input type="text" id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm" value="<?= ($load)? $data['nombre_proyecto']:$_POST['nproyecto'] ?>">
+                            <input type="hidden" id="id_proyecto" name="id_proyecto" class="form-control input-sm"><?= $_POST['idproyecto'] ?>
                         </div>
                     </div>
 

@@ -1030,7 +1030,7 @@ $(function () {
         $('#honorarios-modal tr.datos').each(function(index, elem){
             var valor = parseFloat($(this).find('.total').val());
             if(valor != 0) {
-                var linea = $(this).find('.cargo').text() + ": " + valor + " \n";
+                var linea = $(this).find('.cargo').text() + " (" + $(this).find('.horas').val() + " horas): " + valor + " €\n";
                 textoHonorarios += linea;
             }
         });
