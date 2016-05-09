@@ -79,6 +79,10 @@ if (null == $id) {
                 <button type="button" class="btn btn-primary btn-sm save-presu" id="save-presu-link">
                     <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
                 </button>
+                <br><br>
+                <button type="button" class="btn btn-primary btn-sm add-honorarios" title="Honorarios" data-toggle="modal" data-target="#honorarios-modal">
+                    <span class="glyphicon glyphicon-euro"></span> Cálculo Honorarios
+                </button>
             </nav>
         </div>
         <div class="col-md-10">
