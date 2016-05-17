@@ -194,6 +194,7 @@ function savePresupuesto($isUpdate = false)
             $ref_presupuesto = substr($_POST['ref_presu'], 0, 7).$ref_cliente;
         }
         else {
+            $ref_cliente = $_POST['ref_cliente'];
             $ref_presupuesto = $_POST['ref_presu'];
         }
         //$ref_cliente = strtoupper(substr(str_replace(array('.',' ','-', '&', '/'),'',$_POST['cliente']), 0, 3));

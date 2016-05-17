@@ -442,6 +442,7 @@ $(function () {
                 dataType: "json",
                 url: "lib/functions.php?action=savePresu",
                 data: {
+                    ref_presu: $('#ref').val(),
                     fecha: $('#fecha').val(),
                     cliente: $('#nombre-cliente').val(),
                     ref_cliente: $('#ref-empresa').val(),
@@ -451,6 +452,7 @@ $(function () {
                     contacto: $('#contacto').val(),
                     proyecto: $('#proyecto').val(),
                     empresa: $('#id-empresa').val(),
+                    empresa_orig: $('#id-empresa-orig').val(),
                     suma: $('#suma .valor').text(),
                     conceptos: conceptos
                 },
