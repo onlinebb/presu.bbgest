@@ -233,7 +233,7 @@ function pintarConcepto($pdf, $concepto, $precio, $estilo)
     $concepto = str_replace("horas", "hours", $concepto);
 
     if (isset($precio) && $precio != 0)
-        $precio = number_format($precio, 2, ',', '.') . ' €';
+        $precio = number_format($precio, 2, '.', ',') . ' €';
     else
         $precio = "";
 

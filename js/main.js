@@ -528,7 +528,11 @@ $(function () {
                     console.log(data);
                 },
                 success: function (data) {
-                    window.open('lib/pdf-fact.php?id=' + data);
+                    if($('#export-en').is(':checked')) {
+                        window.open('lib/pdf-fact_en.php?id=' + data);
+                    }
+                    else
+                        window.open('lib/pdf-fact.php?id=' + data);
 
                     window.location = 'index.php';
                 },
@@ -553,6 +557,13 @@ $(function () {
 
         if (preview) {
             preview = false;
+
+            if($('#export-en').is(':checked')) {
+                $(this).attr('action', "lib/pdf_en.php?preview=1");
+            }
+            else{
+                $(this).attr('action', "lib/pdf.php?preview=1");
+            }
 
             var $hidden = $("<input type='hidden' name='conceptos'/>");
             $hidden.val(JSON.stringify(conceptos));
@@ -609,6 +620,13 @@ $(function () {
         if (preview) {
             preview = false;
 
+            if($('#export-en').is(':checked')) {
+                $(this).attr('action', "lib/pdf-fact_en.php?preview=1");
+            }
+            else{
+                $(this).attr('action', "lib/pdf-fact.php?preview=1");
+            }
+
             var $hidden = $("<input type='hidden' name='conceptos'/>");
             $hidden.val(JSON.stringify(conceptos));
             $(this).append($hidden); //e.preventDefault();console.log(conceptos);return;
@@ -649,7 +667,11 @@ $(function () {
                     conceptos: conceptos
                 },
                 success: function (data) {
-                    window.open('lib/pdf-fact.php?id=' + data);
+                    if($('#export-en').is(':checked')) {
+                        window.open('lib/pdf-fact_en.php?id=' + data);
+                    }
+                    else
+                        window.open('lib/pdf-fact.php?id=' + data);
 
                     window.location = 'index.php';
                 },

@@ -150,6 +150,19 @@ if (null == $id) {
                         </div>
                     </div>
 
+                    <!-- Checkbox idioma -->
+                    <div class="form-group">
+                        <div class="form-group">
+                            <div class=" col-md-offset-6 col-md-6">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="export-en" id="export-en" type="checkbox"><b>English</b>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </fieldset>
 
                 <div id="suma-fact" class="alert alert-info">
