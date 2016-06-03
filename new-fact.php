@@ -140,10 +140,17 @@ if(isset($id)) {
 			<!-- Checkbox idioma -->
 			<div class="form-group">
 				<div class="form-group">
-					<div class=" col-md-offset-6 col-md-6">
+					<div class=" col-md-offset-6 col-md-3">
 						<div class="checkbox">
 							<label>
 								<input name="export-en" id="export-en" type="checkbox"><b>English</b>
+							</label>
+						</div>
+					</div>
+					<div class=" col-md-offset-6 col-md-3">
+						<div class="checkbox">
+							<label>
+								<input name="export-no-iva" id="export-no-iva" type="checkbox"><b>Sin IVA</b>
 							</label>
 						</div>
 					</div>
@@ -290,9 +297,9 @@ if(isset($id)) {
 		for ($i = 0; $row = $q->fetch(); $i++) {
 			?>
 
-			<fieldset id="concepto_group_<?php echo $count ?>" class="concepto" data-index="<?php echo $count ?>">
+			<fieldset id="concepto_group_<?= $count ?>" class="concepto" data-index="<?= $count ?>" data-idconcepto="<?= $count ?>">
 
-				<legend>Concepto <?php echo $count ?></legend>
+				<legend>Concepto <?= $count ?></legend>
 
 				<!-- Concepto -->
 				<?php if (!empty($row['concepto']) || (!empty($row['precio_concepto']) && $row['precio_concepto'] != 0)): ?>

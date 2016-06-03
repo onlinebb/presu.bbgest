@@ -9,6 +9,8 @@
 require_once('../config.php');
 require_once('tcpdf/tcpdf.php');
 
+$noiva = 0;
+
 if (!isset($_GET['id']) && !isset($_GET['preview'])) exit;
 else {
     require_once('functions.php');
@@ -56,6 +58,10 @@ else {
         /*print "<pre>";
         print_r($_POST);
         print "</pre>";exit;*/
+    }
+
+    if (isset($_GET['noiva'])) {
+        $noiva = $_GET['noiva'];
     }
 }
 
@@ -270,16 +276,39 @@ $cuenta = $q->fetch();
 
 Database::disconnect();
 
-$html .= '<tr><td colspan="3">&nbsp;</td></tr>
-    </table>
-
-    <table cellspacing="0" cellpadding="1" border="0">
+if($noiva) {
+    $precio = '<table cellspacing="0" cellpadding="1" border="0">
         <tr>
             <td width="60%">&nbsp;</td>
             <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;"><b>TOTAL</b></td>
-            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['subtotal'], 2, '.', ','). ' €'.'</td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['subtotal'], 2, ',', '.'). ' €'.'</td>
         </tr>
+    </table>';
+}
+else {
+    $precio = '<table cellspacing="0" cellpadding="1" border="0">
+        <tr>
+            <td width="60%">&nbsp;</td>
+            <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;">Subtotal:</td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['subtotal'], 2, ',', '.') . ' €'.'</td>
+        </tr>
+        <tr>
+            <td width="60%">&nbsp;</td>
+            <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;">I.V.A. (21%):</td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['iva'], 2, ',', '.'). ' €'.'</td>
+        </tr>
+        <tr>
+            <td width="60%">&nbsp;</td>
+            <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;"><b>TOTAL</b></td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['total'], 2, ',', '.'). ' €'.'</td>
+        </tr>
+    </table>';
+}
+
+$html .= '<tr><td colspan="3">&nbsp;</td></tr>
     </table>
+
+    '.$precio.'
 
     <table cellspacing="0" cellpadding="1" border="0">
         <tr>

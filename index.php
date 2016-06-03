@@ -341,18 +341,24 @@ require_once('header.php');
                                 $whereFact = " WHERE ".$searchFact;
                                 $pagAllFact = "allfact=1";
                                 $sql = "SELECT SUM(subtotal) AS total_fact from factura where estado not IN('abonada') ";
+                                $sql_total = "SELECT SUM(total) AS total_fact_i from factura where estado not IN('abonada') ";
                             } else {
                                 $whereFact = " WHERE estado IN ('emitida') AND ".$searchFact;
                                 $pagAllFact = "";
                                 $sql = "SELECT SUM(subtotal) AS total_fact from factura ".$whereFact." and estado not IN('abonada') ";
+                                $sql_total = "SELECT SUM(total) AS total_fact_i from factura ".$whereFact." and estado not IN('abonada') ";
                             };
 
                             $q = $pdo->prepare($sql);
-
                             $q->execute(/*array($id)*/);
                             $data = $q->fetch();
+
+                            $q_i = $pdo->prepare($sql_total);
+                            $q_i->execute(/*array($id)*/);
+                            $data_i = $q_i->fetch();
                             ?>
-                            Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)
+                            Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)<br>
+                            Total I (<?= number_format($data_i['total_fact_i'], 2, ',', '.') ?>)
                         </th>
                         <th>Acciones</th>
                     </tr>
@@ -384,7 +390,7 @@ require_once('header.php');
                             <td><?= $row['estado'] ?></td>
                             <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_emision'])); ?></td>
                             <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_vencimiento'])); ?></td>
-                            <td><?= number_format($row['subtotal'], 2, ',', '.') ?></td>
+                            <td><?= number_format($row['total'], 2, ',', '.') ?></td>
                             <td class="acciones">
                                 <a href="edit-fact.php?id=<?= $row['id'] ?>" title="Editar">
                                     <span class="glyphicon icons-fontawesome-webfont-1"></span>

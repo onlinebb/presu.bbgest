@@ -531,10 +531,21 @@ $(function () {
                 },
                 success: function (data) {
                     if($('#export-en').is(':checked')) {
-                        window.open('lib/pdf-fact_en.php?id=' + data);
+                        if($('#export-no-iva').is(':checked')) {
+                            window.open('lib/pdf-fact_en.php?noiva=1&id=' + data);
+                        }
+                        else {
+                            window.open('lib/pdf-fact_en.php?id=' + data);
+                        }
                     }
-                    else
-                        window.open('lib/pdf-fact.php?id=' + data);
+                    else {
+                        if ($('#export-no-iva').is(':checked')) {
+                            window.open('lib/pdf-fact.php?noiva=1&id=' + data);
+                        }
+                        else {
+                            window.open('lib/pdf-fact.php?id=' + data);
+                        }
+                    }
 
                     window.location = 'index.php';
                 },
@@ -623,10 +634,20 @@ $(function () {
             preview = false;
 
             if($('#export-en').is(':checked')) {
-                $(this).attr('action', "lib/pdf-fact_en.php?preview=1");
+                if($('#export-no-iva').is(':checked')) {
+                    $(this).attr('action', "lib/pdf-fact_en.php?preview=1&noiva=1");
+                }
+                else {
+                    $(this).attr('action', "lib/pdf-fact_en.php?preview=1");
+                }
             }
             else{
-                $(this).attr('action', "lib/pdf-fact.php?preview=1");
+                if($('#export-no-iva').is(':checked')) {
+                    $(this).attr('action', "lib/pdf-fact.php?preview=1&noiva=1");
+                }
+                else {
+                    $(this).attr('action', "lib/pdf-fact.php?preview=1");
+                }
             }
 
             var $hidden = $("<input type='hidden' name='conceptos'/>");
@@ -670,10 +691,21 @@ $(function () {
                 },
                 success: function (data) {
                     if($('#export-en').is(':checked')) {
-                        window.open('lib/pdf-fact_en.php?id=' + data);
+                        if ($('#export-no-iva').is(':checked')) {
+                            window.open('lib/pdf-fact_en.php?noiva=1&id=' + data);
+                        }
+                        else {
+                            window.open('lib/pdf-fact_en.php?id=' + data);
+                        }
                     }
-                    else
-                        window.open('lib/pdf-fact.php?id=' + data);
+                    else {
+                        if ($('#export-no-iva').is(':checked')) {
+                            window.open('lib/pdf-fact.php?noiva=1&id=' + data);
+                        }
+                        else {
+                            window.open('lib/pdf-fact.php?id=' + data);
+                        }
+                    }
 
                     window.location = 'index.php';
                 },
