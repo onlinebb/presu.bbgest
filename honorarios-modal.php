@@ -3,7 +3,7 @@ require_once('lib/database.php');
 $pdo2 = Database::connect('stack_bbgest');
 $q_honorarios = $pdo2->prepare("select * from precios_honorarios where id_cliente = ?");
 if(empty($_GET['id_cliente'])){
-    $id_cliente = ($load)? $data_honorarios['id_empresa']:$_POST['empresa'];
+    $id_cliente = ($load)? $data['id_empresa']:$_POST['empresa'];
 }
 else {
     $id_cliente = $_GET['id_cliente'];
@@ -23,6 +23,7 @@ Database::disconnect();
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Calcular honorarios</h4><br>
             <!--<button id="save-honorarios" data-idcliente="<?=$id_cliente?>" type="button" class="btn btn-sm btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk"></span> Guardar precios</button>-->
+            <div id="alerta-no-cliente" class="alert alert-warning hidden" role="alert">Es necesario asignar algún cliente al presu antes de guardar honorarios</div>
         </div>
         <div class="modal-body">
 

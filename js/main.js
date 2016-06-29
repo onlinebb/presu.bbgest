@@ -386,6 +386,15 @@ $(function () {
         format: 'dd-mm-yyyy'
     });
 
+    $('#honorarios-modal').on('show.bs.modal', function () {
+        if($('#id-empresa').val() == "") {
+            $('#alerta-no-cliente').removeClass('hidden');
+        }
+        else {
+            $('#alerta-no-cliente').addClass('hidden');
+        }
+    });
+
     $('#honorarios-modal').on('hide.bs.modal', function () {
         if($('#id-empresa').val() != "") {
             var honorarios = [];
@@ -408,9 +417,9 @@ $(function () {
                 }
             });
         }
-        else {
+        /*else {
             alert("Es necesario asignar algún cliente al presu antes de guardar honorarios");
-        }
+        }*/
 
     });
 
