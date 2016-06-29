@@ -156,14 +156,14 @@ if (null == $id) {
                             <div class=" col-md-offset-6 col-md-3">
                                 <div class="checkbox">
                                     <label>
-                                        <input name="export-en" id="export-en" type="checkbox"><b>English</b>
+                                        <input name="export-en" id="export-en" type="checkbox" <?=$data['english']?'checked':'' ?>><b>English</b>
                                     </label>
                                 </div>
                             </div>
                             <div class=" col-md-offset-6 col-md-3">
                                 <div class="checkbox">
                                     <label>
-                                        <input name="export-no-iva" id="export-no-iva" type="checkbox"><b>Sin IVA</b>
+                                        <input name="export-no-iva" id="export-no-iva" type="checkbox" <?=$data['noiva']?'checked':'' ?>><b>Sin IVA</b>
                                     </label>
                                 </div>
                             </div>

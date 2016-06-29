@@ -524,7 +524,9 @@ $(function () {
                     subtotal: $('#suma-fact .valor.subtotal').text(),
                     iva: $('#suma-fact .valor.iva').text(),
                     total: $('#suma-fact .valor.total').text(),
-                    conceptos: conceptos
+                    conceptos: conceptos,
+                    english: $('#export-en').is(':checked')?1:0,
+                    noiva: $('#export-no-iva').is(':checked')?1:0
                 },
                 complete: function(data) {
                     console.log(data);
@@ -687,7 +689,9 @@ $(function () {
                     subtotal: $('#suma-fact .valor.subtotal').text(),
                     iva: $('#suma-fact .valor.iva').text(),
                     total: $('#suma-fact .valor.total').text(),
-                    conceptos: conceptos
+                    conceptos: conceptos,
+                    english: $('#export-en').is(':checked')?1:0,
+                    noiva: $('#export-no-iva').is(':checked')?1:0
                 },
                 success: function (data) {
                     if($('#export-en').is(':checked')) {

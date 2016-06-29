@@ -791,6 +791,18 @@ function saveFactura($isUpdate = false)
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    $noiva = $_POST['noiva'];
+    $english = $_POST['english'];
+
+    if($noiva) {
+        $iva = 0;
+        $total = $_POST['subtotal'];
+    }
+    else {
+        $iva = $_POST['iva'];
+        $total = $_POST['total'];
+    }
+
     if (!$isUpdate) {
 
         //buscar id de la última factura
@@ -829,9 +841,11 @@ function saveFactura($isUpdate = false)
                                     cif,
                                     cp,
                                     ref_po,
-                                    autor
+                                    autor,
+                                    noiva,
+                                    english
                                   )
-          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $q = $pdo->prepare($sql);
 
         $fecha_emision = date('Y-m-d', strtotime($_POST['fecha_emision']));
@@ -847,14 +861,16 @@ function saveFactura($isUpdate = false)
                     $_POST['datos_bancarios'],
                     $_POST['presupuesto_asoc'],
                     str_replace(array('.',','),array('','.'),$_POST['subtotal']),
-                    str_replace(array('.',','),array('','.'),$_POST['iva']),
-                    str_replace(array('.',','),array('','.'),$_POST['total']),
+                    str_replace(array('.',','),array('','.'),$iva),
+                    str_replace(array('.',','),array('','.'),$total),
                     $_POST['nombre_cliente'],
                     $_POST['direccion_cliente'],
                     $_POST['cif_cliente'],
                     $_POST['cp_cliente'],
                     $_POST['ref_compras'],
-                    $_SESSION['valid'])
+                    $_SESSION['valid'],
+                    $noiva,
+                    $english)
             );
             $idFactura = $pdo->lastInsertId();
         } catch (Exception $e) {
@@ -875,7 +891,9 @@ function saveFactura($isUpdate = false)
                                    direccion = ?,
                                    cif = ?,
                                    cp = ?,
-                                   ref_po = ?
+                                   ref_po = ?,
+                                   noiva = ?,
+                                   english = ?
           where id = ?";
         $q = $pdo->prepare($sql);
 
@@ -891,13 +909,15 @@ function saveFactura($isUpdate = false)
                     $_POST['condiciones_pago'],
                     $_POST['datos_bancarios'],
                     str_replace(array('.',','),array('','.'),$_POST['subtotal']),
-                    str_replace(array('.',','),array('','.'),$_POST['iva']),
-                    str_replace(array('.',','),array('','.'),$_POST['total']),
+                    str_replace(array('.',','),array('','.'),$iva),
+                    str_replace(array('.',','),array('','.'),$total),
                     $_POST['nombre_cliente'],
                     $_POST['direccion_cliente'],
                     $_POST['cif_cliente'],
                     $_POST['cp_cliente'],
                     $_POST['ref_compras'],
+                    $noiva,
+                    $english,
                     $idFactura
                 )
             );
