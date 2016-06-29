@@ -166,7 +166,8 @@ if (null == $id) {
                 <button type="button" class="btn btn-default add-honorarios" title="Honorarios" data-toggle="modal" data-target="#honorarios-modal">
                     <span class="glyphicon glyphicon-euro"></span> Cálculo Honorarios
                 </button>
-                <?php require_once('honorarios-modal.php'); ?>
+
+                <span class="honorarios-wrapper"><?php require_once('honorarios-modal.php'); ?></span>
                 <br><br>
 
                 <fieldset id="concepto_group_0" class="concepto hide" data-index="0">

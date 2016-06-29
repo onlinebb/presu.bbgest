@@ -58,6 +58,13 @@ $(function () {
             $('#ref-empresa').val(obj.ref_cliente);
 
             $('#proyecto').removeAttr("disabled");
+
+            if($('#honorarios-wrapper').length > 0) {
+                $.get("honorarios-modal.php", function(data) {
+                    $("#honorarios-wrapper").html(data);
+                });
+            }
+
         },
         property: "label",
         minLength: 2
@@ -254,6 +261,25 @@ $(function () {
         });
     }
 
+    var wrapHonorarios = function () {
+
+        var honorarios = [];
+
+        $('#honorarios-modal .rate').each(function (i) {
+            //guardamos el objeto con los campos llenos de cada item
+            var content = {};
+            var item = $(this);
+            var index = item.data('idperfil');
+
+            content["id_perfil"] = index;
+            content["precio"] = item.val();
+
+            honorarios.push(content);
+        });
+
+        return honorarios;
+    }
+
     var wrapConceptos = function () {
 
         var conceptos = [];
@@ -358,6 +384,34 @@ $(function () {
         language: 'es',
         weekStart: 1,
         format: 'dd-mm-yyyy'
+    });
+
+    $('#honorarios-modal').on('hide.bs.modal', function () {
+        if($('#id-empresa').val() != "") {
+            var honorarios = [];
+
+            honorarios = wrapHonorarios();
+
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: "lib/functions.php?action=saveHonorarios",
+                data: {
+                    id_cliente: $('#id-empresa').val(),
+                    honorarios: honorarios
+                },
+                success: function (data) {
+
+                },
+                error: function (e) {
+                    console.log("Error: " + e.message);
+                }
+            });
+        }
+        else {
+            alert("Es necesario asignar algún cliente al presu antes de guardar honorarios");
+        }
+
     });
 
     $('.add-concepto').on('click', function () {

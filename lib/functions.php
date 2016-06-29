@@ -71,6 +71,9 @@ if (isset($_GET["action"])) {
         case "searchProyecto":
             searchProyecto($_GET['text'], $_GET['cliente']);
             break;
+        case "saveHonorarios":
+            saveHonorarios($_POST['id_cliente'], $_POST['honorarios']);
+            break;
     }
 }
 
@@ -2273,4 +2276,45 @@ function searchProyecto($text, $cliente)
     print json_encode($result);
 
     Database::disconnect();
+}
+
+/**
+ * @param $id_cliente, $precios
+ * Guardar $precios personalizados en tabla de precios_honorarios para el cliente en cuestión
+ */
+function saveHonorarios($id_cliente, $precios) {
+    //Si existen actualizar, sino crear nuevo
+    $pdo = Database::connect('stack_bbgest');
+    $sql = "SELECT * FROM precios_honorarios WHERE id_cliente = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($id_cliente));
+    $data = $q->fetch();
+
+    if($data && $data[0]) {
+        //Update, borrar precios existentes antes de insertar
+        $sql = "DELETE from precios_honorarios where id_cliente = ?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($id_cliente));
+    }
+    //guardar todos los precios para el cliente
+    $sql = "INSERT INTO precios_honorarios (
+                            id_cliente,
+                            id_perfil,
+                            precio
+                         )
+    values(?, ?, ?)";
+    $q = $pdo->prepare($sql);
+
+    foreach ($precios as $item) {
+        $q->execute(
+            array(
+                $id_cliente,
+                $item['id_perfil'],
+                $item['precio']
+            )
+        );
+    }
+    Database::disconnect();
+
+    print 1;
 }
