@@ -59,9 +59,10 @@ $(function () {
 
             $('#proyecto').removeAttr("disabled");
 
-            if($('#honorarios-wrapper').length > 0) {
-                $.get("honorarios-modal.php", function(data) {
-                    $("#honorarios-wrapper").html(data);
+            if($('.honorarios-wrapper').length > 0) {
+                $.get("honorarios-modal.php?id_cliente="+$('#id-empresa').val(), function(data) {
+                    $(".honorarios-wrapper").html(data);
+                    loadEventHonorarios();
                 });
             }
 
@@ -395,33 +396,54 @@ $(function () {
         }
     });
 
-    $('#honorarios-modal').on('hide.bs.modal', function () {
-        if($('#id-empresa').val() != "") {
-            var honorarios = [];
+    loadEventHonorarios();
 
-            honorarios = wrapHonorarios();
+    function loadEventHonorarios() {
+        $('#honorarios-modal').on('hide.bs.modal', function () {
+            if($('#id-empresa').val() != "") {
+                var honorarios = [];
 
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: "lib/functions.php?action=saveHonorarios",
-                data: {
-                    id_cliente: $('#id-empresa').val(),
-                    honorarios: honorarios
-                },
-                success: function (data) {
+                honorarios = wrapHonorarios();
 
-                },
-                error: function (e) {
-                    console.log("Error: " + e.message);
-                }
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: "lib/functions.php?action=saveHonorarios",
+                    data: {
+                        id_cliente: $('#id-empresa').val(),
+                        honorarios: honorarios
+                    },
+                    success: function (data) {
+
+                    },
+                    error: function (e) {
+                        console.log("Error: " + e.message);
+                    }
+                });
+            }
+            /*else {
+             alert("Es necesario asignar algún cliente al presu antes de guardar honorarios");
+             }*/
+
+        });
+
+        $('#honorarios-modal .form-control').unbind("change paste keyup");
+        $('#honorarios-modal .form-control').bind("change paste keyup", function(){
+            var totalHonorarios = 0;
+            $('#honorarios-modal tr.datos').each(function(index, elem){
+                var total = parseFloat($(this).find('.rate').val()) * parseFloat($(this).find('.horas').val());
+                $(this).find('.total').val(total.toFixed(2));
+                totalHonorarios += total;
             });
-        }
-        /*else {
-            alert("Es necesario asignar algún cliente al presu antes de guardar honorarios");
-        }*/
+            $('#honorarios-modal .total-honorarios').val(totalHonorarios.toFixed(2));
+        });
 
-    });
+        $('#export-honorarios').off('click');
+        $('#export-honorarios').click(function(){
+            exportHonorarios();
+        });
+    }
+
 
     $('.add-concepto').on('click', function () {
 
@@ -1134,7 +1156,7 @@ $(function () {
     });
 
     /*** Calc honorarios ***/
-    $('#honorarios-modal .form-control').bind("change paste keyup", function(){
+    /*$('#honorarios-modal .form-control').bind("change paste keyup", function(){
         var totalHonorarios = 0;
         $('#honorarios-modal tr.datos').each(function(index, elem){
             var total = parseFloat($(this).find('.rate').val()) * parseFloat($(this).find('.horas').val());
@@ -1146,7 +1168,7 @@ $(function () {
 
     $('#export-honorarios').click(function(){
         exportHonorarios();
-    });
+    });*/
 
     function exportHonorarios() {
         var textoHonorarios = '';

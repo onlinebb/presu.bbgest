@@ -1,7 +1,7 @@
 <?php
 require_once('lib/database.php');
 $pdo2 = Database::connect('stack_bbgest');
-$q_honorarios = $pdo2->prepare("select * from precios_honorarios where id_cliente = ?");
+$q_honorarios = $pdo2->prepare("select * from precios_honorarios where id_cliente = ? order by id_perfil ASC");
 if(empty($_GET['id_cliente'])){
     $id_cliente = ($load)? $data['id_empresa']:$_POST['empresa'];
 }
