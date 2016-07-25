@@ -691,12 +691,48 @@ $(function () {
                     suma: $('#suma .valor').text(),
                     conceptos: conceptos
                 },
-                success: function (data) {
-                    if($('#export-en').is(':checked')) {
-                        window.open('lib/pdf_en.php?id=' + data);
+                success: function (output) {
+                    console.log(output);
+                    $('#ref').val(output.ref_presu);
+                    var ref_orig = output.ref_presu_orig;
+                    var ref_final = output.ref_presu;
+
+                    if(output.facturas !== undefined) {
+                        alert("¡Atención! Ya existen facturas emitidas para este presupuesto: " + output.facturas + '. Por favor verifica los totales facturados y presupuestados');
+
+                        if($('#id-empresa').val() != $('#id-empresa-orig').val()) {
+                            if (confirm("Se ha modificado el cliente asociado al presupuesto. Actualizar en las facturas existentes?")) {
+
+                                $.ajax({
+                                    type: "POST",
+                                    dataType: "json",
+                                    url: "lib/functions.php?action=updateClienteFact",
+                                    data: {
+                                        id_presu: $('#id_presupuesto').val(),
+                                        ref_presu_orig: ref_orig,
+                                        ref_presu: ref_final,
+                                        cliente: $('#nombre-cliente').val(),
+                                        ref_cliente: $('#ref-empresa').val(),
+                                        direccion: $('#direccion-cliente').val(),
+                                        cif: $('#cif-cliente').val(),
+                                        cp: $('#cp-cliente').val(),
+                                    },
+                                    success: function (data) {
+                                        //ok
+                                    },
+                                    error: function (e) {
+                                        console.log("Error: " + e.message);
+                                    }
+                                });
+
+                            }
+                        }
+                    }
+                    if ($('#export-en').is(':checked')) {
+                        window.open('lib/pdf_en.php?id=' + output.id_presu);
                     }
                     else
-                        window.open('lib/pdf.php?id=' + data);
+                        window.open('lib/pdf.php?id=' + output.id_presu);
                 },
                 error: function (e) {
                     console.log("Error: " + e.message);

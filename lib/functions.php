@@ -53,6 +53,9 @@ if (isset($_GET["action"])) {
         case "updateFact":
             saveFactura(true);
             break;
+        case "updateClienteFact":
+            updateClienteFact();
+            break;
         case "deleteFact":
             deleteFactura($_POST['id'], $_POST['presu']);
             break;
@@ -192,6 +195,7 @@ function savePresupuesto($isUpdate = false)
 
         //actualizar datos del presupuesto
         //actualizar ref presupuesto si hemos modificado el cliente
+        $nuevoCliente = false;
         if($_POST['empresa_orig'] != $_POST['empresa']) {
             $ref_cliente = $_POST['ref_cliente'];
             $ref_presupuesto = substr($_POST['ref_presu'], 0, 7).$ref_cliente;
@@ -242,6 +246,11 @@ function savePresupuesto($isUpdate = false)
 
     }
 
+    $output = array();
+    $output['id_presu'] = $idPresu;
+    $output['ref_presu'] = $ref_presupuesto;
+    $output['ref_presu_orig'] = $_POST['ref_presu'];
+
     if ($isUpdate) {
 
         //borrar conceptos existentes primero
@@ -250,6 +259,16 @@ function savePresupuesto($isUpdate = false)
         $q = $pdo->prepare($sql);
 
         $q->execute(array($idPresu));
+
+        $sql = "SELECT GROUP_CONCAT(ref_factura SEPARATOR ', ') FROM factura WHERE presupuesto_asoc = ?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($_POST['ref_presu']));
+        $data = $q->fetch();
+
+        if($data && $data[0]) {
+            //hay facturas asociadas al presu
+            $output['facturas'] = $data[0];
+        }
     }
 
     //guardar todos los conceptos
@@ -301,7 +320,8 @@ function savePresupuesto($isUpdate = false)
 
     Database::disconnect();
 
-    print $idPresu;
+    if($output) print json_encode($output);
+    else print 1;
 }
 
 function copyPresupuesto($id, $origen = false)
@@ -1025,6 +1045,97 @@ function saveFactura($isUpdate = false)
     Database::disconnect();
 
     print $idFactura;
+}
+
+/**
+ * Actualizar datos del cliente y referencia de la factura
+ */
+function updateClienteFact()
+{
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    //obtener id facturas asociadas al presu $ref_presu_orig
+    $id_presu = $_POST['id_presu'];
+    $ref_presu_orig = $_POST['ref_presu_orig'];
+    $ref_presu = $_POST['ref_presu'];
+    $cliente = $_POST['cliente'];
+    $ref_cliente = $_POST['ref_cliente'];
+    $direccion = $_POST['direccion'];
+    $cif = $_POST['cif'];
+    $cp = $_POST['cp'];
+
+    $sql = "SELECT * FROM factura where presupuesto_asoc= ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($ref_presu_orig));
+    $q->execute();
+    $facturas = $q->fetchAll(PDO::FETCH_ASSOC);
+
+    //actualizar datos de las facturas
+    foreach ($facturas as $fact) {
+        $ref_factura_new = substr($fact['ref_factura'], 0, 7).$ref_cliente;
+
+        $sql = "UPDATE factura SET ref_factura = ?,
+                               cliente = ?,
+                               direccion = ?,
+                               cif = ?,
+                               cp = ?,
+                               presupuesto_asoc = ?
+                where id = ?";
+
+        $q = $pdo->prepare($sql);
+        try {
+            $q->execute(
+                array(
+                    $ref_factura_new,
+                    $cliente,
+                    $direccion,
+                    $cif,
+                    $cp,
+                    $ref_presu,
+                    $fact['id']
+                )
+            );
+        } catch (Exception $e) {
+            //print $e;
+        }
+    }
+
+    //Get suma precios presupuesto
+    $sql = "SELECT suma FROM presupuesto WHERE id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($id_presu));
+    $data = $q->fetch();
+    if($data)
+        $suma_presu = $data[0];
+    else
+        $suma_presu = 0;
+
+    //Si la suma de subtotales de las facturas cobradas asociadas al presu >= que suma del presu -> facturado totalmente, sino parcialmente
+    $sql = "SELECT SUM(subtotal) FROM factura WHERE presupuesto_asoc = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($ref_presu));
+    $data = $q->fetch();
+
+    if($suma_presu && $data && $data[0]) {
+        $cobrado = $data[0];
+
+        if($cobrado >= $suma_presu)
+            $estado_presu = 'facturado totalmente';
+        else
+            $estado_presu = 'facturado parcialmente';
+    }
+    else
+        $estado_presu = 'facturado parcialmente';
+
+    //Actualizar presupuesto
+    $sql = "UPDATE presupuesto SET estado = ? WHERE ref = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($estado_presu, $ref_presu));
+
+    Database::disconnect();
+
+    print 1 ;
 }
 
 /**
