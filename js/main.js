@@ -542,12 +542,11 @@ $(function () {
                     conceptos: conceptos
                 },
                 success: function (data) {
-
                     if($('#export-en').is(':checked')) {
-                        window.open('lib/pdf_en.php?id=' + data);
+                        window.open('lib/pdf_en.php?id=' + data.id_presu);
                     }
                     else
-                        window.open('lib/pdf.php?id=' + data);
+                        window.open('lib/pdf.php?id=' + data.id_presu);
 
                     window.location = 'index.php';
                 },
