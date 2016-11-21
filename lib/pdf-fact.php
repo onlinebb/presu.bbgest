@@ -249,12 +249,17 @@ function pintarConcepto($concepto, $precio, $estilo)
 		$add = '';
 	}
 
-    $html =
-        '<tr nobr="true">
-			<td width="60%" style="color: #999999;">'. $estilo . $concepto . '</span></td>
-			<td width="20%" style="color: #F95978;">'. $estilo . $texto_precio.'</span></td>
-			<td width="20%" style="color: #999999; text-align: right;">'. $estilo . $precio . '</span></td>
-		 </tr>'.$add;
+    if(empty($concepto)) {
+		$html = '<tr><td colspan="3">&nbsp;</td></tr>';
+	}
+	else {
+		$html =
+			'<tr nobr="true">
+				<td width="60%" style="color: #999999;">'. $estilo . $concepto . '</span></td>
+				<td width="20%" style="color: #F95978;">'. $estilo . $texto_precio.'</span></td>
+				<td width="20%" style="color: #999999; text-align: right;">'. $estilo . $precio . '</span></td>
+			 </tr>'.$add;
+	}    
 		 
     return $html;
 }

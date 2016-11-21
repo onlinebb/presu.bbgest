@@ -618,10 +618,21 @@ function searchArchive($text)
 {
     $pdo = Database::connect();
 
-    $sql = "SELECT * FROM concepto where concat(concepto,concepto_subtitulo,titulo1,titulo2,titulo3,texto) like ?";
+    //$sql = "SELECT * FROM concepto where concat(concepto,concepto_subtitulo,titulo1,titulo2,titulo3,texto) like ?";
+    $sql = "SELECT * FROM presupuesto p 
+            left join concepto c on c.id_presupuesto=p.id 
+            where concat(c.concepto,c.concepto_subtitulo,c.titulo1,c.titulo2,c.titulo3,c.texto,p.ref,p.ref_cliente,p.nombre_cliente, p.contacto_cliente, p.nombre_proyecto) like ? 
+            order by p.id, c.id_concepto";
     $q = $pdo->prepare($sql);
     $q->bindValue(1, "%$text%", PDO::PARAM_STR);
-    $q->execute();
+    
+    try {
+        $q->execute();
+    }
+    catch (Exception $e) {
+        print $e;
+    }
+    
     $data = $q->fetchAll(PDO::FETCH_ASSOC);
 
     $rows_per_page = 2;
