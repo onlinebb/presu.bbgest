@@ -539,7 +539,8 @@ $(function () {
                     empresa: $('#id-empresa').val(),
                     empresa_orig: $('#id-empresa-orig').val(),
                     suma: $('#suma .valor').text(),
-                    conceptos: conceptos
+                    conceptos: conceptos,
+                    english: $('#export-en').is(':checked')?1:0,
                 },
                 success: function (data) {
                     if($('#export-en').is(':checked')) {
@@ -688,7 +689,8 @@ $(function () {
                     empresa_orig: $('#id-empresa-orig').val(),
                     id: $('#id_presupuesto').val(),
                     suma: $('#suma .valor').text(),
-                    conceptos: conceptos
+                    conceptos: conceptos,
+                    english: $('#export-en').is(':checked')?1:0,
                 },
                 success: function (output) {
                     console.log(output);

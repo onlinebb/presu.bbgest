@@ -202,7 +202,17 @@ require_once('header.php');
                                 <a href="edit.php?id=<?php echo $row['id'] ?>" title="Editar">
                                     <span class="glyphicon icons-fontawesome-webfont-1"></span>
                                 </a>&nbsp;
-                                <a href="lib/pdf.php?id=<?php echo $row['id'] ?>" title="Ver PDF" target="_blank">
+                                <?php
+                                if($row['english']):
+                                ?>
+                                <a href="lib/pdf_en.php?id=<?= $row['id'] ?>" title="Ver PDF" target="_blank">
+                                <?php
+                                else:
+                                ?>
+                                <a href="lib/pdf.php?id=<?= $row['id'] ?>" title="Ver PDF" target="_blank">
+                                <?php
+                                endif;
+                                ?>
                                     <span class="glyphicon icons-fontawesome-webfont-2"></span>
                                 </a>&nbsp;
                                 <a class="noaceptar-presupuesto" href="" title="No aceptar" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
@@ -395,7 +405,17 @@ require_once('header.php');
                                 <a href="edit-fact.php?id=<?= $row['id'] ?>" title="Editar">
                                     <span class="glyphicon icons-fontawesome-webfont-1"></span>
                                 </a>&nbsp;
-                                <a href="lib/pdf-fact.php?id=<?= $row['id'] ?>" title="Ver PDF" target="_blank">
+                                <?php
+                                    if($row['english']):
+                                ?>
+                                <a href="lib/pdf-fact_en.php?id=<?= $row['id'] ?>&noiva=<?=$row['noiva']?>" title="Ver PDF" target="_blank">
+                                <?php
+                                    else:
+                                ?>
+                                <a href="lib/pdf-fact.php?id=<?= $row['id'] ?>&noiva=<?=$row['noiva']?>" title="Ver PDF" target="_blank">
+                                <?php
+                                    endif;
+                                ?>
                                     <span class="glyphicon icons-fontawesome-webfont-2"></span>
                                 </a>&nbsp;
                                 <a class="delete-factura" href="" title="Abonar" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">

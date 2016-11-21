@@ -148,7 +148,7 @@ if (null == $id) {
                             <div class=" col-md-offset-6 col-md-6">
                                 <div class="checkbox">
                                     <label>
-                                        <input name="export-en" id="export-en" type="checkbox"><b>English</b>
+                                        <input name="export-en" id="export-en" type="checkbox" <?=$data['english']?'checked':'' ?>><b>English</b>
                                     </label>
                                 </div>
                             </div>

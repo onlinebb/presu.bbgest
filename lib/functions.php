@@ -124,6 +124,8 @@ function savePresupuesto($isUpdate = false)
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    $english = $_POST['english'];
+
     if (!$isUpdate) {
 
         //buscar si hay algun presupuesto para este cliente y sacar el último id
@@ -162,9 +164,10 @@ function savePresupuesto($isUpdate = false)
                                     nombre_proyecto,
                                     suma,
                                     autor,
-                                    fecha_emision
+                                    fecha_emision,
+                                    english
                                   )
-          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $q = $pdo->prepare($sql);
 
         $fecha = date('Y-m-d', strtotime($_POST['fecha']));
@@ -184,7 +187,8 @@ function savePresupuesto($isUpdate = false)
                     $_POST['proyecto'],
                     str_replace(array('.',','),array('','.'),$_POST['suma']),
                     $_SESSION['valid'],
-                    date('Y-m-d'))
+                    date('Y-m-d'),
+                    $english)
             );
             $idPresu = $pdo->lastInsertId();
         } catch (Exception $e) {
@@ -217,7 +221,8 @@ function savePresupuesto($isUpdate = false)
                                    cp_cliente = ?,
                                    contacto_cliente = ?,
                                    nombre_proyecto = ?,
-                                   suma = ?
+                                   suma = ?,
+                                   english = ?
           where id = ?";
         $q = $pdo->prepare($sql);
 
@@ -237,6 +242,7 @@ function savePresupuesto($isUpdate = false)
                     $_POST['contacto'],
                     $_POST['proyecto'],
                     str_replace(array('.',','),array('','.'),$_POST['suma']),
+                    $english,
                     $idPresu)
             );
 
