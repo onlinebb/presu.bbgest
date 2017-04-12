@@ -161,13 +161,14 @@ function savePresupuesto($isUpdate = false)
                                     cif_cliente,
                                     cp_cliente,
                                     contacto_cliente,
+                                    ref_proyecto,
                                     nombre_proyecto,
                                     suma,
                                     autor,
                                     fecha_emision,
                                     english
                                   )
-          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $q = $pdo->prepare($sql);
 
         $fecha = date('Y-m-d', strtotime($_POST['fecha']));
@@ -184,6 +185,7 @@ function savePresupuesto($isUpdate = false)
                     $_POST['cif'],
                     $_POST['cp'],
                     $_POST['contacto'],
+                    $_POST['id_proyecto'],
                     $_POST['proyecto'],
                     str_replace(array('.',','),array('','.'),$_POST['suma']),
                     $_SESSION['valid'],
@@ -220,6 +222,7 @@ function savePresupuesto($isUpdate = false)
                                    cif_cliente = ?,
                                    cp_cliente = ?,
                                    contacto_cliente = ?,
+                                   id_proyecto = ?,
                                    nombre_proyecto = ?,
                                    suma = ?,
                                    english = ?
@@ -240,6 +243,7 @@ function savePresupuesto($isUpdate = false)
                     $_POST['cif'],
                     $_POST['cp'],
                     $_POST['contacto'],
+                    $_POST['id_proyecto'],
                     $_POST['proyecto'],
                     str_replace(array('.',','),array('','.'),$_POST['suma']),
                     $english,
@@ -631,14 +635,14 @@ function searchArchive($text)
             order by p.id, c.id_concepto";
     $q = $pdo->prepare($sql);
     $q->bindValue(1, "%$text%", PDO::PARAM_STR);
-    
+
     try {
         $q->execute();
     }
     catch (Exception $e) {
         print $e;
     }
-    
+
     $data = $q->fetchAll(PDO::FETCH_ASSOC);
 
     $rows_per_page = 2;
@@ -976,7 +980,7 @@ function saveFactura($isUpdate = false)
 
         $q->execute(array($idFactura));
     }
-	
+
 	/*****/
 	//guardar todos los conceptos
 
@@ -2339,7 +2343,7 @@ function exportExcel($tipo) {
                    ifnull(cif,''),
                    ifnull(cp,''),
                    autor
-            FROM factura order by fecha_emision desc";
+            FROM factura order by ref_factura desc, fecha_emision desc";
 
         $q = $pdo->prepare($sql);
         $q->execute();

@@ -83,6 +83,10 @@ if (null == $id) {
                 <button type="button" class="btn btn-primary btn-sm add-honorarios" title="Honorarios" data-toggle="modal" data-target="#honorarios-modal">
                     <span class="glyphicon glyphicon-euro"></span> Cálculo Honorarios
                 </button>
+                <br><br>
+                <button type="button" class="btn btn-primary btn-sm add-total" title="Total">
+                    <span class="glyphicon glyphicon-euro"></span> Añadir Total
+                </button>
             </nav>
         </div>
         <div class="col-md-10">
@@ -138,7 +142,7 @@ if (null == $id) {
 
                         <div class="col-md-6">
                             <input type="text" id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm" value="<?= ($load)? $data['nombre_proyecto']:$_POST['nproyecto'] ?>">
-                            <input type="hidden" id="id_proyecto" name="id_proyecto" class="form-control input-sm"><?= $_POST['idproyecto'] ?>
+                            <input type="hidden" id="id_proyecto" name="id_proyecto" class="form-control input-sm" value="<?= ($load)? $data['id_proyecto']:$_POST['idproyecto'] ?>">
                         </div>
                     </div>
 
@@ -327,13 +331,19 @@ if (null == $id) {
                                         <div class="input-group">
                                             <span class="input-group-addon remove"><span class="glyphicon glyphicon-minus-sign"></span></span>
                                             <input id="concepto_<?php echo $count ?>" name="concepto_<?php echo $count ?>"
-                                                   placeholder="Concepto" class="form-control input-sm" type="text" value='<?php echo $row['concepto'] ?>'>
+                                                   <?=(strcasecmp($row['concepto'],'ToTAL'))? '':'disabled'?> placeholder="Concepto" class="form-control input-sm <?=(strcasecmp($row['concepto'],'ToTAL'))? '':'item-total'?>" type="text" value='<?php echo $row['concepto'] ?>'>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="input-group">
+                                            <?php
+                                            if (strcasecmp($row['concepto'], 'ToTAL')):
+                                            ?>
                                             <a class="input-group-addon toggle-suma"><span class="glyphicon glyphicon-ok-circle"></span></a>
-                                            <input id="concepto_<?php echo $count ?>_precio" name="concepto_<?php echo $count ?>_precio" data-sumar="1" placeholder="Precio" class="form-control input-sm precio" type="text"
+                                            <?php
+                                            endif;
+                                            ?>
+                                            <input id="concepto_<?php echo $count ?>_precio" name="concepto_<?php echo $count ?>_precio" data-sumar="<?=(strcasecmp($row['concepto'],'ToTAL'))? 1:0?>" placeholder="Precio" class="form-control input-sm precio" type="text"
                                                    value="<?php if (!empty($row['precio_concepto'])) {
                                                        echo $row['precio_concepto'];
                                                    } ?>">
@@ -683,7 +693,7 @@ if (null == $id) {
                 endif;
                 ?>
 
-                <button type="button" class="btn btn-default center-block add-concepto" title="Nuevo">
+                <button id="insert-concepto" type="button" class="btn btn-default center-block add-concepto" title="Nuevo">
                     <span class="glyphicon glyphicon-plus-sign"></span>
                 </button>
 

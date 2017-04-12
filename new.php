@@ -31,6 +31,7 @@ require_once('header.php');
                 <input type="hidden" id="cp" name="cp" value='<?= $_POST['cp'] ?>'>
                 <input type="hidden" id="contactocl" name="contactocl" value='<?= $_POST['contactocl'] ?>'>
                 <input type="hidden" id="nproyecto" name="nproyecto" value='<?= $_POST['nproyecto'] ?>'>
+                <input type="hidden" id="idproyecto" name="idproyecto" value='<?= $_POST['idproyecto'] ?>'>
             </form>
         </div>
     </div>
@@ -50,6 +51,10 @@ require_once('header.php');
                 <br><br>
                 <button type="button" class="btn btn-primary btn-sm add-honorarios" title="Honorarios" data-toggle="modal" data-target="#honorarios-modal">
                     <span class="glyphicon glyphicon-euro"></span> Cálculo Honorarios
+                </button>
+                <br><br>
+                <button type="button" class="btn btn-primary btn-sm add-total" title="Total">
+                    <span class="glyphicon glyphicon-euro"></span> Añadir Total
                 </button>
             </nav>
         </div>
@@ -427,7 +432,7 @@ require_once('header.php');
                 }
                 ?>
 
-                <button type="button" class="btn btn-default center-block add-concepto" title="Nuevo">
+                <button id="insert-concepto" type="button" class="btn btn-default center-block add-concepto" title="Nuevo">
                     <span class="glyphicon glyphicon-plus-sign"></span>
                 </button>
 

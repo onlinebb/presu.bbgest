@@ -481,6 +481,46 @@ $(function () {
         loadEvents();
     });
 
+    $('.add-total').on('click', function () {
+
+        if($('.item-total').length == 0) {
+            var concepto = $('#concepto_group_0').clone().hide();
+
+            concepto.removeClass('hide');
+
+            concepto.attr('id', 'concepto_group_' + counter);
+
+            concepto.attr('data-index', counter);
+
+            concepto.find('legend').text('Concepto ' + counter);
+
+            concepto.find('#concepto_0').attr('id', 'concepto_' + counter).attr('name', 'concepto_' + counter).attr('disabled', 'disabled').val('TOTAL').addClass('item-total');
+            concepto.find('#concepto_0_precio').attr('id', 'concepto_' + counter + '_precio').attr('name', 'concepto_' + counter + '_precio').attr('data-sumar', 0);
+
+            concepto.find('#concepto_sub_0').parent().parent().parent().parent().remove();
+            concepto.find('#concepto_sub_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#tit1_0').parent().parent().parent().parent().remove();
+            concepto.find('#tit1_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#tit2_0').parent().parent().parent().parent().remove();
+            concepto.find('#tit2_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#tit3_0').parent().parent().parent().parent().remove();
+            concepto.find('#tit3_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#texto_0').parent().parent().parent().parent().remove();
+            concepto.find('#texto_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.insertBefore($('#insert-concepto')).fadeIn();
+
+            $('#concepto_' + counter + '_precio').parent().find('.toggle-suma').remove();
+
+            counter++;
+            loadEvents();
+        }
+    });
+
     /**
      * Generar presupuesto
      */
@@ -536,6 +576,7 @@ $(function () {
                     cp: $('#cp-cliente').val(),
                     contacto: $('#contacto').val(),
                     proyecto: $('#proyecto').val(),
+                    id_proyecto: $('#id_proyecto').val(),
                     empresa: $('#id-empresa').val(),
                     empresa_orig: $('#id-empresa-orig').val(),
                     suma: $('#suma .valor').text(),
@@ -685,6 +726,7 @@ $(function () {
                     cp: $('#cp-cliente').val(),
                     contacto: $('#contacto').val(),
                     proyecto: $('#proyecto').val(),
+                    id_proyecto: $('#id_proyecto').val(),
                     empresa: $('#id-empresa').val(),
                     empresa_orig: $('#id-empresa-orig').val(),
                     id: $('#id_presupuesto').val(),
@@ -1188,6 +1230,7 @@ $(function () {
         $('#cp').val($('#cp-cliente').val());
         $('#contactocl').val($('#contacto').val());
         $('#nproyecto').val($('#proyecto').val());
+        $('#idproyecto').val($('#id_proyecto').val());
         $('#total').val($('#sumag').val());
         //$('#suma-vis').text($('#total').val());
     });
