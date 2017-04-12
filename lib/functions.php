@@ -77,6 +77,9 @@ if (isset($_GET["action"])) {
         case "saveHonorarios":
             saveHonorarios($_POST['id_cliente'], $_POST['honorarios']);
             break;
+        case "uploadFiles":
+            uploadFiles();
+            break;
     }
 }
 
@@ -2449,4 +2452,20 @@ function saveHonorarios($id_cliente, $precios) {
     Database::disconnect();
 
     print 1;
+}
+
+function uploadFiles(){
+    require('UploadHandler.php');
+
+    $otherDir = dirname(__FILE__) . '/files/'.$_REQUEST['otherDir'].'/';
+    $otherDir_url = 'lib/files/'.$_REQUEST['otherDir'].'/';
+
+    $options = array(
+        // This option will disable creating thumbnail images and will not create that extra folder.
+        // However, due to this, the images preview will not be displayed after upload
+        'image_versions' => array(),
+        'upload_dir'=> $otherDir,
+        'upload_url'=> $otherDir_url
+    );
+    $upload_handler = new UploadHandler($options);
 }

@@ -1290,4 +1290,44 @@ $(function () {
         counter++;
         loadEvents();
     }
+
+    /*FILE UPLOAD*/
+    //Crea una carpeta con el ID el Debbrief si ya existe o el siguiente ID que toca en BBDD
+    var url = 'lib/functions.php?action=uploadFiles&otherDir='+$('#ref').val();
+
+    $('#fileupload').fileupload({
+        url: url,
+        dataType: 'json',
+        done: function (e, data) {
+            $.each(data.result.files, function (index, file) {
+                var link = $('<a>')
+                    .attr('target', '_blank')
+                    .prop('href', file.url).text(file.name);
+                $('<p/>').html(link).appendTo('#files');
+            });
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .progress-bar').css(
+                'width',
+                progress + '%'
+            );
+        }
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+
+    $.ajax({
+        // Uncomment the following to send cross-domain cookies:
+        //xhrFields: {withCredentials: true},
+        url: $('#fileupload').fileupload('option', 'url'),
+        dataType: 'json',
+        context: $('#fileupload')[0]
+    }).always(function () {
+        $(this).removeClass('fileupload-processing');
+    }).done(function (result) {
+        $(this).fileupload('option', 'done')
+            .call(this, $.Event('done'), {result: result});
+    });
+    /*END FILE UPLOAD*/
 });

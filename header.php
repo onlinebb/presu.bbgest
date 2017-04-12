@@ -19,12 +19,17 @@
     <script type="text/javascript" src="js/bootstrap-datepicker.es.js"></script>
     <script type="text/javascript" src="js/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="js/jquery.form.min.js"></script>
+    <script src="js/jquery.ui.widget.js"></script>
+    <script src="js/jquery.iframe-transport.js"></script>
+    <script src="js/jquery.fileupload.js"></script>
+    <script src="js/jquery.fileupload-process.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
 
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/datepicker3.css">
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/icons.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery.fileupload.css">
 </head>
 <body>
 <div class="main-wrapper">

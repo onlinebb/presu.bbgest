@@ -167,6 +167,26 @@ if (null == $id) {
                     <b>Suma precios: </b><span class="valor">0</span> &euro;
                 </div>
 
+                <div id="adjuntos" class="alert alert-info">
+                    <label for="archivos">Archivos adjuntos</label>
+                    <br>
+                    <!-- The fileinput-button span is used to style the file input field as button -->
+                    <span class="btn btn-default fileinput-button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Subir archivos...</span>
+                        <!-- The file input field used as target for the file upload widget -->
+                        <input id="fileupload" type="file" name="files[]" multiple>
+                    </span>
+                    <br>
+                    <br>
+                    <!-- The global progress bar -->
+                    <div id="progress" class="progress">
+                        <div class="progress-bar progress-bar-success"></div>
+                    </div>
+                    <!-- The container for the uploaded files -->
+                    <div id="files" class="files"></div>
+                </div>
+
                 <button type="button" class="btn btn-default add-honorarios" title="Honorarios" data-toggle="modal" data-target="#honorarios-modal">
                     <span class="glyphicon glyphicon-euro"></span> Cálculo Honorarios
                 </button>
