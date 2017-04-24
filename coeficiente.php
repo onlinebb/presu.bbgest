@@ -38,7 +38,7 @@ $sql = "select pr.nombre as proyecto, us.nombre as usuario, co.numSemana, co.hor
         from coeficiente co 
         left join proyectos pr on pr.id=co.id_proyecto 
         left join usuarios us on us.id=co.id_usuario 
-        where numSemana between 10 and 13 order by pr.id, us.id, co.numSemana";
+        where numSemana between 10 and ".$semanaFin." order by pr.id, us.id, co.numSemana";
 $q = $pdo->prepare($sql);
 $q->execute(array());
 $data = $q->fetchAll(PDO::FETCH_ASSOC);

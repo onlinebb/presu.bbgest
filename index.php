@@ -112,7 +112,7 @@ require_once('header.php');
 
                             //Busqueda
                             if (isset($_GET["search"])) {
-                                $search = "concat(ref, nombre_cliente, ifnull(ref_cliente,''), ifnull(ref_proyecto,''), ifnull(nombre_proyecto,'')) like '%".$_GET["search"]."%'";
+                                $search = "concat(ref, nombre_cliente, ifnull(ref_cliente,''), ifnull(nombre_propuesta,''), ifnull(proyecto,'')) like '%".$_GET["search"]."%'";
                             }
                             else {
                                 $search = "1=1";
