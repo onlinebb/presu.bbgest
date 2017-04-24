@@ -30,7 +30,7 @@ if (null == $id) {
     if($load) {
         $pdo = Database::connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "SELECT * FROM presupuesto where id = ?";
+        $sql = "SELECT * FROM listado_presus where id = ?";
         $q = $pdo->prepare($sql);
         $q->execute(array($id));
         $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -62,6 +62,8 @@ if (null == $id) {
                 <input type="hidden" id="cp" name="cp" value='<?= $_POST['cp'] ?>'>
                 <input type="hidden" id="contactocl" name="contactocl" value='<?= $_POST['contactocl'] ?>'>
                 <input type="hidden" id="nproyecto" name="nproyecto" value='<?= $_POST['nproyecto'] ?>'>
+                <input type="hidden" id="idproyecto" name="idproyecto" value='<?= $_POST['idproyecto'] ?>'>
+                <input type="hidden" id="tpropuesta" name="tpropuesta" value='<?= $_POST['tpropuesta'] ?>'>
                 <input type="hidden" id="total" name="total" value='<?= $_POST['total'] ?>'>
             </form>
         </div>
@@ -141,8 +143,17 @@ if (null == $id) {
                         <label class="col-md-6 control-label" for="proyecto">Proyecto</label>
 
                         <div class="col-md-6">
-                            <input type="text" id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm" value="<?= ($load)? $data['nombre_proyecto']:$_POST['nproyecto'] ?>">
+                            <input type="text" id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm" value="<?= ($load)? $data['proyecto']:$_POST['nproyecto'] ?>">
                             <input type="hidden" id="id_proyecto" name="id_proyecto" class="form-control input-sm" value="<?= ($load)? $data['id_proyecto']:$_POST['idproyecto'] ?>">
+                        </div>
+                    </div>
+
+                    <!-- Título presupuesto -->
+                    <div class="form-group">
+                        <label class="col-md-6 control-label" for="proyecto">Título de la propuesta</label>
+
+                        <div class="col-md-6">
+                            <input type="text" id="propuesta" name="propuesta" placeholder="Título" class="form-control input-sm" value="<?= ($load)? $data['nombre_propuesta']:$_POST['tpropuesta'] ?>">
                         </div>
                     </div>
 

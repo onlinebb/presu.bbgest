@@ -32,6 +32,7 @@ require_once('header.php');
                 <input type="hidden" id="contactocl" name="contactocl" value='<?= $_POST['contactocl'] ?>'>
                 <input type="hidden" id="nproyecto" name="nproyecto" value='<?= $_POST['nproyecto'] ?>'>
                 <input type="hidden" id="idproyecto" name="idproyecto" value='<?= $_POST['idproyecto'] ?>'>
+                <input type="hidden" id="tpropuesta" name="tpropuesta" value='<?= $_POST['tpropuesta'] ?>'>
             </form>
         </div>
     </div>
@@ -106,8 +107,17 @@ require_once('header.php');
                         <label class="col-md-6 control-label" for="proyecto">Proyecto</label>
 
                         <div class="col-md-6">
-                            <input type="text" autocomplete="off" disabled id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm"><?= $_POST['nproyecto'] ?>
-                            <input type="hidden" id="id_proyecto" name="id_proyecto" class="form-control input-sm"><?= $_POST['idproyecto'] ?>
+                            <input type="text" autocomplete="off" id="proyecto" name="proyecto" placeholder="Nombre proyecto" class="form-control input-sm" value="<?= $_POST['nproyecto'] ?>">
+                            <input type="hidden" id="id_proyecto" name="id_proyecto" class="form-control input-sm" value="<?= $_POST['idproyecto'] ?>">
+                        </div>
+                    </div>
+
+                    <!-- Título presupuesto -->
+                    <div class="form-group">
+                        <label class="col-md-6 control-label" for="proyecto">Título de la propuesta</label>
+
+                        <div class="col-md-6">
+                            <input type="text" id="propuesta" name="propuesta" placeholder="Título" class="form-control input-sm" value="<?= $_POST['tpropuesta'] ?>">
                         </div>
                     </div>
 

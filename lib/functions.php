@@ -80,6 +80,9 @@ if (isset($_GET["action"])) {
         case "uploadFiles":
             uploadFiles();
             break;
+        case "updateHoras":
+            updateHoras();
+            break;
     }
 }
 
@@ -164,7 +167,7 @@ function savePresupuesto($isUpdate = false)
                                     cif_cliente,
                                     cp_cliente,
                                     contacto_cliente,
-                                    ref_proyecto,
+                                    id_proyecto,
                                     nombre_proyecto,
                                     suma,
                                     autor,
@@ -189,7 +192,7 @@ function savePresupuesto($isUpdate = false)
                     $_POST['cp'],
                     $_POST['contacto'],
                     $_POST['id_proyecto'],
-                    $_POST['proyecto'],
+                    $_POST['propuesta'],
                     str_replace(array('.',','),array('','.'),$_POST['suma']),
                     $_SESSION['valid'],
                     date('Y-m-d'),
@@ -247,7 +250,7 @@ function savePresupuesto($isUpdate = false)
                     $_POST['cp'],
                     $_POST['contacto'],
                     $_POST['id_proyecto'],
-                    $_POST['proyecto'],
+                    $_POST['propuesta'],
                     str_replace(array('.',','),array('','.'),$_POST['suma']),
                     $english,
                     $idPresu)
@@ -387,13 +390,14 @@ function copyPresupuesto($id, $origen = false)
                                 cif_cliente,
                                 cp_cliente,
                                 contacto_cliente,
+                                id_proyecto,
                                 nombre_proyecto,
                                 suma,
                                 autor,
                                 presu_origen,
                                 fecha_emision
                               )
-      values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $q = $pdo->prepare($sql);
 
     $fecha = date('Y-m-d');
@@ -410,6 +414,7 @@ function copyPresupuesto($id, $origen = false)
                 $datosPresupuesto['cif_cliente'],
                 $datosPresupuesto['cp_cliente'],
                 $datosPresupuesto['contacto_cliente'],
+                $datosPresupuesto['id_proyecto'],
                 $datosPresupuesto['nombre_proyecto'],
                 $datosPresupuesto['suma'],
                 $_SESSION['valid'],
@@ -495,7 +500,7 @@ function loadPresupuesto($id)
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $sql = "SELECT * from presupuesto where id = ?";
+    $sql = "SELECT * from listado_presus where id = ?";
     $q = $pdo->prepare($sql);
 
     $q->execute(array($id));
@@ -2303,7 +2308,7 @@ function exportExcel($tipo) {
                    ifnull(ref_cliente,''),
                    ifnull(nombre_cliente,''),
                    ifnull(contacto_cliente,''),
-                   ifnull(nombre_proyecto,''),
+                   ifnull(proyecto,''),
                    ifnull(po_ref,''),
                    ifnull(po_file,''),
                    estado,
@@ -2315,7 +2320,7 @@ function exportExcel($tipo) {
                    ifnull(DATE_FORMAT(fecha_facturacion,'%d/%m/%Y'),''),
                    ifnull(presu_origen,''),
                    autor
-            FROM presupuesto order by fecha_emision desc";
+            FROM listado_presus order by fecha_emision desc";
 
         $q = $pdo->prepare($sql);
         $q->execute();
@@ -2468,4 +2473,66 @@ function uploadFiles(){
         'upload_url'=> $otherDir_url
     );
     $upload_handler = new UploadHandler($options);
+}
+
+function updateHoras()
+{
+    if (!empty($_POST)) {
+        $currentYear = date('y');
+        foreach ($_POST as $fields => $horas) {
+            $split_fields = explode(':', $fields);
+            $id_proyecto = $split_fields[0];
+            $id_usuario = $split_fields[1];
+            $numSemana = $split_fields[2];
+
+            //echo $id_proyecto.' - '.$id_usuario.' - '.$numSemana.' - '.$horas.'<br>';
+            if (!empty($id_proyecto) && !empty($id_usuario) && !empty($numSemana) && !empty($horas)) {
+                $pdo = Database::connect('stack_bbgest');
+
+                try {
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    //buscar si existe la entrada en la bbdd de coeficiente
+                    $sql = "SELECT horas from coeficiente where id_proyecto=? and id_usuario=? and numSemana=? and year=?";
+                    $q = $pdo->prepare($sql);
+
+                    $q->execute(array($id_proyecto, $id_usuario, $numSemana, $currentYear));
+                    $data = $q->fetch();
+                } catch (Exception $e) {
+                    Database::disconnect();
+                    echo "Error al comprobar los datos ".$e;
+                    return;
+                }
+
+                if ($data) {
+                    //Update
+                    try {
+                        $sql_update = "UPDATE coeficiente SET horas = ? where id_proyecto=? and id_usuario=? and numSemana=? and year=?";
+                        $q_update = $pdo->prepare($sql_update);
+                        $q_update->execute(array($horas, $id_proyecto, $id_usuario, $numSemana, $currentYear));
+                    } catch (Exception $e) {
+                        Database::disconnect();
+                        echo "Error al actualizar los datos ".$e;
+                        return;
+                    }
+                } else {
+                    //Insert
+                    try {
+                        $sql_insert = "INSERT INTO coeficiente (horas,id_proyecto,id_usuario,numSemana,year) values(?, ?, ?, ?, ?)";
+                        $q_insert = $pdo->prepare($sql_insert);
+                        $q_insert->execute(array($horas, $id_proyecto, $id_usuario, $numSemana, $currentYear));
+                    } catch (Exception $e) {
+                        Database::disconnect();
+                        echo "Error al actualizar los datos ".$e;
+                        return;
+                    }
+                }
+                echo "Updated";
+                Database::disconnect();
+            } else {
+                echo "Datos incompletos o 0 horas introducidas";
+            }
+        }
+    } else {
+        echo "No hay datos";
+    }
 }

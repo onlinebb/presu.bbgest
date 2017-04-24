@@ -55,6 +55,7 @@
                     if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                     ?>
                     <li class=""><a href="control.php">Control</a></li>
+                        <li class=""><a href="coeficiente.php">Coeficientes</a></li>
                     <?php
                     endif;
                     ?>

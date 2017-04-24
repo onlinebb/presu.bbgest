@@ -306,3 +306,26 @@ a.logo:hover {
 td.fecha {
     white-space: nowrap;
 }
+
+table .small td {
+    line-height: 1 !important;
+    padding: 4px 8px !important;
+}
+
+table .border-right {
+    border-right-width: 2px !important;
+}
+
+table .border-top td {
+    border-top-width: 2px !important;
+}
+
+table td[contenteditable=true]:focus {
+    border: 1px solid #F95978;
+}
+
+div.overflow {
+    width: 100%;
+    height: auto;
+    overflow-x: auto;
+}

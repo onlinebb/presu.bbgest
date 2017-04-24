@@ -142,6 +142,7 @@ $direccion = "";
 $cif = "";
 $contacto = "";
 $proyecto = "";
+$propuesta = "";
 
 if(isset($datosPresu['fecha'])) {
     $fecha = trim(strftime('%e %B %G', strtotime($datosPresu['fecha'])));
@@ -161,8 +162,11 @@ if(isset($datosPresu['cif_cliente'])) {
 if(isset($datosPresu['contacto_cliente'])) {
     $contacto = $datosPresu['contacto_cliente'];
 }
-if(isset($datosPresu['nombre_proyecto'])) {
-    $proyecto = $datosPresu['nombre_proyecto'];
+if(isset($datosPresu['proyecto'])) {
+    $proyecto = $datosPresu['proyecto'];
+}
+if(isset($datosPresu['nombre_propuesta'])) {
+    $propuesta = $datosPresu['nombre_propuesta'];
 }
 
 // Pintar cabecera presupuesto
@@ -189,7 +193,10 @@ $cabecera =
            <td><b>Proyecto</b></td>
            <td><span style="color:#F95978;font-weight:bold;">' . nl2br($proyecto) . '<br></span></td>
         </tr>
-
+        <tr>
+           <td><b>Propuesta</b></td>
+           <td><span style="color:#F95978;font-weight:bold;">' . nl2br($propuesta) . '<br></span></td>
+        </tr>
     </table>
     <br>
     <div style="border-bottom:1px solid #F95978; color: #F95978;"><b>Concepto</b></div>';

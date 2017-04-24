@@ -57,7 +57,7 @@ $(function () {
             $('#id-empresa').val(obj.id);
             $('#ref-empresa').val(obj.ref_cliente);
 
-            $('#proyecto').removeAttr("disabled");
+            //$('#proyecto').removeAttr("disabled");
 
             if($('.honorarios-wrapper').length > 0) {
                 $.get("honorarios-modal.php?id_cliente="+$('#id-empresa').val(), function(data) {
@@ -575,7 +575,7 @@ $(function () {
                     cif: $('#cif-cliente').val(),
                     cp: $('#cp-cliente').val(),
                     contacto: $('#contacto').val(),
-                    proyecto: $('#proyecto').val(),
+                    propuesta: $('#propuesta').val(),
                     id_proyecto: $('#id_proyecto').val(),
                     empresa: $('#id-empresa').val(),
                     empresa_orig: $('#id-empresa-orig').val(),
@@ -725,7 +725,7 @@ $(function () {
                     cif: $('#cif-cliente').val(),
                     cp: $('#cp-cliente').val(),
                     contacto: $('#contacto').val(),
-                    proyecto: $('#proyecto').val(),
+                    propuesta: $('#propuesta').val(),
                     id_proyecto: $('#id_proyecto').val(),
                     empresa: $('#id-empresa').val(),
                     empresa_orig: $('#id-empresa-orig').val(),
@@ -1229,8 +1229,9 @@ $(function () {
         $('#cif').val($('#cif-cliente').val());
         $('#cp').val($('#cp-cliente').val());
         $('#contactocl').val($('#contacto').val());
-        $('#nproyecto').val($('#proyecto').val());
+        $('#tpropuesta').val($('#propuesta').val());
         $('#idproyecto').val($('#id_proyecto').val());
+        $('#tpropuesta').val($('#propuesta').val());
         $('#total').val($('#sumag').val());
         //$('#suma-vis').text($('#total').val());
     });
@@ -1330,4 +1331,24 @@ $(function () {
             .call(this, $.Event('done'), {result: result});
     });
     /*END FILE UPLOAD*/
+
+    //Edit contenteditable table
+    //var message_status = $("#status");
+    $("td[contenteditable=true]").on('blur', function(){
+        var fields = $(this).attr("id") ;
+        var value = $(this).text();
+
+        console.log('enviar '+fields + "=" + value);
+
+        $.post('lib/functions.php?action=updateHoras' , fields + "=" + value, function(data){
+            if(data != '')
+            {
+                console.log('output: '+data);
+                //message_status.show();
+                //message_status.text(data);
+                //hide the message
+                //setTimeout(function(){message_status.hide()},3000);
+            }
+        });
+    });
 });
