@@ -1334,11 +1334,11 @@ $(function () {
 
     //Edit contenteditable table
     //var message_status = $("#status");
-    $("td[contenteditable=true]").on('blur', function(){
+    $(".horas-proyecto td[contenteditable=true]").on('blur', function(){
         var fields = $(this).attr("id") ;
         var value = $(this).text();
 
-        console.log('enviar '+fields + "=" + value);
+        //console.log('enviar '+fields + "=" + value);
 
         $.post('lib/functions.php?action=updateHoras' , fields + "=" + value, function(data){
             if(data != '')
@@ -1351,4 +1351,66 @@ $(function () {
             }
         });
     });
+
+    $(".salarios td[contenteditable=true]").on('blur', function(){
+        var userid = $(this).data("userid") ;
+        var salario = $(this).text();
+
+        console.log('user '+userid + "=" + salario);
+
+        $.post('lib/functions.php?action=updateSalario' , {"userid":userid,"salario":salario}, function(data){
+            if(data != '')
+            {
+                console.log('output: '+data);
+            }
+        });
+    });
+
+    $(".coef-bruto td.costes[contenteditable=true]").on('focus', function(){
+        var valor = (parseFloat($(this).data('value'))).toFixed(2);
+        $(this).text(valor);
+    });
+    $(".coef-bruto td.costes[contenteditable=true]").on('blur', function(){
+        //console.log(parseFloat($(this).text()));
+        var valor = (parseFloat($(this).text())).formatMoney(2);
+        $(this).data('value', $(this).text());
+        $(this).text(valor);
+        updateCoeficiente($(this).data('semana'));
+    });
+
+    $(".coef-bruto td.costes-extra[contenteditable=true]").on('focus', function(){
+        var valor = (parseFloat($(this).data('value'))).toFixed(2);
+        $(this).text(valor);
+    });
+    $(".coef-bruto td.costes-extra[contenteditable=true]").on('blur', function(){
+        //console.log($(this).text());
+        var valor = (parseFloat($(this).text())).formatMoney(2);
+        $(this).data('value', $(this).text());
+        $(this).text(valor);
+        updateCoeficiente($(this).data('semana'));
+    });
+
+    function updateCoeficiente(semana) {
+        var ganados = parseFloat($('.semana-'+semana+' .ganados').data('value'));
+        var costes = parseFloat($('.semana-'+semana+' .costes').data('value'));
+        //console.log(costes);
+        var costesExtra = parseFloat($('.semana-'+semana+' .costes-extra').data('value'));
+
+        var coef = ganados/(costes+costesExtra);
+        $('.semana-'+semana+' .coef').data('value',coef.toFixed(2));
+        $('.semana-'+semana+' .coef').text(coef.formatMoney(2));
+
+        //console.log(coef.formatMoney(2));
+        //guardar en db
+        var fields = costes.toFixed(2)+':'+costesExtra.toFixed(2)+':'+coef.toFixed(2);
+
+        console.log('enviar '+fields + "=" + semana);
+
+        $.post('lib/functions.php?action=updateCostes' , fields + "=" + semana, function(data){
+            if(data != '')
+            {
+                console.log('output: '+data);
+            }
+        });
+    }
 });

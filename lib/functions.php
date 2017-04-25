@@ -83,6 +83,12 @@ if (isset($_GET["action"])) {
         case "updateHoras":
             updateHoras();
             break;
+        case "updateSalario":
+            updateSalario();
+            break;
+        case "updateCostes":
+            updateCostes();
+            break;
     }
 }
 
@@ -2486,7 +2492,7 @@ function updateHoras()
             $numSemana = $split_fields[2];
 
             //echo $id_proyecto.' - '.$id_usuario.' - '.$numSemana.' - '.$horas.'<br>';
-            if (!empty($id_proyecto) && !empty($id_usuario) && !empty($numSemana) && !empty($horas)) {
+            if (!empty($id_proyecto) && !empty($id_usuario) && !empty($numSemana)) {
                 $pdo = Database::connect('stack_bbgest');
 
                 try {
@@ -2529,7 +2535,98 @@ function updateHoras()
                 echo "Updated";
                 Database::disconnect();
             } else {
-                echo "Datos incompletos o 0 horas introducidas";
+                echo "Datos incompletos";
+            }
+        }
+    } else {
+        echo "No hay datos";
+    }
+}
+
+function updateSalario()
+{
+    if (!empty($_POST)) {
+        $id_usuario = $_POST['userid'];
+        $salario = $_POST['salario'];
+
+        if (!empty($id_usuario) && !empty($salario)) {
+            $pdo = Database::connect('stack_bbgest');
+            //Update
+            try {
+                $sql_update = "UPDATE usuarios SET salario = ? where id=?";
+                $q_update = $pdo->prepare($sql_update);
+                $q_update->execute(array($salario, $id_usuario));
+            } catch (Exception $e) {
+                Database::disconnect();
+                echo "Error al actualizar los datos " . $e;
+                return;
+            }
+
+            echo "Updated";
+            Database::disconnect();
+        } else {
+            echo "Datos incompletos";
+        }
+    } else {
+        echo "No hay datos";
+    }
+}
+
+function updateCostes()
+{
+    if (!empty($_POST)) {
+        $currentYear = date('y');
+        foreach ($_POST as $fields => $numSemana) {
+            $fields = str_replace('_','.', $fields);
+            $split_fields = explode(':', $fields);
+            $costes = $split_fields[0];
+            $costes_extra = $split_fields[1];
+            $coeficiente = $split_fields[2];
+
+            if (!empty($numSemana)) {
+                $pdo = Database::connect('stack_bbgest');
+
+                try {
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    //buscar si existe la entrada en la bbdd de coeficiente
+                    $sql = "SELECT 1 from costes where numSemana=? and year=?";
+                    $q = $pdo->prepare($sql);
+
+                    $q->execute(array($numSemana, $currentYear));
+                    $data = $q->fetch();
+                } catch (Exception $e) {
+                    Database::disconnect();
+                    echo "Error al comprobar los datos ".$e;
+                    return;
+                }
+
+                if ($data) {
+                    //Update
+                    try {
+                        $sql_update = "UPDATE costes SET costes=?, costes_extra=?, coeficiente=? where numSemana=? and year=?";
+                        $q_update = $pdo->prepare($sql_update);
+                        $q_update->execute(array($costes, $costes_extra, $coeficiente, $numSemana, $currentYear));
+                    } catch (Exception $e) {
+                        Database::disconnect();
+                        echo "Error al actualizar los datos ".$e;
+                        return;
+                    }
+                } else {
+                    //Insert
+                    try {
+                        $sql_insert = "INSERT INTO costes (costes,costes_extra,coeficiente,numSemana,year) values(?, ?, ?, ?, ?)";
+                        $q_insert = $pdo->prepare($sql_insert);
+                        $q_insert->execute(array($costes, $costes_extra, $coeficiente, $numSemana, $currentYear));
+                    } catch (Exception $e) {
+                        Database::disconnect();
+                        echo "Error al actualizar los datos ".$e;
+                        return;
+                    }
+                }
+                echo "Updated";
+                Database::disconnect();
+            } else {
+                echo "Datos incompletos";
             }
         }
     } else {
