@@ -342,7 +342,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
             for ($j = 0; $j < count($data_proyectos); $j++):
                 ?>
                 <tr class="row-proyecto <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
-                    <td><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?></td>
+                    <td class="headcol"><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?></td>
                     <?php
                     foreach ($data_usuarios as $usuario):
 
