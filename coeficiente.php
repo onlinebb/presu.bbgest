@@ -29,7 +29,7 @@ $sql_proyectos = "select pr.nombre, pr.id, pr.kickoff, de.f_entrega as delivery_
                   left join campaigns ca on pr.id_campanya=ca.id 
                   left join deliverables de on ca.id=de.id_campaign 
                   left join presu14.presupuesto presu on presu.id_proyecto=pr.id 
-                  where de.nombre='PTC' AND pr.kickoff>0 AND (presu.estado<>'no aceptado' or presu.estado is null) group by pr.id";//"select pr.nombre, pr.id, pr.kickoff, pr.delivery_date, pr.euros from coeficiente co left join proyectos pr on pr.id=co.id_proyecto group by id_proyecto";
+                  where de.nombre='PTC' AND pr.kickoff>0 AND (presu.estado<>'no aceptado' or presu.estado is null) AND (presu.estado<>'pendiente' or presu.estado is null) group by pr.id";//"select pr.nombre, pr.id, pr.kickoff, pr.delivery_date, pr.euros from coeficiente co left join proyectos pr on pr.id=co.id_proyecto group by id_proyecto";
 $q_proyectos = $pdo->prepare($sql_proyectos);
 $q_proyectos->execute(array());
 $data_proyectos = $q_proyectos->fetchAll(PDO::FETCH_ASSOC);
@@ -300,17 +300,23 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
     </table>
 
     <div class="overflow">
-        <table class="horas-proyecto table table-bordered table-striped table-curved">
+        <table class="horas-proyecto table table-bordered table-hover table-striped-column table-curved">
             <thead>
             <tr>
                 <th>HORAS/PROYECTO</th>
                 <?php
-                foreach ($data_usuarios as $usuario):
-                    ?>
-                    <th class="text-center border-right"
-                        colspan="<?= $semanaFin - $semanaIni + 1 ?>"><?= $usuario['nombre'] ?></th>
-                    <?php
-                endforeach;
+                for ($i = $semanaIni; $i <= $semanaFin; $i++):
+
+                    if ($i == $semanaFin):
+                        ?>
+                        <th colspan="<?= count($data_usuarios)?>" class="info border-right text-center"><?= $i ?></th>
+                        <?php
+                    else:
+                        ?>
+                        <th colspan="<?= count($data_usuarios)?>" class="info text-center"><?= $i ?></th>
+                        <?php
+                    endif;
+                endfor;
                 ?>
             </tr>
             </thead>
@@ -319,21 +325,15 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
             <tr class="small text-center">
                 <td>&nbsp;</td>
                 <?php
-                foreach ($data_usuarios as $usuario):
+                for ($i = $semanaIni; $i <= $semanaFin; $i++):
 
-                    for ($i = $semanaIni; $i <= $semanaFin; $i++):
+                    foreach ($data_usuarios as $usuario):
+                        ?>
+                        <th class="text-center border-right"><?= $usuario['nombre'] ?></th>
+                        <?php
+                    endforeach;
 
-                        if ($i == $semanaFin):
-                            ?>
-                            <td class="info border-right"><?= $i ?></td>
-                            <?php
-                        else:
-                            ?>
-                            <td class="info"><?= $i ?></td>
-                            <?php
-                        endif;
-                    endfor;
-                endforeach;
+                endfor;
                 ?>
             </tr>
 
@@ -344,14 +344,13 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                 <tr class="row-proyecto <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
                     <td class="headcol"><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?></td>
                     <?php
-                    foreach ($data_usuarios as $usuario):
 
-                        for ($i = $semanaIni; $i <= $semanaFin; $i++):
-
+                    for ($i = $semanaIni; $i <= $semanaFin; $i++):
+                        foreach ($data_usuarios as $usuario):
                             //Sumatorio de horas por usuario y proyecto en una semana
                             $sql_horas = 'SELECT id_usuario, ifnull(sum(co.horas),0) as suma_horas from coeficiente co 
-                                              left join usuarios us on us.id=co.id_usuario 
-                                              where co.id_proyecto=' . $data_proyectos[$j]['id'] . ' and co.numSemana=' . $i . ' group by co.id_usuario;';
+                                          left join usuarios us on us.id=co.id_usuario 
+                                          where co.id_proyecto=' . $data_proyectos[$j]['id'] . ' and co.numSemana=' . $i . ' group by co.id_usuario;';
                             $q_horas = $pdo->prepare($sql_horas);
                             $q_horas->execute(array());
                             $data_horas = $q_horas->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
@@ -371,8 +370,8 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                                 <td id="<?= $data_proyectos[$j]['id'].':'.$usuario['id'].':'.$i ?>" contenteditable="true" class="text-center"><?= $horas_user ?></td>
                                 <?php
                             endif;
+                        endforeach;
                         endfor;
-                    endforeach;
                     ?>
                 </tr>
                 <?php
