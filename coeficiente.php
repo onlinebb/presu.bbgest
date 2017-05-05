@@ -13,6 +13,9 @@ require_once('header.php');
 include 'lib/database.php';
 
 $semanaIni = 10;
+if(date('W')-12 > 10) {
+    $semanaIni = date('W')-12;
+}
 $semanaFin = date('W');
 
 $pdo = Database::connect('stack_bbgest');
@@ -25,11 +28,11 @@ $q_usuarios->execute(array());
 $data_usuarios = $q_usuarios->fetchAll(PDO::FETCH_ASSOC);
 
 //SQL lista proyectos con datos en tabla coeficiente
-$sql_proyectos = "select pr.nombre, pr.id, pr.kickoff, de.f_entrega as delivery_date, ifnull(sum(presu.suma),0) as euros from proyectos pr 
+$sql_proyectos = "select pr.nombre, pr.id, pr.kickoff, de.f_entrega as delivery_date, ifnull(sum(presu.suma),0) as euros, presu.estado from proyectos pr  
                   left join campaigns ca on pr.id_campanya=ca.id 
                   left join deliverables de on ca.id=de.id_campaign 
                   left join presu14.presupuesto presu on presu.id_proyecto=pr.id 
-                  where de.nombre='PTC' AND pr.kickoff>0 AND (presu.estado<>'no aceptado' or presu.estado is null) AND (presu.estado<>'pendiente' or presu.estado is null) group by pr.id";//"select pr.nombre, pr.id, pr.kickoff, pr.delivery_date, pr.euros from coeficiente co left join proyectos pr on pr.id=co.id_proyecto group by id_proyecto";
+                  where de.nombre='PTC' AND pr.kickoff>0 AND (presu.estado<>'no aceptado' or presu.estado is null) group by pr.id";//"select pr.nombre, pr.id, pr.kickoff, pr.delivery_date, pr.euros from coeficiente co left join proyectos pr on pr.id=co.id_proyecto group by id_proyecto";
 $q_proyectos = $pdo->prepare($sql_proyectos);
 $q_proyectos->execute(array());
 $data_proyectos = $q_proyectos->fetchAll(PDO::FETCH_ASSOC);
@@ -77,7 +80,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
             $semanas_imputables = $diferencia_dias / $diasSemana;
             $euros_semana = $data_proyectos[$j]['euros'] / $semanas_imputables;
             ?>
-            <tr class="row-proyecto <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
+            <tr class="row-proyecto <?= ($data_proyectos[$j]['estado']=='pendiente')?'warning':''?> <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
                 <td><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?> (Total: <?=number_format($data_proyectos[$j]['euros'], 0, ',', '.')?>&euro; / Semanas: <?=number_format($semanas_imputables, 0, ',', '.')?> / <?=number_format($euros_semana, 0, ',', '.')?>&euro;/sem.)</td>
                 <?php
 
@@ -104,12 +107,12 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     $semanakickoff = date('W', $fechaIni);
                     $semanaDelivery = date('W', $fechaFin);
 
-                    if($i>=$semanakickoff && $i<=$semanaDelivery) {
+                    if($i>=$semanakickoff && $i<=$semanaDelivery && $data_proyectos[$j]['estado']!='pendiente') {
                         $SumaSemanal[$i] = $SumaSemanal[$i] + $euros_semana;
                     }
                     ?>
                     <td class="text-center">
-                        <?=($i>=$semanakickoff && $i<=$semanaDelivery)?number_format($euros_semana, 0, ',', '.'):0?>&euro;
+                        <?=($i>=$semanakickoff && $i<=$semanaDelivery && $data_proyectos[$j]['estado']!='pendiente')?number_format($euros_semana, 0, ',', '.'):0?>&euro;
                         <br>
                         <?php
 
@@ -136,7 +139,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                             //echo $euros['id_usuario'].' = '.$euros['suma_euros'].' + '.$data_euros_perdidos['euros_perdidos_proyecto'].'<br>';
                         endforeach;
                         //echo $sumaSemana;
-                        if (empty($sumaSemana)) {
+                        if (empty($sumaSemana) || $data_proyectos[$j]['estado']=='pendiente') {
                             echo '0,00';
                         } else {
                             echo number_format((float)$euros_semana / $sumaSemana, 2, ',', '.');
@@ -149,7 +152,9 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                 endfor;
                 $numSemanas = $i - $semanaIni;
                 ?>
-                <td class="text-center"><?= number_format((float)$data_proyectos[$j]['euros'] / $data_acumulado['suma_acumulado'], 2, ',', '.')//number_format((float)$sumaCoeficientes/$numSemanas, 2, ',', '')  ?></td>
+                <td class="text-center">
+                    <?= ($data_proyectos[$j]['estado']=='pendiente')?'0,00':number_format((float)$data_proyectos[$j]['euros'] / $data_acumulado['suma_acumulado'], 2, ',', '.') ?>
+                </td>
             </tr>
             <?php
         endfor;
@@ -303,7 +308,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
         <table class="horas-proyecto table table-bordered table-hover table-striped-column table-curved">
             <thead>
             <tr>
-                <th>HORAS/PROYECTO</th>
+                <th class="headcol">HORAS/PROYECTO</th>
                 <?php
                 for ($i = $semanaIni; $i <= $semanaFin; $i++):
 

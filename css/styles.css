@@ -325,11 +325,18 @@ table td[contenteditable=true]:focus {
 }
 
 div.overflow {
-    width: 100%;
+    width: 74%;
     height: auto;
-    overflow-x: auto;
+    overflow-x:scroll;
+    margin-left: 300px;
 }
 
 .table-striped-column > tbody > tr td:nth-of-type(odd) {
     background-color: #f9f9f9;
+}
+
+.headcol {
+    position:absolute;
+    width: 300px;
+    margin-left: -300px;
 }

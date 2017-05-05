@@ -2549,7 +2549,7 @@ function updateSalario()
         $id_usuario = $_POST['userid'];
         $salario = $_POST['salario'];
 
-        if (!empty($id_usuario) && !empty($salario)) {
+        if (!empty($id_usuario)) {
             $pdo = Database::connect('stack_bbgest');
             //Update
             try {
