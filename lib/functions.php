@@ -2633,3 +2633,70 @@ function updateCostes()
         echo "No hay datos";
     }
 }
+
+function updateCostesCron()
+{
+    $currentYear = date('y');
+    $weekToSave = date('W')-1;
+
+    $pdo = Database::connect('stack_bbgest');
+
+    try {
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        //buscar si existe la entrada en la bbdd de coeficiente
+        $sql = "SELECT 1 from costes where numSemana=? and year=?";
+        $q = $pdo->prepare($sql);
+
+        $q->execute(array($weekToSave, $currentYear));
+        $data = $q->fetch();
+
+        $sql_euros_semana = "SELECT ifnull(sum(co.horas*(us.salario/1560)),0) as suma_semanal from coeficiente co 
+                                              left join usuarios us on us.id=co.id_usuario 
+                                              left join proyectos pr on pr.id=co.id_proyecto 
+                                              where co.numSemana=' . $weekToSave . '";
+
+        $q_euros_semana = $pdo->prepare($sql_euros_semana);
+        $q_euros_semana->execute(array());
+        $data_euros_semana = $q_euros_semana->fetch();
+
+        $sql_proyectos_semana = "select week(de.f_entrega) as deli, week(now()),pr.nombre, pr.id, pr.kickoff, 
+                                 de.f_entrega as delivery_date, ifnull(sum(presu.suma),0) as euros, presu.estado 
+                                 from proyectos pr left join campaigns ca on pr.id_campanya=ca.id 
+                                 left join deliverables de on ca.id=de.id_campaign 
+                                 left join presu14.presupuesto presu on presu.id_proyecto=pr.id 
+                                 where de.nombre='PTC' AND pr.kickoff>0 
+                                 AND (presu.estado<>'no aceptado' or presu.estado is null) 
+                                 AND week(de.f_entrega) >= week(now()) group by pr.id ";
+
+    } catch (Exception $e) {
+        Database::disconnect();
+        echo "Error al comprobar los datos ".$e;
+        return;
+    }
+
+    if ($data) {
+        //Update
+        try {
+            $sql_update = "UPDATE costes SET costes=?, costes_extra=?, coeficiente=? where numSemana=? and year=?";
+            $q_update = $pdo->prepare($sql_update);
+            $q_update->execute(array($data_euros_semana['suma_semanal'], 0.00, $coeficiente, $weekToSave, $currentYear));
+        } catch (Exception $e) {
+            Database::disconnect();
+            echo "Error al actualizar los datos ".$e;
+            return;
+        }
+    } else {
+        //Insert
+        try {
+            $sql_insert = "INSERT INTO costes (costes,costes_extra,coeficiente,numSemana,year) values(?, ?, ?, ?, ?)";
+            $q_insert = $pdo->prepare($sql_insert);
+            $q_insert->execute(array($data_euros_semana['suma_semanal'], 0.00, $coeficiente, $weekToSave, $currentYear));
+        } catch (Exception $e) {
+            Database::disconnect();
+            echo "Error al actualizar los datos ".$e;
+            return;
+        }
+    }
+    echo "Updated";
+    Database::disconnect();
+}

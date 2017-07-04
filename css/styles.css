@@ -324,19 +324,19 @@ table td[contenteditable=true]:focus {
     border: 1px solid #F95978;
 }
 
-div.overflow {
-    width: 74%;
+/*div.overflow {
+    width: 100%;
     height: auto;
     overflow-x:scroll;
     margin-left: 300px;
-}
+}*/
 
 .table-striped-column > tbody > tr td:nth-of-type(odd) {
     background-color: #f9f9f9;
 }
 
-.headcol {
+/*.headcol {
     position:absolute;
     width: 300px;
     margin-left: -300px;
-}
+}*/
