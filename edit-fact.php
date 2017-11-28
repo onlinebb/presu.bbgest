@@ -23,7 +23,7 @@ if (null == $id) {
 } else {
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT * FROM factura left join presupuesto on factura.presupuesto_asoc = presupuesto.ref where factura.id = ? ";
+    $sql = "SELECT *, factura.fecha_emision AS fecha_emision_factura FROM factura left join presupuesto on factura.presupuesto_asoc = presupuesto.ref where factura.id = ? ";
     $q = $pdo->prepare($sql);
     $q->execute(array($id));
     $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -85,7 +85,7 @@ if (null == $id) {
                         <label class="col-md-6 control-label" for="fecha_emision">Fecha emisión</label>
 
                         <div class="col-md-6">
-                            <input id="fecha_emision" name="fecha_emision" placeholder="dd-mm-yyyy" class="form-control input-sm date" type="text" value="<?php echo date('d-m-Y', strtotime($data['fecha_emision'])); ?>">
+                            <input id="fecha_emision" name="fecha_emision" placeholder="dd-mm-yyyy" class="form-control input-sm date" type="text" value="<?php echo date('d-m-Y', strtotime($data['fecha_emision_factura'])); ?>">
                         </div>
                     </div>
 

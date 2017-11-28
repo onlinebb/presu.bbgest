@@ -1409,7 +1409,11 @@ $(function () {
         //console.log(costes);
         var costesExtra = parseFloat($('.semana-'+semana+' .costes-extra').data('value'));
 
-        var coef = ganados/(costes+costesExtra);
+        var coef = 1-((costes+costesExtra)/ganados);
+        if(ganados == 0.00) {
+            coef = -1.00;
+        }
+
         $('.semana-'+semana+' .coef').data('value',coef.toFixed(2));
         $('.semana-'+semana+' .coef').text(coef.formatMoney(2));
 
