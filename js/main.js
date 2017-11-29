@@ -1430,4 +1430,61 @@ $(function () {
             }
         });
     }
+
+    /** Recogida horas **/
+
+    if($('.recogida-horas').length > 0) {
+        $('#dfecha').bootstrapDP('update', new Date());
+
+        $('#dproyecto').typeahead({
+            source: function (query, response) {
+                return $.getJSON("lib/functions.php?action=searchProyecto2&text=" + query,
+                    function (result, status) {
+                        //console.log(result);
+                        response($.map(result, function (item) {
+                            return {
+                                id: item.id,
+                                label: item.nombre,
+                                ref_proyecto: item.ref_proyecto
+                            }
+                        }));
+                    });
+            },
+            onselect: function (element, obj) {
+                element.val(obj.label);
+                $('#did_proyecto').val(obj.id);
+            },
+            property: "label",
+            minLength: 2
+        });
+
+        $('#input_horas').submit(function (e) {
+            if($('#dusuario').val() != '' && $('#did_proyecto').val() != '' && $('#ndeliverable').val() != '' && $('#dfecha').val() != '' && $('#nhoras').val() != '') {
+                $.ajax({
+                    type: "POST",
+                    //dataType: "json",
+                    url: "lib/functions.php?action=saveHoras",
+                    data: {
+                        dusuario: $('#dusuario').val(),
+                        did_proyecto: $('#did_proyecto').val(),
+                        ndeliverable: $('#ndeliverable').val(),
+                        dfecha: $('#dfecha').val(),
+                        nhoras: $('#nhoras').val(),
+                    },
+                    success: function (data) {
+                        //ok
+                        $('#horas_guardadas').append(data);
+                        $('#ndeliverable').val('');
+                        $('#nhoras').val('');
+                    },
+                    error: function (e) {
+                        console.log("Error: " + e.message);
+                    }
+                });
+            }
+
+            e.preventDefault();
+        });
+    }
+
 });

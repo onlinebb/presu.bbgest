@@ -366,6 +366,12 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     <button type="submit" class="btn btn-primary form-control">Mostrar</button>
                 </div>
             </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <a target="_blank" href="./recogida-horas.php" class="btn btn-primary form-control">Recogida horas</a>
+                </div>
+            </div>
         </form>
 
         <table class="horas-proyecto table table-bordered table-hover table-striped-column table-curved">

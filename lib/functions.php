@@ -74,6 +74,9 @@ if (isset($_GET["action"])) {
         case "searchProyecto":
             searchProyecto($_GET['text'], $_GET['cliente']);
             break;
+        case "searchProyecto2":
+            searchProyecto2($_GET['text']);
+            break;
         case "saveHonorarios":
             saveHonorarios($_POST['id_cliente'], $_POST['honorarios']);
             break;
@@ -88,6 +91,9 @@ if (isset($_GET["action"])) {
             break;
         case "updateCostes":
             updateCostes();
+            break;
+        case "saveHoras":
+            saveHoras($_POST['dusuario'],$_POST['did_proyecto'],$_POST['ndeliverable'],$_POST['dfecha'],$_POST['nhoras']);
             break;
     }
 }
@@ -2425,6 +2431,40 @@ function searchProyecto($text, $cliente)
 }
 
 /**
+ * Buscar proyecto que su nombre contenga el texto y pertenezca al cliente en cuestión
+ * @param $text
+ */
+function searchProyecto2($text)
+{
+    $pdo = Database::connect('stack_bbgest');
+
+    $sql = "SELECT p.*, c.nombre as campanya, c.year as year FROM proyectos p left join campaigns c on c.id=p.id_campanya where p.nombre like ?";
+
+    $pdo -> exec('SET NAMES utf8'); // METHOD #3
+
+    $q = $pdo->prepare($sql);
+    $q->bindValue(1, "%$text%", PDO::PARAM_STR);
+    $result = array();
+    $count = 0;
+    $q->execute();
+    $data = $q->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($data as $row) {
+
+        $result[$count]['nombre'] = $row['nombre'];
+        $result[$count]['id'] = $row['id'];
+        $result[$count]['ref_proyecto'] = $row['ref'];
+        $result[$count]['campanya'] = $row['campanya'];
+        $result[$count]['year'] = $row['year'];
+
+        $count++;
+    }
+    print json_encode($result);
+
+    Database::disconnect();
+}
+
+/**
  * @param $id_cliente, $precios
  * Guardar $precios personalizados en tabla de precios_honorarios para el cliente en cuestión
  */
@@ -2699,4 +2739,51 @@ function updateCostesCron()
     }
     echo "Updated";
     Database::disconnect();
+}
+
+/**
+ * Guardar horas recogidas
+ * ($_POST['dusuario'],$_POST['did_proyecto'],$_POST['ndeliverable'],$_POST['dfecha'],$_POST['nhoras']);
+ */
+function saveHoras($usuario, $id_proyecto, $deliverable, $fecha, $horas)
+{
+    $pdo = Database::connect('stack_bbgest');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $year = date('y');
+    $semana_activa = date('W');
+    $fecha = date('Y-m-d', strtotime($fecha));
+
+    //guardar datos del presupuesto
+    $sql = "INSERT INTO recogida_horas (
+                                id_proyecto,
+                                deliverable,
+                                id_usuario,
+                                year,
+                                numSemana,
+                                fecha,
+                                horas
+                              )
+      values(?, ?, ?, ?, ?, ?, ?)";
+    $q = $pdo->prepare($sql);
+
+    try {
+        $q->execute(
+            array(
+                $id_proyecto,
+                $deliverable,
+                $usuario,
+                $year,
+                $semana_activa,
+                $fecha,
+                $horas)
+        );
+    } catch (Exception $e) {
+        print $e;
+    }
+
+
+    Database::disconnect();
+
+    print $usuario.': '.$id_proyecto.' - '.$deliverable.' - '. $fecha.' - '.$horas.'h<br>';
 }
