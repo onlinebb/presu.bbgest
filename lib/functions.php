@@ -2750,12 +2750,12 @@ function saveHoras($usuario, $id_proyecto, $deliverable, $fecha, $horas)
     $pdo = Database::connect('stack_bbgest');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $year = date('y');
+    $year = date('Y');
     $semana_activa = date('W');
     $fecha = date('Y-m-d', strtotime($fecha));
 
     //guardar datos del presupuesto
-    $sql = "INSERT INTO recogida_horas (
+    $sql = "INSERT INTO coeficiente (
                                 id_proyecto,
                                 deliverable,
                                 id_usuario,

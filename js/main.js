@@ -1344,7 +1344,7 @@ $(function () {
     if($('.coeficientes').length > 0) {
         var hoy = new Date();
         var semanaActual = hoy.getWeekNumber();
-        console.log(hoy.getWeekNumber());
+        //console.log(hoy.getWeekNumber());
     }
 
     $(".horas-proyecto td[contenteditable=true]").on('blur', function(){
@@ -1459,7 +1459,11 @@ $(function () {
         });
 
         $('#input_horas').submit(function (e) {
+            e.preventDefault();
             if($('#dusuario').val() != '' && $('#did_proyecto').val() != '' && $('#ndeliverable').val() != '' && $('#dfecha').val() != '' && $('#nhoras').val() != '') {
+                var horas = $('#nhoras').val();
+                horas = horas.replace(',','.');
+                horas = parseFloat(horas);
                 $.ajax({
                     type: "POST",
                     //dataType: "json",
@@ -1469,7 +1473,7 @@ $(function () {
                         did_proyecto: $('#did_proyecto').val(),
                         ndeliverable: $('#ndeliverable').val(),
                         dfecha: $('#dfecha').val(),
-                        nhoras: $('#nhoras').val(),
+                        nhoras: horas,
                     },
                     success: function (data) {
                         //ok
@@ -1482,8 +1486,6 @@ $(function () {
                     }
                 });
             }
-
-            e.preventDefault();
         });
     }
 
