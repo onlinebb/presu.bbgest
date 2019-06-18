@@ -211,6 +211,11 @@ foreach ($conceptos as $concepto) {
 
     //inicio tabla
     $html .= '<table nobr="true" cellspacing="0" cellpadding="0" border="0">';
+    if($concepto['concepto']=='pgbreak') {
+        $concepto['concepto'] = "";
+        // add a page
+        $pdf->AddPage();
+    }
 
     foreach ($orden as $item) {
         $concep = "";

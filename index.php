@@ -37,8 +37,8 @@ require_once('header.php');
     </div>
 
     <!--<div class="div-anyo clearfix"><input type="text" class="form-control input-sm" id="anyo-export" name="anyo-export" placeholder="Año exportación"></div>-->
-    <?php
-    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+<?php
+if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
     ?>
     <a href="lib/functions.php?action=exportExcel&tipo=presupuestos" class="btn btn-primary btn-sm pull-right exportar-presus">
         <span class="glyphicon glyphicon-export"></span> Exportar Presupuestos
@@ -46,9 +46,9 @@ require_once('header.php');
     <a href="lib/functions.php?action=exportExcel&tipo=facturas" target="_blank" class="btn btn-primary btn-sm pull-right exportar-fact">
         <span class="glyphicon glyphicon-export"></span> Exportar Facturas
     </a>
-    <?php
-    endif;
-    ?>
+<?php
+endif;
+?>
 
     <div class="listado">
         <div class="row">
@@ -113,48 +113,48 @@ require_once('header.php');
                             include 'lib/database.php';
                             $pdo = Database::connect();
 
-                        if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+                            if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
 
-                            //Busqueda
-                            if (isset($_GET["search"])) {
-                                $search = "concat(ref, nombre_cliente, ifnull(ref_cliente,''), ifnull(nombre_propuesta,''), ifnull(proyecto,'')) like '%".$_GET["search"]."%'";
-                            }
-                            else {
-                                $search = "1=1";
-                            }
+                                //Busqueda
+                                if (isset($_GET["search"])) {
+                                    $search = "concat(ref, nombre_cliente, ifnull(ref_cliente,''), ifnull(nombre_propuesta,''), ifnull(proyecto,'')) like '%".$_GET["search"]."%'";
+                                }
+                                else {
+                                    $search = "1=1";
+                                }
 
-                            if (isset($_GET["allpresus"])) {
-                                $where = " WHERE ".$search;
-                                $pagAllPresus = "&allpresus=1";
-                            } else {
-                                $where = " WHERE estado IN ('pendiente', 'aceptado', 'facturado parcialmente') AND ".$search;
-                                $pagAllPresus = "";
-                            }
+                                if (isset($_GET["allpresus"])) {
+                                    $where = " WHERE ".$search;
+                                    $pagAllPresus = "&allpresus=1";
+                                } else {
+                                    $where = " WHERE estado IN ('pendiente', 'aceptado', 'facturado parcialmente') AND ".$search;
+                                    $pagAllPresus = "";
+                                }
 
-                            $sql_aceptados = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'aceptado'";
-                            $sql_pendientes = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'pendiente'";
-                            $sql_pendiente_parcial = "SELECT SUM(suma-(SELECT sum(factura.subtotal) FROM factura where presupuesto_asoc = presupuesto.ref and estado <>'abonada')) AS total_presus from presupuesto WHERE estado ='facturado parcialmente'";
+                                $sql_aceptados = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'aceptado'";
+                                $sql_pendientes = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'pendiente'";
+                                $sql_pendiente_parcial = "SELECT SUM(suma-(SELECT sum(factura.subtotal) FROM factura where presupuesto_asoc = presupuesto.ref and estado <>'abonada')) AS total_presus from presupuesto WHERE estado ='facturado parcialmente'";
 
-                            $q_aceptados = $pdo->prepare($sql_aceptados);
-                            $q_pendientes = $pdo->prepare($sql_pendientes);
-                            $q_pendiente_parcial = $pdo->prepare($sql_pendiente_parcial);
+                                $q_aceptados = $pdo->prepare($sql_aceptados);
+                                $q_pendientes = $pdo->prepare($sql_pendientes);
+                                $q_pendiente_parcial = $pdo->prepare($sql_pendiente_parcial);
 
-                            $q_aceptados->execute();
-                            $q_pendientes->execute();
-                            $q_pendiente_parcial->execute();
+                                $q_aceptados->execute();
+                                $q_pendientes->execute();
+                                $q_pendiente_parcial->execute();
 
-                            $data_aceptados = $q_aceptados->fetch();
-                            $data_pendientes = $q_pendientes->fetch();
-                            $data_pendiente_parcial = $q_pendiente_parcial->fetch();
+                                $data_aceptados = $q_aceptados->fetch();
+                                $data_pendientes = $q_pendientes->fetch();
+                                $data_pendiente_parcial = $q_pendiente_parcial->fetch();
+                                ?>
+                                A: <?= number_format($data_aceptados['total_presus']+$data_pendiente_parcial['total_presus'], 2, ',', '.') ?> <br>P: <?= number_format($data_pendientes['total_presus'], 2, ',', '.') ?>
+                            <?php
+                            else:
+                                ?>
+                                Total
+                            <?php
+                            endif;
                             ?>
-                            A: <?= number_format($data_aceptados['total_presus']+$data_pendiente_parcial['total_presus'], 2, ',', '.') ?> <br>P: <?= number_format($data_pendientes['total_presus'], 2, ',', '.') ?>
-                        <?php
-                        else:
-                        ?>
-                            Total
-                        <?php
-                        endif;
-                        ?>
                         </th>
                         <th>Acciones</th>
                     </tr>
@@ -212,42 +212,42 @@ require_once('header.php');
                                 if($row['english']):
                                 ?>
                                 <a href="lib/pdf_en.php?id=<?= $row['id'] ?>" title="Ver PDF" target="_blank">
-                                <?php
-                                else:
-                                ?>
-                                <a href="lib/pdf.php?id=<?= $row['id'] ?>" title="Ver PDF" target="_blank">
-                                <?php
-                                endif;
-                                ?>
-                                    <span class="glyphicon icons-fontawesome-webfont-2"></span>
-                                </a>&nbsp;
-                                <a class="noaceptar-presupuesto" href="" title="No aceptar" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                    <span class="glyphicon glyphicon-remove-circle"></span>
-                                </a>&nbsp;
-                                <a class="delete-presupuesto" href="" title="Eliminar" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                    <span class="glyphicon icons-fontawesome-webfont-3"></span>
-                                </a>&nbsp;
-                                <a class="po-presupuesto" href="" title="Orden de compra" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                    <b>PO</b>
-                                </a>&nbsp;
-                                <a class="copy-presupuesto" data-origen="0" href="new.php?id=<?php echo $row['id'] ?>" title="Duplicar sin origen" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                    <span class="glyphicon icons-fontawesome-webfont"></span>
-                                </a>&nbsp;
-                                <a class="copy-presupuesto" data-origen="1" href="new.php?id=<?php echo $row['id'] ?>" title="Negociar (con origen)" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                    <span class="glyphicon icons-fontawesome-webfont"></span>+
-                                </a>&nbsp;
-                                <?php
-                                if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
-                                ?>
-                                <a class="new-fact" href="new-fact.php?pre=<?php echo $row['id'] ?>" title="Nueva factura" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                    <span class="glyphicon icons-fontawesome-webfont-11"></span>
-                                </a>&nbsp;
-                                <?php
-                                endif;
-                                ?>
-                                </td>
+                                    <?php
+                                    else:
+                                    ?>
+                                    <a href="lib/pdf.php?id=<?= $row['id'] ?>" title="Ver PDF" target="_blank">
+                                        <?php
+                                        endif;
+                                        ?>
+                                        <span class="glyphicon icons-fontawesome-webfont-2"></span>
+                                    </a>&nbsp;
+                                    <a class="noaceptar-presupuesto" href="" title="No aceptar" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                        <span class="glyphicon glyphicon-remove-circle"></span>
+                                    </a>&nbsp;
+                                    <a class="delete-presupuesto" href="" title="Eliminar" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                        <span class="glyphicon icons-fontawesome-webfont-3"></span>
+                                    </a>&nbsp;
+                                    <a class="po-presupuesto" href="" title="Orden de compra" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                        <b>PO</b>
+                                    </a>&nbsp;
+                                    <a class="copy-presupuesto" data-origen="0" href="new.php?id=<?php echo $row['id'] ?>" title="Duplicar sin origen" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                        <span class="glyphicon icons-fontawesome-webfont"></span>
+                                    </a>&nbsp;
+                                    <a class="copy-presupuesto" data-origen="1" href="new.php?id=<?php echo $row['id'] ?>" title="Negociar (con origen)" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                        <span class="glyphicon icons-fontawesome-webfont"></span>+
+                                    </a>&nbsp;
+                                    <?php
+                                    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+                                        ?>
+                                        <a class="new-fact" href="new-fact.php?pre=<?php echo $row['id'] ?>" title="Nueva factura" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                            <span class="glyphicon icons-fontawesome-webfont-11"></span>
+                                        </a>&nbsp;
+                                    <?php
+                                    endif;
+                                    ?>
+                            </td>
                         </tr>
-                    <?php
+                        <?php
                     }
                     ?>
                     </tbody>
@@ -271,7 +271,7 @@ require_once('header.php');
                                 <?= $i ?>
                             </a>
                         </li>
-                    <?php
+                        <?php
                     }
                     Database::disconnect();
                     ?>
@@ -280,8 +280,8 @@ require_once('header.php');
         </div>
     </div> <!-- /listado -->
 
-    <?php
-    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+<?php
+if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
     ?>
     <div class="row center-block text-center">
         <a href="new-fact.php" class="btn btn-primary btn-lg dnew-fact">
@@ -412,27 +412,27 @@ require_once('header.php');
                                     <span class="glyphicon icons-fontawesome-webfont-1"></span>
                                 </a>&nbsp;
                                 <?php
-                                    if($row['english']):
+                                if($row['english']):
                                 ?>
                                 <a href="lib/pdf-fact_en.php?id=<?= $row['id'] ?>&noiva=<?=$row['noiva']?>" title="Ver PDF" target="_blank">
-                                <?php
+                                    <?php
                                     else:
-                                ?>
-                                <a href="lib/pdf-fact.php?id=<?= $row['id'] ?>&noiva=<?=$row['noiva']?>" title="Ver PDF" target="_blank">
-                                <?php
-                                    endif;
-                                ?>
-                                    <span class="glyphicon icons-fontawesome-webfont-2"></span>
-                                </a>&nbsp;
-                                <a class="delete-factura" href="" title="Abonar" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">
-                                    <span class="glyphicon icons-fontawesome-webfont-3"></span>
-                                </a>&nbsp;
-                                <a class="factura-cobrada" href="" title="Dar por cobrada" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">
-                                    <span class="glyphicon icons-fontawesome-webfont-12"></span>
-                                </a>&nbsp;
+                                    ?>
+                                    <a href="lib/pdf-fact.php?id=<?= $row['id'] ?>&noiva=<?=$row['noiva']?>" title="Ver PDF" target="_blank">
+                                        <?php
+                                        endif;
+                                        ?>
+                                        <span class="glyphicon icons-fontawesome-webfont-2"></span>
+                                    </a>&nbsp;
+                                    <a class="delete-factura" href="" title="Abonar" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">
+                                        <span class="glyphicon icons-fontawesome-webfont-3"></span>
+                                    </a>&nbsp;
+                                    <a class="factura-cobrada" href="" title="Dar por cobrada" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">
+                                        <span class="glyphicon icons-fontawesome-webfont-12"></span>
+                                    </a>&nbsp;
                             </td>
                         </tr>
-                    <?php
+                        <?php
                     }
 
                     ?>
@@ -457,7 +457,7 @@ require_once('header.php');
                                 <?= $i ?>
                             </a>
                         </li>
-                    <?php
+                        <?php
                     }
                     Database::disconnect();
                     ?>
@@ -516,6 +516,7 @@ require_once('header.php');
                             ?>
                             Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)
                         </th>
+                        <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -554,8 +555,23 @@ require_once('header.php');
                             <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_emision'])); ?></td>
                             <td class="fecha"><?= date('d-m-Y', strtotime($row['fecha_abono'])); ?></td>
                             <td><?= number_format($row['subtotal'], 2, ',', '.') ?></td>
+                            <td>
+                                <?php
+                                if($row['english']):
+                                ?>
+                                <a href="lib/pdf-fact.php?id=<?= $row['id'] ?>&noiva=<?=$row['noiva']?>" title="Ver PDF" target="_blank">
+                                    <?php
+                                    else:
+                                    ?>
+                                    <a href="lib/pdf-fact.php?id=<?= $row['id'] ?>&noiva=<?=$row['noiva']?>" title="Ver PDF" target="_blank">
+                                        <?php
+                                        endif;
+                                        ?>
+                                        <span class="glyphicon icons-fontawesome-webfont-2"></span>
+                                    </a>
+                            </td>
                         </tr>
-                    <?php
+                        <?php
                     }
 
                     ?>
@@ -580,7 +596,7 @@ require_once('header.php');
                                 <?= $i ?>
                             </a>
                         </li>
-                    <?php
+                        <?php
                     }
                     Database::disconnect();
                     ?>
@@ -589,7 +605,7 @@ require_once('header.php');
         </div>
     </div> <!-- /listado -->
 <?php
-    endif;
+endif;
 
 require_once('confirmar-modal.php');
 require_once('confirmar-modal-fact.php');

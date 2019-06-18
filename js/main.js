@@ -521,6 +521,46 @@ $(function () {
         }
     });
 
+    $('.add-pgbreak').on('click', function () {
+
+        // if($('.item-total').length == 0) {
+            var concepto = $('#concepto_group_0').clone().hide();
+
+            concepto.removeClass('hide');
+
+            concepto.attr('id', 'concepto_group_' + counter);
+
+            concepto.attr('data-index', counter);
+
+            concepto.find('legend').text('Concepto ' + counter);
+
+            concepto.find('#concepto_0').attr('id', 'concepto_' + counter).attr('name', 'concepto_' + counter).attr('disabled', 'disabled').val('pgbreak');
+            //concepto.find('#concepto_0_precio').attr('id', 'concepto_' + counter + '_precio').attr('name', 'concepto_' + counter + '_precio').attr('data-sumar', 0);
+
+            concepto.find('#concepto_sub_0').parent().parent().parent().parent().remove();
+            concepto.find('#concepto_sub_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#tit1_0').parent().parent().parent().parent().remove();
+            concepto.find('#tit1_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#tit2_0').parent().parent().parent().parent().remove();
+            concepto.find('#tit2_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#tit3_0').parent().parent().parent().parent().remove();
+            concepto.find('#tit3_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.find('#texto_0').parent().parent().parent().parent().remove();
+            concepto.find('#texto_0_precio').parent().parent().parent().parent().remove();
+
+            concepto.insertBefore($('#insert-concepto')).fadeIn();
+
+            $('#concepto_' + counter + '_precio').parent().find('.toggle-suma').remove();
+
+            counter++;
+            loadEvents();
+        // }
+    });
+
     /**
      * Generar presupuesto
      */

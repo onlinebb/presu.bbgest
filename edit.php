@@ -89,6 +89,10 @@ if (null == $id) {
                 <button type="button" class="btn btn-primary btn-sm add-total" title="Total">
                     <span class="glyphicon glyphicon-euro"></span> Añadir Total
                 </button>
+                <br><br>
+                <button type="button" class="btn btn-primary btn-sm add-pgbreak" title="Page break">
+                    <span class="glyphicon glyphicon-file"></span> Añadir Salto de página
+                </button>
             </nav>
         </div>
         <div class="col-md-10">

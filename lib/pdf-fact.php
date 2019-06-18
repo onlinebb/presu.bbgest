@@ -19,6 +19,13 @@ else {
         $datosFactura = loadFactura($idFact);
         $conceptos = loadConceptosFactura($idFact);
 
+
+        $estado_factura = $datosFactura['estadof'];
+        $abonada = 0;
+        if($estado_factura == 'abonada') {
+            $abonada = 1;
+        }
+
         if(empty($datosFactura['po_ref']) && !empty($datosFactura['ref_po'])) {
             $datosFactura['po_ref'] = $datosFactura['ref_po'];
         }
@@ -50,7 +57,7 @@ else {
             "iva" => isset($_POST['iva']) ? str_replace(array('.',','),array('','.'),$_POST['iva']):"",
             "total" => isset($_POST['total']) ? str_replace(array('.',','),array('','.'),$_POST['total']):"",
             "ref" => "PREVIEW",
-			"ref_factura" => "PREVIEW"
+            "ref_factura" => "PREVIEW"
         );
 
         $conceptos = json_decode($_POST['conceptos'], true);
@@ -172,9 +179,10 @@ $html =
         </tr>
         <tr>
             <td width="60%">&nbsp;</td>
-            <td width="20%" style="color: #F95978; border: 1px solid #999999;">Nuestra referencia:</td>
+            <td width="20%" style="color: #F95978; border: 1px solid #999999;">'.($abonada ? "Referencia original":"Nuestra referencia").':</td>
             <td width="20%" style="color: #999999; border: 1px solid #999999;">'.($edit ? $datosFactura['ref_factura']:$datosFactura['ref']).'</td>
         </tr>
+		'.($abonada ? '<tr><td width="60%">&nbsp;</td><td width="20%" style="color: #F95978; border: 1px solid #999999;">Referencia abono:</td><td width="20%" style="color: #999999; border: 1px solid #999999;">'.$datosFactura['ref_abono'].'</td></tr>':'').'
     </table>
     <br>
     <table cellspacing="0" cellpadding="1" border="0">
@@ -232,35 +240,41 @@ foreach ($conceptos as $concepto) {
             $precio = $concepto['precio_' . $item];
         }
 
-        $html .= pintarConcepto($concep, $precio, $estilos[$item]);
+        $html .= pintarConcepto($concep, $precio, $estilos[$item], $abonada);
     }
 }
 
-function pintarConcepto($concepto, $precio, $estilo)
+function pintarConcepto($concepto, $precio, $estilo, $abonada)
 {
     if (isset($precio) && $precio != 0) {
-        $precio = number_format($precio, 2, ',', '.') . ' €';
-		$texto_precio = "Precio:";
-		$add = '<tr><td colspan="3">&nbsp;</td></tr>';
-	}
+        if($abonada) {
+            $precio = '-'.number_format($precio, 2, ',', '.') . ' €';
+        }
+        else {
+            $precio = number_format($precio, 2, ',', '.') . ' €';
+        }
+
+        $texto_precio = "Precio:";
+        $add = '<tr><td colspan="3">&nbsp;</td></tr>';
+    }
     else {
         $precio = "";
-		$texto_precio = "";
-		$add = '';
-	}
+        $texto_precio = "";
+        $add = '';
+    }
 
     if(empty($concepto)) {
-		$html = '<tr><td colspan="3">&nbsp;</td></tr>';
-	}
-	else {
-		$html =
-			'<tr nobr="true">
+        $html = '<tr><td colspan="3">&nbsp;</td></tr>';
+    }
+    else {
+        $html =
+            '<tr nobr="true">
 				<td width="60%" style="color: #999999;">'. $estilo . $concepto . '</span></td>
 				<td width="20%" style="color: #F95978;">'. $estilo . $texto_precio.'</span></td>
 				<td width="20%" style="color: #999999; text-align: right;">'. $estilo . $precio . '</span></td>
 			 </tr>'.$add;
-	}    
-		 
+    }
+
     return $html;
 }
 
@@ -286,7 +300,7 @@ if($noiva) {
         <tr>
             <td width="60%">&nbsp;</td>
             <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;"><b>TOTAL</b></td>
-            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['subtotal'], 2, ',', '.'). ' €'.'</td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . ($abonada ? '-':'').number_format($datosFactura['subtotal'], 2, ',', '.'). ' €'.'</td>
         </tr>
     </table>';
 }
@@ -295,17 +309,17 @@ else {
         <tr>
             <td width="60%">&nbsp;</td>
             <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;">Subtotal:</td>
-            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['subtotal'], 2, ',', '.') . ' €'.'</td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . ($abonada ? '-':'').number_format($datosFactura['subtotal'], 2, ',', '.') . ' €'.'</td>
         </tr>
         <tr>
             <td width="60%">&nbsp;</td>
             <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;">I.V.A. (21%):</td>
-            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['iva'], 2, ',', '.'). ' €'.'</td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . ($abonada ? '-':'').number_format($datosFactura['iva'], 2, ',', '.'). ' €'.'</td>
         </tr>
         <tr>
             <td width="60%">&nbsp;</td>
             <td width="20%" style="color: #F95978; border-bottom: 1px solid #999999; border-left: 1px solid #999999;"><b>TOTAL</b></td>
-            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . number_format($datosFactura['total'], 2, ',', '.'). ' €'.'</td>
+            <td width="20%" style="color: #999999; text-align: right; border-bottom: 1px solid #999999; border-right: 1px solid #999999;">' . ($abonada ? '-':'').number_format($datosFactura['total'], 2, ',', '.'). ' €'.'</td>
         </tr>
     </table>';
 }

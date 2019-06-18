@@ -13,8 +13,8 @@ require_once('header.php');
 include 'lib/database.php';
 
 $semanaIni = 1;
-if(date('W')>12) {
-    $semanaIni = date('W')-11;
+if (date('W') > 12) {
+    $semanaIni = date('W') - 11;
 }
 $semanaFin = date('W');
 
@@ -27,13 +27,20 @@ $q_usuarios = $pdo->prepare($sql_usuarios);
 $q_usuarios->execute(array());
 $data_usuarios = $q_usuarios->fetchAll(PDO::FETCH_ASSOC);
 
+if (isset($_GET["allproj"])) {
+    $cerrada = " year=".date('Y')." AND ";
+}
+else {
+    $cerrada = " ca.cerrada='no' AND ";
+}
+
 //SQL lista proyectos con datos en tabla coeficiente
 $sql_proyectos = "select pr.nombre, pr.id, pr.kickoff, de.f_entrega as delivery_date, ifnull(sum(presu.suma),ifnull(sum(presuet.suma),0)) as euros, ifnull(presu.estado, presuet.estado) from proyectos pr  
                   left join campaigns ca on pr.id_campanya=ca.id 
                   left join deliverables de on ca.id=de.id_campaign 
                   left join presu14.presupuesto presu on presu.id_proyecto=pr.id 
                   left join presuetal.presupuesto presuet on presuet.id_proyecto=pr.id 
-                  where ca.cerrada='no' AND de.nombre='Cierre Proyecto' AND (presu.estado<>'no aceptado' or (presu.estado is null AND presuet.estado<>'no aceptado') or (presu.estado is null AND presuet.estado is null)) group by pr.id";//"select pr.nombre, pr.id, pr.kickoff, pr.delivery_date, pr.euros from coeficiente co left join proyectos pr on pr.id=co.id_proyecto group by id_proyecto";
+                  where ".$cerrada." de.nombre='Cierre Proyecto' AND (presu.estado<>'no aceptado' or (presu.estado is null AND presuet.estado<>'no aceptado') or (presu.estado is null AND presuet.estado is null)) group by pr.id";//"select pr.nombre, pr.id, pr.kickoff, pr.delivery_date, pr.euros from coeficiente co left join proyectos pr on pr.id=co.id_proyecto group by id_proyecto";
 $q_proyectos = $pdo->prepare($sql_proyectos);
 $q_proyectos->execute(array());
 $data_proyectos = $q_proyectos->fetchAll(PDO::FETCH_ASSOC);
@@ -42,12 +49,31 @@ $sql = "select pr.nombre as proyecto, us.nombre as usuario, co.numSemana, co.hor
         from coeficiente co 
         left join proyectos pr on pr.id=co.id_proyecto 
         left join usuarios us on us.id=co.id_usuario 
-        where numSemana between 1 and ".$semanaFin." order by pr.id, us.id, co.numSemana";
+        where numSemana between 1 and " . $semanaFin . " order by pr.id, us.id, co.numSemana";
 $q = $pdo->prepare($sql);
 $q->execute(array());
 $data = $q->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
+    <div class="row">
+        <div class="col-md-10">
+            <?php
+            if (isset($_GET["allproj"])) {
+                $string = str_replace("&allproj=1", "", $_SERVER['QUERY_STRING']);
+                $boton = "Restablecer";
+            } else {
+                $string = $_SERVER['QUERY_STRING'] . "&allproj=1";
+                $boton = "Mostrar Todos (".date('Y').")";
+            }
+
+            ?>
+            <a href="coeficiente.php?<?= $string ?>" class="btn btn-default btn-sm view-all-proj">
+                <?= $boton ?>
+            </a>
+        </div>
+    </div>
+
+    <br><br>
 
     <table class="table table-bordered table-striped table-curved">
         <thead>
@@ -57,11 +83,13 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
             for ($i = $semanaIni; $i <= $semanaFin; $i++):
                 ?>
                 <th class="text-center"><?= $i ?></th>
-                <?php
+            <?php
             endfor;
             ?>
             <th class="text-center">Coste Proyecto</th>
-            <th class="text-center">Coef. Proyecto <br><small>(&euro;_presu/cost_acu)</small></th>
+            <th class="text-center">Coef. Proyecto <br>
+                <small>(&euro;_presu/cost_acu)</small>
+            </th>
         </tr>
         </thead>
         <tbody>
@@ -78,8 +106,12 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
             $semanas_imputables = $diferencia_dias / $diasSemana;
             $euros_semana = $data_proyectos[$j]['euros'] / $semanas_imputables;
             ?>
-            <tr class="row-proyecto <?= ($data_proyectos[$j]['estado']=='pendiente')?'warning':''?> <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
-                <td><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?> (Total: <?=number_format($data_proyectos[$j]['euros'], 0, ',', '.')?>&euro; / Semanas: <?=number_format($semanas_imputables, 0, ',', '.')?> / <?=number_format($euros_semana, 0, ',', '.')?>&euro;/sem.)</td>
+            <tr class="row-proyecto <?= ($data_proyectos[$j]['estado'] == 'pendiente') ? 'warning' : '' ?> <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
+                <td><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?> (Total:
+                    <?= number_format($data_proyectos[$j]['euros'], 0, ',', '.') ?>&euro; /
+                    Semanas: <?= number_format($semanas_imputables, 0, ',', '.') ?> /
+                    <?= number_format($euros_semana, 0, ',', '.') ?>&euro;/sem.)
+                </td>
                 <?php
                 //Sumatorio de Euros por proyecto
                 $sql_acumulado = 'SELECT ifnull(sum(co.horas*(us.salario/1400)),0) as suma_acumulado from coeficiente co 
@@ -99,7 +131,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     $semanakickoff = date('W', $fechaIni);
                     $semanaDelivery = date('W', $fechaFin);
 
-                    if($i>=$semanakickoff && $i<=$semanaDelivery && $data_proyectos[$j]['estado']!='pendiente') {
+                    if ($i >= $semanakickoff && $i <= $semanaDelivery && $data_proyectos[$j]['estado'] != 'pendiente') {
                         $SumaSemanal[$i] = $SumaSemanal[$i] + $euros_semana;
                     }
                     ?>
@@ -107,24 +139,44 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                         <br>
                         <?php
                         //Sumatorio de Euros por semana y proyecto
-                        $sql_euros = 'SELECT id_usuario, ifnull(sum(co.horas*(us.salario/1400)),0) as suma_euros from coeficiente co 
+
+
+                        //semanas anteriores
+                        if ($i < $semanaFin) {
+                            $sql_euros_guardados = 'SELECT coste as suma_euros from coste_proyectos co  
+                                                    where co.numSemana=' . $i . ' and year=' . date('Y') . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . ';';
+                            $q_euros_guardados = $pdo->prepare($sql_euros_guardados);
+                            $q_euros_guardados->execute(array());
+                            $data_euros_guardados = $q_euros_guardados->fetchAll(PDO::FETCH_ASSOC);
+                            $sumaSemana = 0;
+
+                            foreach ($data_euros_guardados as $euros):
+                                $sumaSemana += $euros['suma_euros'];
+                            endforeach;
+
+                            echo number_format((float)$sumaSemana, 2, ',', '.');
+                        } //semana actual
+                        else {
+                            $sql_euros = 'SELECT id_usuario, ifnull(sum(co.horas*(us.salario/1400)),0) as suma_euros from coeficiente co 
                                           left join usuarios us on us.id=co.id_usuario 
-                                          where co.numSemana=' . $i . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . ' group by co.id_usuario;';
-                        $q_euros = $pdo->prepare($sql_euros);
-                        $q_euros->execute(array());
-                        $data_euros = $q_euros->fetchAll(PDO::FETCH_ASSOC);
-                        $sumaSemana = 0;
+                                          where co.numSemana=' . $i . ' and year=' . date('Y') . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . ' group by co.id_usuario;';
+                            $q_euros = $pdo->prepare($sql_euros);
+                            $q_euros->execute(array());
+                            $data_euros = $q_euros->fetchAll(PDO::FETCH_ASSOC);
+                            $sumaSemana = 0;
 
-                        foreach ($data_euros as $euros):
-                            $sumaSemana += $euros['suma_euros'];
-                        endforeach;
+                            foreach ($data_euros as $euros):
+                                $sumaSemana += $euros['suma_euros'];
+                            endforeach;
 
-                        echo number_format((float)$sumaSemana, 2, ',', '.');
-                        $sumaEurosProyecto += $sumaSemana;
-                        $sumaCoeficientes += $euros_semana / $sumaSemana;
+                            echo number_format((float)$sumaSemana, 2, ',', '.');
+                        }
+
+                        //$sumaEurosProyecto += $sumaSemana;
+                        //$sumaCoeficientes += $euros_semana / $sumaSemana;
                         ?>
                     </td>
-                    <?php
+                <?php
                 endfor;
                 $numSemanas = $i - $semanaIni;
                 ?>
@@ -132,10 +184,10 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     <?= number_format((float)$data_acumulado['suma_acumulado'], 2, ',', '.') ?>
                 </td>
                 <td class="text-center">
-                    <?= ($data_proyectos[$j]['estado']=='pendiente')?'0,00':number_format((float)$data_proyectos[$j]['euros'] / $data_acumulado['suma_acumulado'], 2, ',', '.') ?>
+                    <?= ($data_proyectos[$j]['estado'] == 'pendiente') ? '0,00' : number_format((float)$data_proyectos[$j]['euros'] / $data_acumulado['suma_acumulado'], 2, ',', '.') ?>
                 </td>
             </tr>
-            <?php
+        <?php
         endfor;
         ?>
         </tbody>
@@ -150,7 +202,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
             for ($i = $semanaIni; $i <= $semanaFin; $i++):
                 ?>
                 <th class="text-center"><?= $i ?></th>
-                <?php
+            <?php
             endfor;
             ?>
         </tr>
@@ -166,11 +218,23 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
         <tr>
             <td>
                 <table class="table table-bordered table-striped table-curved">
-                    <tr><th>Ganados</th></tr>
-                    <tr><th>Coste</th></tr>
-                    <tr><th>Costes extra</th></tr>
-                    <tr><th>Margen <br> <small>((costes+costes_extra)/suma_semanal)</small></th></tr>
-                    <tr><th>YTD = <?=number_format($data_coeficiente_total[0], 2, ',', '.');?></th></tr>
+                    <tr>
+                        <th>Ganados</th>
+                    </tr>
+                    <tr>
+                        <th>Coste</th>
+                    </tr>
+                    <tr>
+                        <th>Costes extra</th>
+                    </tr>
+                    <tr>
+                        <th>Margen <br>
+                            <small>((costes+costes_extra)/suma_semanal)</small>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>YTD = <?= number_format($data_coeficiente_total[0], 2, ',', '.'); ?></th>
+                    </tr>
                 </table>
             </td>
             <?php
@@ -199,43 +263,44 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                 $q_euros_semana->execute(array());
                 $data_euros_semana = $q_euros_semana->fetch();
 
-                $costes_extra = !empty($data_costes_extra_semana[$i])?$data_costes_extra_semana[$i]:0;
-                $costes = !empty($data_costes_semana[$i])?$data_costes_semana[$i]:$data_euros_semana['suma_semanal'];
+                $costes_extra = !empty($data_costes_extra_semana[$i]) ? $data_costes_extra_semana[$i] : 0;
+                $costes = !empty($data_costes_semana[$i]) ? $data_costes_semana[$i] : $data_euros_semana['suma_semanal'];
 
                 ?>
                 <td class="text-center">
-                    <table class="semana-<?=$i?> table table-bordered table-striped table-curved">
+                    <table class="semana-<?= $i ?> table table-bordered table-striped table-curved">
                         <tr>
-                            <td class="ganados" data-value="<?=$SumaSemanal[$i]?>">
-                                <?=number_format($SumaSemanal[$i], 2, ',', '.');?>
+                            <td class="ganados" data-value="<?= $SumaSemanal[$i] ?>">
+                                <?= number_format($SumaSemanal[$i], 2, ',', '.'); ?>
                             </td>
                         </tr>
                         <tr>
-                            <td class="costes" contenteditable="true" data-value="<?=$costes?>" data-semana="<?=$i?>">
-                                <?=number_format($costes, 2, ',', '.');?>
+                            <td class="costes" contenteditable="true" data-value="<?= $costes ?>"
+                                data-semana="<?= $i ?>">
+                                <?= number_format($costes, 2, ',', '.'); ?>
                             </td>
                         </tr>
                         <tr>
-                            <td class="costes-extra" contenteditable="true" data-value="<?=$costes_extra?>" data-semana="<?=$i?>">
-                                <?=number_format($costes_extra, 2, ',', '.')?> 
+                            <td class="costes-extra" contenteditable="true" data-value="<?= $costes_extra ?>"
+                                data-semana="<?= $i ?>">
+                                <?= number_format($costes_extra, 2, ',', '.') ?>
                             </td>
                         </tr>
                         <tr>
                             <?php
-                            if(empty($SumaSemanal[$i])){
+                            if (empty($SumaSemanal[$i])) {
                                 $calculoCoef = 0;
-                            }
-                            else {
-                                $calculoCoef = (($SumaSemanal[$i])/($costes+$costes_extra));
+                            } else {
+                                $calculoCoef = (($SumaSemanal[$i]) / ($costes + $costes_extra));
                             }
                             ?>
-                            <td class="coef" data-value="<?=$SumaSemanal[$i]/($costes+$costes_extra)?>">
-                                <?=!empty($data_coeficiente_semana[$i])?$data_coeficiente_semana[$i]:number_format($calculoCoef, 2, ',', '.')?>
+                            <td class="coef" data-value="<?= $SumaSemanal[$i] / ($costes + $costes_extra) ?>">
+                                <?= !empty($data_coeficiente_semana[$i]) ? $data_coeficiente_semana[$i] : number_format($calculoCoef, 2, ',', '.') ?>
                             </td>
                         </tr>
                     </table>
                 </td>
-                <?php
+            <?php
             endfor;
             ?>
         </tr>
@@ -252,16 +317,16 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
         </tr>
         </thead>
         <tbody>
-            <?php
-            foreach ($data_usuarios as $usuario):
-                ?>
+        <?php
+        foreach ($data_usuarios as $usuario):
+            ?>
             <tr class="">
                 <td><?= $usuario['nombre'] ?></td>
                 <td data-userid="<?= $usuario['id'] ?>" contenteditable="true"><?= $usuario['salario'] ?></td>
             </tr>
-                <?php
-            endforeach;
-            ?>
+        <?php
+        endforeach;
+        ?>
         </tbody>
     </table>
 
@@ -269,8 +334,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
         <?php
         if (isset($_GET["s_"])) {
             $semana_activa = $_GET["s_"];
-        }
-        else {
+        } else {
             $semana_activa = $semanaFin;
         }
 
@@ -282,10 +346,10 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     <label for="s_">Semana</label>
                     <select id="s_" class="form-control" name="s_" required>
                         <?php
-                        for ($i = $semanaFin; $i >=$semanaIni ; $i--):
+                        for ($i = $semanaFin; $i >= $semanaIni; $i--):
                             ?>
-                            <option value="<?=$i?>" <?=($i == $semana_activa) ? "selected" : ""?>><?=$i?></option>
-                            <?php
+                            <option value="<?= $i ?>" <?= ($i == $semana_activa) ? "selected" : "" ?>><?= $i ?></option>
+                        <?php
                         endfor;
                         ?>
                     </select>
@@ -308,84 +372,55 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
         <?php
         //if($semana_activa < 48 && date('Y') == 2017) :
         ?>
-            <table class="horas-proyecto table table-bordered table-hover table-striped-column table-curved">
-                <thead>
-                <tr>
-                    <th class="headcol">HORAS/PROYECTO</th>
-                    <th colspan="<?= count($data_usuarios)?>" class="info text-center"><?= $semana_activa ?></th>
-                    <?php
-                    /*for ($i = $semanaIni; $i <= $semanaFin; $i++):
-                        if ($i == $semanaFin):
-                            ?>
-                            <th colspan="<?= count($data_usuarios)?>" class="info border-right text-center"><?= $i ?></th>
-                            <?php
-                        else:
-                            ?>
-                            <th colspan="<?= count($data_usuarios)?>" class="info text-center"><?= $i ?></th>
-                            <?php
-                        endif;
-                    endfor;*/
-                    ?>
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="small text-center">
-                    <td>&nbsp;</td>
-                    <?php
-                    //for ($i = $semanaIni; $i <= $semanaFin; $i++):
-                    foreach ($data_usuarios as $usuario):
-                        ?>
-                        <th class="text-center border-right"><?= $usuario['nombre'] ?></th>
-                        <?php
-                    endforeach;
-                    //endfor;
-                    ?>
-                </tr>
-
-                <!-- Horas/proyecto -->
+        <table class="horas-proyecto table table-bordered table-hover table-striped-column table-curved">
+            <thead>
+            <tr>
+                <th class="headcol">HORAS/PROYECTO</th>
+                <th colspan="<?= count($data_usuarios) ?>" class="info text-center"><?= $semana_activa ?></th>
                 <?php
-                for ($j = 0; $j < count($data_proyectos); $j++):
-                    ?>
-                    <tr class="row-proyecto <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
-                        <td class="headcol"><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?></td>
-                        <?php
-
-                        //for ($i = $semanaIni; $i <= $semanaFin; $i++):
-                        foreach ($data_usuarios as $usuario):
-                            //Sumatorio de horas por usuario y proyecto en una semana
-                            $sql_horas = 'SELECT id_usuario, ifnull(sum(co.horas),0) as suma_horas from coeficiente co 
-                                          left join usuarios us on us.id=co.id_usuario 
-                                          where co.id_proyecto=' . $data_proyectos[$j]['id'] . ' and co.year='.date('Y').' and co.numSemana=' . $semana_activa . ' group by co.id_usuario;';
-										  
-                            $q_horas = $pdo->prepare($sql_horas);
-                            $q_horas->execute(array());
-                            $data_horas = $q_horas->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-
-                            if (!empty($data_horas[$usuario['id']])) {
-                                $horas_user = $data_horas[$usuario['id']][0];
-                            } else {
-                                $horas_user = 0;
-                            }
-                            ?>
-                            <td id="<?= $data_proyectos[$j]['id'].':'.$usuario['id'].':'.$semana_activa ?>" class="text-center"><?= $horas_user ?></td>
-                            <?php
-                        endforeach;
-                        //endfor;
+                /*for ($i = $semanaIni; $i <= $semanaFin; $i++):
+                    if ($i == $semanaFin):
                         ?>
-                    </tr>
-                    <?php
-                endfor;
+                        <th colspan="<?= count($data_usuarios)?>" class="info border-right text-center"><?= $i ?></th>
+                        <?php
+                    else:
+                        ?>
+                        <th colspan="<?= count($data_usuarios)?>" class="info text-center"><?= $i ?></th>
+                        <?php
+                    endif;
+                endfor;*/
                 ?>
-                <tr class="row-totales">
-                    <td class="headcol">Total</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="small text-center">
+                <td>&nbsp;</td>
+                <?php
+                //for ($i = $semanaIni; $i <= $semanaFin; $i++):
+                foreach ($data_usuarios as $usuario):
+                    ?>
+                    <th class="text-center border-right"><?= $usuario['nombre'] ?></th>
+                <?php
+                endforeach;
+                //endfor;
+                ?>
+            </tr>
+
+            <!-- Horas/proyecto -->
+            <?php
+            for ($j = 0; $j < count($data_proyectos); $j++):
+                ?>
+                <tr class="row-proyecto <?= ($j < count($data_proyectos)) ? '' : 'border-top' ?>">
+                    <td class="headcol"><?= ($j < count($data_proyectos)) ? $data_proyectos[$j]['nombre'] : '' ?></td>
                     <?php
 
                     //for ($i = $semanaIni; $i <= $semanaFin; $i++):
                     foreach ($data_usuarios as $usuario):
-                        //Sumatorio de horas por usuario en una semana
+                        //Sumatorio de horas por usuario y proyecto en una semana
                         $sql_horas = 'SELECT id_usuario, ifnull(sum(co.horas),0) as suma_horas from coeficiente co 
                                           left join usuarios us on us.id=co.id_usuario 
-                                          where co.year='.date('Y').' and co.numSemana=' . $semana_activa . ' group by co.id_usuario;';
+                                          where co.id_proyecto=' . $data_proyectos[$j]['id'] . ' and co.year=' . date('Y') . ' and co.numSemana=' . $semana_activa . ' group by co.id_usuario;';
+
                         $q_horas = $pdo->prepare($sql_horas);
                         $q_horas->execute(array());
                         $data_horas = $q_horas->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
@@ -396,14 +431,44 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                             $horas_user = 0;
                         }
                         ?>
-                        <td class="text-center"><?= $horas_user ?></td>
-                        <?php
+                        <td id="<?= $data_proyectos[$j]['id'] . ':' . $usuario['id'] . ':' . $semana_activa ?>"
+                            class="text-center"><?= $horas_user ?></td>
+                    <?php
                     endforeach;
                     //endfor;
                     ?>
                 </tr>
-                </tbody>
-            </table>
+            <?php
+            endfor;
+            ?>
+            <tr class="row-totales">
+                <td class="headcol">Total</td>
+                <?php
+
+                //for ($i = $semanaIni; $i <= $semanaFin; $i++):
+                foreach ($data_usuarios as $usuario):
+                    //Sumatorio de horas por usuario en una semana
+                    $sql_horas = 'SELECT id_usuario, ifnull(sum(co.horas),0) as suma_horas from coeficiente co 
+                                          left join usuarios us on us.id=co.id_usuario 
+                                          where co.year=' . date('Y') . ' and co.numSemana=' . $semana_activa . ' group by co.id_usuario;';
+                    $q_horas = $pdo->prepare($sql_horas);
+                    $q_horas->execute(array());
+                    $data_horas = $q_horas->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+
+                    if (!empty($data_horas[$usuario['id']])) {
+                        $horas_user = $data_horas[$usuario['id']][0];
+                    } else {
+                        $horas_user = 0;
+                    }
+                    ?>
+                    <td class="text-center"><?= $horas_user ?></td>
+                <?php
+                endforeach;
+                //endfor;
+                ?>
+            </tr>
+            </tbody>
+        </table>
         <?php
         /*else:  //nuevo cálculo de horas recibido de tabla recogida_horas
         ?>
@@ -498,7 +563,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <br><br>
 <?php
-if(isset($_GET['save'])) {
+if (isset($_GET['save'])) {
     include 'functions.php';
     updateCostesCron();
 }
