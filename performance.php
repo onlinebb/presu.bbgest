@@ -18,6 +18,9 @@ function isnull($var, $default=0) {
     </a>
 </div>
 <div class="row">
+    <a id="excel" href="lib/functions.php?action=logExcelPerformance" target="_blank" class="btn btn-primary btn-lg pull-right">
+        Log en Excel
+    </a>
     <div class="col-md-12">
         <?php
         include 'lib/database.php';
@@ -34,7 +37,7 @@ function isnull($var, $default=0) {
             </thead>
             <tbody>
             <?php
-            $result = $pdo->prepare("select u.nombre as project_owner, u.id as id_project_owner, sum(f.total) acumulado from (
+            $result = $pdo->prepare("select u.nombre as project_owner, u.id as id_project_owner, sum(f.subtotal) acumulado from (
                                                     SELECT  * FROM presu14.factura
                                                     UNION ALL
                                                     SELECT  * FROM presuetal.factura
@@ -65,7 +68,7 @@ function isnull($var, $default=0) {
                 ?>
                 <tr id="presentation-<?php echo $row['id'] ?>">
                     <td><?php echo $row['project_owner'] ?></td>
-                    <td class="text-right"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
+                    <td class="text-right nowrap"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
                     <td class="text-right"><?php echo number_format(isnull($costes[$row['id_project_owner']]['coste']), 2, ',', '.').' €' ?></td>
                 </tr>
                 <?php
@@ -93,7 +96,7 @@ function isnull($var, $default=0) {
             </thead>
             <tbody>
             <?php
-            $result = $pdo->prepare("SELECT pr.nombre as proyecto, e.nombre as cliente, sum(fact.total) acumulado, u.nombre as project_owner, pr.id as id_proyecto FROM (
+            $result = $pdo->prepare("SELECT pr.nombre as proyecto, e.nombre as cliente, sum(fact.subtotal) acumulado, u.nombre as project_owner, pr.id as id_proyecto FROM (
                                                     SELECT * FROM presu14.factura
                                                     UNION ALL
                                                     SELECT * FROM presuetal.factura
@@ -107,7 +110,7 @@ function isnull($var, $default=0) {
                                                 left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
                                                 left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
                                                 left join bbgest.empresa e on e.id_empresa=pr.id_cliente 
-                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=2019 group by pr.nombre,u.nombre;");
+                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=2019 group by pr.nombre,u.nombre order by u.nombre asc;");
             $result->execute();
 
             $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste 
@@ -126,8 +129,8 @@ function isnull($var, $default=0) {
                     <td><?php echo $row['proyecto'] ?></td>
                     <td><?php echo $row['cliente'] ?></td>
                     <td><?php echo $row['project_owner'] ?></td>
-                    <td class="text-right"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
-                    <td class="text-right"><?php echo number_format(isnull($costes[$row['id_proyecto']]['coste']), 2, ',', '.').' €' ?></td>
+                    <td class="text-right nowrap"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
+                    <td class="text-right nowrap"><?php echo number_format(isnull($costes[$row['id_proyecto']]['coste']), 2, ',', '.').' €' ?></td>
                 </tr>
                 <?php
             }
@@ -152,7 +155,7 @@ function isnull($var, $default=0) {
             </thead>
             <tbody>
             <?php
-            $result = $pdo->prepare("select e.nombre as cliente, e.id_empresa as id_cliente, sum(f.total) acumulado from (
+            $result = $pdo->prepare("select e.nombre as cliente, e.id_empresa as id_cliente, sum(f.subtotal) acumulado from (
                                                     SELECT  * FROM presu14.factura
                                                     UNION ALL
                                                     SELECT  * FROM presuetal.factura
@@ -183,7 +186,7 @@ function isnull($var, $default=0) {
                 ?>
                 <tr id="presentation-<?php echo $row['id'] ?>">
                     <td><?php echo $row['cliente'] ?></td>
-                    <td class="text-right"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
+                    <td class="text-right nowrap"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
                     <td class="text-right"><?php echo number_format(isnull($costes[$row['id_cliente']]['coste']), 2, ',', '.').' €' ?></td>
                 </tr>
                 <?php

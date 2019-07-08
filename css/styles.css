@@ -340,3 +340,7 @@ table td[contenteditable=true]:focus {
     width: 300px;
     margin-left: -300px;
 }*/
+
+.nowrap {
+    white-space: nowrap;
+}

@@ -6,6 +6,7 @@
  * Time: 12:09
  */
 require_once('header.php');
+require_once('config.php');
 ?>
     <div class="page-header">
         <div class="row">

@@ -65,6 +65,9 @@ if (isset($_GET["action"])) {
         case "logExcel":
             logExcel();
             break;
+        case "logExcelPerformance":
+            logExcelPerformance();
+            break;
         case "bbgest":
             bbgest();
             break;
@@ -1408,6 +1411,74 @@ function logExcel() {
     $fp = fopen('php://output', 'w');
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="log.csv"');
+    foreach ($list as $ferow) {
+        fputcsv($fp, $ferow, ';');
+    }
+}
+
+/**
+ * Exportar tabla log_performance en archivo excel
+ */
+function logExcelPerformance() {
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $sql = "SELECT DATE_FORMAT(fecha,'%d/%m/%Y') as fecha,
+                   id_owner,
+                   REPLACE(REPLACE(REPLACE(FORMAT(costes,2), ',', ':'), '.', ','), ':', '.') as costes,
+                   REPLACE(REPLACE(REPLACE(FORMAT(facturado,2), ',', ':'), '.', ','), ':', '.') as facturado 
+            FROM log_performance order by fecha desc, id_owner asc";
+
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $data = $q->fetchAll(\PDO::FETCH_GROUP);
+
+//    echo '<pre>';
+//    print_r($data);
+//    echo '</pre><br>';
+
+//    // Create array
+    $list = array ();
+
+    $q_owners = $pdo->prepare("select distinct id_owner, nombre from log_performance l left join stack_bbgest.usuarios us on us.id=l.id_owner order by id_owner");
+    $q_owners->execute();
+    $d_owners = $q_owners->fetchAll(PDO::FETCH_ASSOC);
+
+    $table_headers = array("Fecha");
+//    $index = 1;
+
+    foreach ($d_owners as $row) {
+//        $table_headers .= "Costes_".$row['nombre'].", Facturado_".$row['nombre'];
+        array_push($table_headers, "Costes_".$row['nombre'], "Facturado_".$row['nombre']);
+//        if($index < count($d_owners)) {
+//            $table_headers .= ', ';
+//        }
+//        $index++;
+    }
+
+//    echo $table_headers.'<br>';
+
+    // Append results to array
+    array_push($list, $table_headers);
+
+    foreach ($data as $fecha=>$datos_fecha) {
+        $temp = array($fecha);
+//        $index = 1;
+        foreach ($datos_fecha as $persona) {
+            array_push($temp, $persona['costes'], $persona['facturado']);
+//            if($index < count($datos_fecha)) {
+//                $temp .= ', ';
+//            }
+//            $index++;
+        }
+//        echo $temp.'<br>';
+        array_push($list, $temp);
+    }
+
+//     Output array into CSV file
+    $fp = fopen('php://output', 'w');
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="log_performance.csv"');
     foreach ($list as $ferow) {
         fputcsv($fp, $ferow, ';');
     }
