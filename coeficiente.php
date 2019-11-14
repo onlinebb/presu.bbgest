@@ -598,5 +598,5 @@ if (isset($_GET['save'])) {
     updateCostesCron();
 }
 Database::disconnect();
-include 'lib/footer.php';
+require_once('footer.php');
 ?>

@@ -1531,4 +1531,93 @@ $(function () {
         });
     }
 
+    /* Alta cliente empresa */
+
+    if($('.alta-empresa').length > 0) {
+        $('#formentidad').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "lib/functions.php?action=altaCliente",
+                data: {
+                    nombre: $('#nombre').val(),
+                    direccion: $('#direccion').val(),
+                    cp: $('#cp').val(),
+                    cif: $('#cif').val()
+                },
+                success: function (data) {
+                    //ok
+                    $('.clienteok').text($('#nombre').val());
+                    $('.alert-success').show();
+                    // window.location.reload();
+                    $('#formentidad').trigger("reset");
+                },
+                error: function (e) {
+                    $('.clienteok').text($('#nombre').val());
+                    $('.alert-danger').show();
+                    console.log("Error: " + e.message);
+                }
+            });
+        });
+    }
+
+    /* Edit cliente empresa */
+
+    if($('.edit-empresa').length > 0) {
+        $('#nombre').typeahead({
+            source: function (query, response) {
+                return $.getJSON("lib/functions.php?action=searchClient&text=" + query,
+                    function (result, status) {
+                        //console.log(result);
+                        response($.map(result, function (item) {
+                            return {
+                                id: item.id,
+                                label: item.nombre,
+                                ref_cliente: item.ref_cliente,
+                                direccion: item.direccion,
+                                cp: item.cp,
+                                cif: item.cif
+                            }
+                        }));
+                    });
+            },
+            onselect: function (element, obj) {
+                element.val(obj.label);
+                $('#did_empresa').val(obj.id);
+                $('#direccion').val(obj.direccion);
+                $('#cp').val(obj.cp);
+                $('#cif').val(obj.cif);
+            },
+            property: "label",
+            minLength: 2
+        });
+
+        $('#formentidad').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "lib/functions.php?action=updateCliente",
+                data: {
+                    nombre: $('#nombre').val(),
+                    id: $('#did_empresa').val(),
+                    direccion: $('#direccion').val(),
+                    cp: $('#cp').val(),
+                    cif: $('#cif').val()
+                },
+                success: function (data) {
+                    //ok
+                    $('.clienteok').text($('#nombre').val());
+                    $('.alert-success').show();
+                    // window.location.reload();
+                    $('#formentidad').trigger("reset");
+                },
+                error: function (e) {
+                    $('.clienteok').text($('#nombre').val());
+                    $('.alert-danger').show();
+                    console.log("Error: " + e.message);
+                }
+            });
+        });
+    }
+
 });

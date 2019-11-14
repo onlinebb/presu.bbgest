@@ -98,6 +98,12 @@ if (isset($_GET["action"])) {
         case "saveHoras":
             saveHoras($_POST['dusuario'],$_POST['did_proyecto'],$_POST['ndeliverable'],$_POST['dfecha'],$_POST['nhoras']);
             break;
+        case "altaCliente":
+            altaCliente();
+            break;
+        case "updateCliente":
+            updateCliente();
+            break;
     }
 }
 
@@ -2880,4 +2886,88 @@ function saveHoras($usuario, $id_proyecto, $deliverable, $fecha, $horas)
     Database::disconnect();
 
     print $usuario.': '.$id_proyecto.' - '.$deliverable.' - '. $fecha.' - '.$horas.'h<br>';
+}
+
+/**
+ * Crear cliente
+ */
+function altaCliente()
+{
+    $pdo = Database::connect('presu14');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    //guardar datos del presupuesto
+    $sql = "INSERT INTO empresa (nombre, direccion, cp, cif, entrada) VALUES (?,?,?,?,?)";
+    $q = $pdo->prepare($sql);
+
+    try {
+        $nombre_cliente = $_POST["nombre"];
+        $q->execute(
+            array(
+                $nombre_cliente,
+                $_POST['direccion'],
+                $_POST['cp'],
+                $_POST['cif'],
+                date('Y-m-d')
+            )
+        );
+        $idEmpresa = $pdo->lastInsertId();
+
+        $search = array('.', ' ', '-', '&', '/', 'Á', 'É', 'Í', 'Ó', 'Ú', 'À', 'È', 'Ò', 'Ñ');
+        $replace = array('', '', '', '', '', 'A', 'E', 'I', 'O', 'U', 'A', 'E', 'O', 'N');
+        $ref_cliente = strtoupper(substr(str_replace($search, $replace, $nombre_cliente), 0, 3));
+        $index = 0;
+        while (!updateRef($ref_cliente, $idEmpresa, $index)) {
+            $index++;
+        }
+
+    } catch (Exception $e) {
+        print $e;
+    }
+
+    Database::disconnect();
+
+    print $idEmpresa;
+}
+
+/**
+ * Update cliente
+ */
+function updateCliente()
+{
+    $pdo = Database::connect('presu14');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    //guardar datos del presupuesto
+    $sql = "UPDATE empresa SET nombre=?, direccion=?, cp=?, cif=? WHERE id_empresa=?";
+    $q = $pdo->prepare($sql);
+
+    try {
+        $nombre_cliente = $_POST["nombre"];
+        $q->execute(
+            array(
+                $nombre_cliente,
+                $_POST['direccion'],
+                $_POST['cp'],
+                $_POST['cif'],
+                $_POST['id']
+            )
+        );
+        $idEmpresa = $pdo->lastInsertId();
+
+//        $search = array('.', ' ', '-', '&', '/', 'Á', 'É', 'Í', 'Ó', 'Ú', 'À', 'È', 'Ò', 'Ñ');
+//        $replace = array('', '', '', '', '', 'A', 'E', 'I', 'O', 'U', 'A', 'E', 'O', 'N');
+//        $ref_cliente = strtoupper(substr(str_replace($search, $replace, $nombre_cliente), 0, 3));
+//        $index = 0;
+//        while (!updateRef($ref_cliente, $idEmpresa, $index)) {
+//            $index++;
+//        }
+
+    } catch (Exception $e) {
+        print $e;
+    }
+
+    Database::disconnect();
+
+    print $idEmpresa;
 }

@@ -198,3 +198,6 @@ function isnull($var, $default=0) {
 </div>
 
 <br><br>
+<?php
+require_once('footer.php');
+?>
