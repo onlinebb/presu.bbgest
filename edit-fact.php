@@ -80,6 +80,33 @@ if (null == $id) {
                         </div>
                     </div>
 
+
+                    <!-- Owner factura -->
+                    <div class="form-group">
+                        <label class="col-md-6 control-label" for="owner">Owner</label>
+                        <div class="col-md-6">
+                            <select id="owner" name="owner" class="form-control input-sm">
+                                <?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $qol = $pdo->prepare("select id, nombre from stack_bbgest.usuarios where estado<>-1 and permisos=3");
+                                $qol->execute();
+                                $dataol = $qol->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($dataol as $row) {
+                                    ?>
+                                    <option <?= ($data['id_owner'] == $row['id']) ? 'selected' : '' ?>
+                                            value="<?php echo $row['id']; ?>">
+                                        <?= $row['nombre']; ?>
+                                    </option>
+                                    <?php
+                                }
+
+                                Database::disconnect();
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Fecha emision -->
                     <div class="form-group">
                         <label class="col-md-6 control-label" for="fecha_emision">Fecha emisión</label>

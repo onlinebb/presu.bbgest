@@ -36,7 +36,7 @@ foreach ($data as $row) {
 }
 
 function updateRef($ref_cliente, $id, $index) {
-    $pdo = Database::connect('bbgest');
+    $pdo = Database::connect();
     $sql = "UPDATE empresa set ref_cliente = ? where id_empresa = ?";
     $q = $pdo->prepare($sql);
 

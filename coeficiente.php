@@ -22,7 +22,7 @@ $pdo = Database::connect('stack_bbgest');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 //SQL lista usuarios
-$sql_usuarios = "select id, nombre, salario from usuarios";
+$sql_usuarios = "select id, nombre, salario from usuarios where estado=1";
 $q_usuarios = $pdo->prepare($sql_usuarios);
 $q_usuarios->execute(array());
 $data_usuarios = $q_usuarios->fetchAll(PDO::FETCH_ASSOC);
@@ -34,13 +34,28 @@ else {
     $cerrada = " ca.cerrada='no' AND ";
 }
 
+$estados = "('aceptado','facturado totalmente','facturado parcialmente','cobrado')";
+
 //SQL lista proyectos con datos en tabla coeficiente
-$sql_proyectos = "select pr.nombre, pr.id, pr.kickoff, de.f_entrega as delivery_date, ifnull(sum(presu.suma),ifnull(sum(presuet.suma),0)) as euros, ifnull(presu.estado, presuet.estado) from proyectos pr  
-                  left join campaigns ca on pr.id_campanya=ca.id 
-                  left join deliverables de on ca.id=de.id_campaign 
+$sql_proyectos = "select nombre,id,kickoff,delivery_date,sum(euros) as euros, estado  FROM (
+select pr.nombre as nombre, pr.id as id, pr.kickoff as kickoff, de.f_entrega as delivery_date, sum(presu.suma) as euros, presu.estado as estado 
+				from stack_bbgest.proyectos pr  
+                  left join stack_bbgest.campaigns ca on pr.id_campanya=ca.id 
+                  left join stack_bbgest.deliverables de on ca.id=de.id_campaign 
                   left join presu14.presupuesto presu on presu.id_proyecto=pr.id 
-                  left join presuetal.presupuesto presuet on presuet.id_proyecto=pr.id 
-                  where ".$cerrada." de.nombre='Cierre Proyecto' AND (presu.estado<>'no aceptado' or (presu.estado is null AND presuet.estado<>'no aceptado') or (presu.estado is null AND presuet.estado is null)) group by pr.id";//"select pr.nombre, pr.id, pr.kickoff, pr.delivery_date, pr.euros from coeficiente co left join proyectos pr on pr.id=co.id_proyecto group by id_proyecto";
+                  where ".$cerrada." de.nombre='Cierre Proyecto' 
+                  AND presu.estado in ".$estados." group by id
+    UNION ALL 
+                  
+select pr.nombre as nombre, pr.id as id, pr.kickoff as kickoff, de.f_entrega as delivery_date, sum(presu.suma) as euros, presu.estado as estado 
+				from stack_bbgest.proyectos pr  
+                  left join stack_bbgest.campaigns ca on pr.id_campanya=ca.id 
+                  left join stack_bbgest.deliverables de on ca.id=de.id_campaign 
+                  left join presuetal.presupuesto presu on presu.id_proyecto=pr.id 
+                  where ".$cerrada." de.nombre='Cierre Proyecto'  
+                  AND presu.estado in ".$estados." group by id) sq group by id";
+				  
+					
 $q_proyectos = $pdo->prepare($sql_proyectos);
 $q_proyectos->execute(array());
 $data_proyectos = $q_proyectos->fetchAll(PDO::FETCH_ASSOC);
@@ -96,6 +111,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
         <?php
         $sumaGanadosSemana = 0;
         $SumaSemanal = Array();
+		$euros_semana = 0;
 
         for ($j = 0; $j < count($data_proyectos); $j++):
             $diasSemana = 6;
@@ -131,7 +147,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     $semanakickoff = date('W', $fechaIni);
                     $semanaDelivery = date('W', $fechaFin);
 
-                    if ($i >= $semanakickoff && $i <= $semanaDelivery && $data_proyectos[$j]['estado'] != 'pendiente') {
+                    if ($i >= $semanakickoff && $i <= $semanaDelivery ) {
                         $SumaSemanal[$i] = $SumaSemanal[$i] + $euros_semana;
                     }
                     ?>
@@ -142,9 +158,10 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
 
 
                         //semanas anteriores
-                        if ($i < $semanaFin) {
-                            $sql_euros_guardados = 'SELECT coste as suma_euros from coste_proyectos co  
-                                                    where co.numSemana=' . $i . ' and year=' . date('Y') . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . ';';
+                        /*if ($i < $semanaFin) {
+                            $sql_euros_guardados = 'SELECT id_usuario, ifnull(sum(co.horas*(us.salario/1400)),0) as suma_euros from coeficiente co 
+													left join usuarios us on us.id=co.id_usuario 
+                                                    where co.numSemana=' . $i . ' and year=' . date('Y') . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . 'group by co.id_usuario;';
                             $q_euros_guardados = $pdo->prepare($sql_euros_guardados);
                             $q_euros_guardados->execute(array());
                             $data_euros_guardados = $q_euros_guardados->fetchAll(PDO::FETCH_ASSOC);
@@ -156,7 +173,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
 
                             echo number_format((float)$sumaSemana, 2, ',', '.');
                         } //semana actual
-                        else {
+                        else {*/
                             $sql_euros = 'SELECT id_usuario, ifnull(sum(co.horas*(us.salario/1400)),0) as suma_euros from coeficiente co 
                                           left join usuarios us on us.id=co.id_usuario 
                                           where co.numSemana=' . $i . ' and year=' . date('Y') . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . ' group by co.id_usuario;';
@@ -170,7 +187,8 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                             endforeach;
 
                             echo number_format((float)$sumaSemana, 2, ',', '.');
-                        }
+							//echo '<br>'.$euros_semana;
+                        //}
 
                         //$sumaEurosProyecto += $sumaSemana;
                         //$sumaCoeficientes += $euros_semana / $sumaSemana;
@@ -182,9 +200,21 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                 ?>
                 <td class="text-center">
                     <?= number_format((float)$data_acumulado['suma_acumulado'], 2, ',', '.') ?>
+                    <br>
+                    Extras:
+                    <?php
+                        $q_extras_po = $pdo->prepare("select sum(base) as extras from presu14.pos_proveedores where id_proyecto = ?");
+
+                        $q_extras_po->execute(array($data_proyectos[$j]['id']));
+                        $data_extras_po = $q_extras_po->fetch();
+
+                        $extras_po = !empty($data_extras_po['extras'])?$data_extras_po['extras']:0;
+
+                    ?>
+                    <?= number_format((float)$extras_po, 2, ',', '.') ?>
                 </td>
                 <td class="text-center">
-                    <?= ($data_proyectos[$j]['estado'] == 'pendiente') ? '0,00' : number_format((float)$data_proyectos[$j]['euros'] / $data_acumulado['suma_acumulado'], 2, ',', '.') ?>
+                    <?= number_format((float)$data_proyectos[$j]['euros'] / ($data_acumulado['suma_acumulado'] + $extras_po), 2, ',', '.') ?>
                 </td>
             </tr>
         <?php

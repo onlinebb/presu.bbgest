@@ -11,6 +11,8 @@ include 'lib/database.php';
 require_once('config.php');
 $pdo = Database::connect();
 
+date_default_timezone_set('Europe/Madrid');
+
 $anyo_actual = date('Y', time());
 $fecha_actual = date('Y-m-d', time());
 $fecha_origen = date('Y-m-d', strtotime($anyo_actual.'-01-01'));
@@ -483,7 +485,7 @@ $result = $pdo->prepare("select u.nombre as project_owner, u.id as id_project_ow
                                                 left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
                                                 left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
                                                 left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
-                                                left join bbgest.empresa e on e.id_empresa=pr.id_cliente 
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
                                                 where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by u.id order by u.nombre");
 $result->execute();
 

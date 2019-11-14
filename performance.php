@@ -49,8 +49,8 @@ function isnull($var, $default=0) {
                                                 ) as p on p.ref=f.presupuesto_asoc 
                                                 left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
                                                 left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
-                                                left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
-                                                left join bbgest.empresa e on e.id_empresa=pr.id_cliente 
+                                                left join stack_bbgest.usuarios u on u.id=f.id_owner 
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
                                                 where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by u.id order by u.nombre");
             $result->execute();
 
@@ -59,7 +59,7 @@ function isnull($var, $default=0) {
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
                                                 left join stack_bbgest.campaigns c on c.id=p.id_campanya 
-                                                WHERE co.year = 2019 group by c.id_usuario");
+                                                WHERE co.year=2019 group by c.id_usuario");
             $result2->execute();
             $costes = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
@@ -109,7 +109,7 @@ function isnull($var, $default=0) {
                                                 left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
                                                 left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
                                                 left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
-                                                left join bbgest.empresa e on e.id_empresa=pr.id_cliente 
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
                                                 WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=2019 group by pr.nombre,u.nombre order by u.nombre asc;");
             $result->execute();
 
@@ -168,7 +168,7 @@ function isnull($var, $default=0) {
                                                 left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
                                                 left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
                                                 left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
-                                                left join bbgest.empresa e on e.id_empresa=pr.id_cliente 
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
                                                 where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by e.id_empresa order by e.nombre,u.nombre");
             $result->execute();
 
@@ -176,7 +176,7 @@ function isnull($var, $default=0) {
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
-                                                left join bbgest.empresa e on e.id_empresa=p.id_cliente 
+                                                left join presu14.empresa e on e.id_empresa=p.id_cliente 
                                                 WHERE co.year = 2019 group by e.id_empresa");
             $result2->execute();
             $costes = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);

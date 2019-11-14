@@ -71,8 +71,8 @@ class PresuPDF extends TCPDF
             // Direccion
             text($this, 'Zamora, 46-48 4º 5ª', 12, $this->getPageHeight() - 198, 0, 'helvetica', 7, array(249, 89, 120));
             text($this, '08005 Barcelona', 12, $this->getPageHeight() - 195, 0, 'helvetica', 7, array(249, 89, 120));
-            text($this, 'Av. Manoteras, 38', 12, $this->getPageHeight() - 188, 0, 'helvetica', 7, array(249, 89, 120));
-            text($this, '28050 Madrid', 12, $this->getPageHeight() - 185, 0, 'helvetica', 7, array(249, 89, 120));
+            text($this, 'Plaza Mayor, 21, 1º A', 12, $this->getPageHeight() - 188, 0, 'helvetica', 7, array(249, 89, 120));
+            text($this, '28911 Leganés (Madrid)', 12, $this->getPageHeight() - 185, 0, 'helvetica', 7, array(249, 89, 120));
         }
 
         // Texto vertical izquierda

@@ -107,7 +107,7 @@ if (isset($_GET["action"])) {
  */
 function searchClient($text)
 {
-    $pdo = Database::connect('bbgest');
+    $pdo = Database::connect();
 
     $sql = "SELECT * FROM empresa where nombre like ?";
 
@@ -154,7 +154,6 @@ function savePresupuesto($isUpdate = false)
         $q = $pdo->prepare($sql);
 
         $curYear = date('y');
-        //$q->bindValue(1, $_POST['empresa'], PDO::PARAM_STR);
         $q->bindValue(1, "PR$curYear%", PDO::PARAM_STR);
         $q->execute();
         $data = $q->fetch();
@@ -378,7 +377,6 @@ function copyPresupuesto($id, $origen = false)
     }
 
     $curYear = date('y');
-    //$q->bindValue(1, $_POST['empresa'], PDO::PARAM_STR);
     $q->bindValue(1, "PR$curYear%", PDO::PARAM_STR);
     $q->execute();
     $data = $q->fetch();
@@ -870,6 +868,28 @@ function saveFactura($isUpdate = false)
         $total = $_POST['total'];
     }
 
+    //recuperar id del project owner
+    $id_owner = 0;
+    if(empty($_POST['owner'])) {
+        try {
+            $qo = $pdo->prepare("select us.id as owner from presupuesto p 
+                                        left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
+                                        left join stack_bbgest.campaigns c on c.id=pr.id_campanya 
+                                        left join stack_bbgest.usuarios us on c.id_usuario=us.id where p.ref=?");
+            $qo->bindValue(1,  $_POST['presupuesto_asoc'], PDO::PARAM_STR);
+            $qo->execute();
+            $data_owner = $qo->fetch();
+            if($data_owner) {
+                $id_owner=$data_owner[0];
+            }
+        } catch (Exception $e) {
+            print $e;
+        }
+    }
+    else {
+        $id_owner = $_POST['owner'];
+    }
+
     if (!$isUpdate) {
 
         //buscar id de la última factura
@@ -910,9 +930,10 @@ function saveFactura($isUpdate = false)
                                     ref_po,
                                     autor,
                                     noiva,
-                                    english
+                                    english,
+                                    id_owner
                                   )
-          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $q = $pdo->prepare($sql);
 
         $fecha_emision = date('Y-m-d', strtotime($_POST['fecha_emision']));
@@ -937,7 +958,8 @@ function saveFactura($isUpdate = false)
                     $_POST['ref_compras'],
                     $_SESSION['valid'],
                     $noiva,
-                    $english)
+                    $english,
+                    $id_owner)
             );
             $idFactura = $pdo->lastInsertId();
         } catch (Exception $e) {
@@ -945,7 +967,6 @@ function saveFactura($isUpdate = false)
         }
 
     } else {
-
         //actualizar datos de la factura
         $sql = "UPDATE factura SET fecha_emision = ?,
                                    fecha_vencimiento = ?,
@@ -960,7 +981,8 @@ function saveFactura($isUpdate = false)
                                    cp = ?,
                                    ref_po = ?,
                                    noiva = ?,
-                                   english = ?
+                                   english = ?,
+                                   id_owner = ?
           where id = ?";
         $q = $pdo->prepare($sql);
 
@@ -985,6 +1007,7 @@ function saveFactura($isUpdate = false)
                     $_POST['ref_compras'],
                     $noiva,
                     $english,
+                    $id_owner,
                     $idFactura
                 )
             );

@@ -67,6 +67,53 @@ if(isset($id)) {
 				</div>
 			</div>
 
+            <!-- Owner factura -->
+            <div class="form-group">
+                <label class="col-md-6 control-label" for="owner">Owner</label>
+
+                <div class="col-md-6">
+                        <?php
+
+                        try {
+                            $pdo = Database::connect();
+                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                            $qo = $pdo->prepare("select us.id as owner from presupuesto p 
+                                        left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
+                                        left join stack_bbgest.campaigns c on c.id=pr.id_campanya 
+                                        left join stack_bbgest.usuarios us on c.id_usuario=us.id where p.ref=?");
+                            $qo->bindValue(1,  $data['ref'], PDO::PARAM_STR);
+                            $qo->execute();
+                            $data_owner = $qo->fetch();
+                            $id_owner = 0;
+                            if($data_owner) {
+                                $id_owner=$data_owner[0];
+                            }
+
+                            $qol = $pdo->prepare("select id, nombre from stack_bbgest.usuarios where estado<>-1 and permisos=3");
+                            $qol->execute();
+                            $dataol = $qol->fetchAll(PDO::FETCH_ASSOC);
+                        } catch (Exception $e) {
+                            print $e;
+                        }
+
+                        ?>
+                        <select id="owner" name="owner" class="form-control input-sm">
+                            <?php
+                            foreach ($dataol as $row) {
+                                ?>
+                                <option <?=($row['id']==$id_owner)?'selected':''?> value="<?php echo $row['id']; ?>">
+                                    <?= $row['nombre']; ?>
+                                </option>
+                                <?php
+                            }
+
+                            Database::disconnect();
+                            ?>
+                        </select>
+                </div>
+            </div>
+
 			<!-- Fecha emision -->
 			<div class="form-group">
 				<label class="col-md-6 control-label" for="fecha_emision">Fecha emisión</label>
