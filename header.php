@@ -57,8 +57,6 @@
                     <li class=""><a href="control.php">Control</a></li>
                     <li class=""><a href="performance.php">Performance</a></li>
                     <li class=""><a href="coeficiente.php">Coeficientes</a></li>
-                    <li class=""><a href="alta_empresa.php">Alta Cliente</a></li>
-                    <li class=""><a href="edit_empresa.php">Modificar Cliente</a></li>
                     <?php
                     endif;
                     ?>

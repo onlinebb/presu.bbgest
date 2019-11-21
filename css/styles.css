@@ -284,7 +284,8 @@ a.logo:hover {
 }
 
 .exportar-presus,
-.exportar-fact {
+.exportar-fact,
+.btn-sm.pull-left.cliente{
     margin-bottom: 10px;
     margin-left: 10px;
 }

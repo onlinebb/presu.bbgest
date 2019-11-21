@@ -30,11 +30,13 @@ require_once('config.php');
     </div>
 
     <div class="wizard">
-        <div class="row center-block text-center">
-            <a href="wizard.php" class="btn btn-primary btn-lg new-presu">
+<!--        <div class="row center-block text-center">-->
+            <a href="wizard.php" class="btn btn-primary btn-sm new-presu pull-left">
                 <span class="glyphicon glyphicon-plus"></span> Nuevo Presupuesto
             </a>
-        </div>
+            <a class="btn btn-primary btn-sm pull-left cliente" href="alta_empresa.php"> <span class="glyphicon glyphicon-plus"></span> Alta Cliente</a>
+            <a class="btn btn-primary btn-sm pull-left cliente" href="edit_empresa.php">Modificar Cliente</a>
+<!--        </div>-->
     </div>
 
     <!--<div class="div-anyo clearfix"><input type="text" class="form-control input-sm" id="anyo-export" name="anyo-export" placeholder="Año exportación"></div>-->
