@@ -66,7 +66,7 @@ function isnull($var, $default=0) {
             Database::disconnect();
             for ($i = 0; $row = $result->fetch(); $i++) {
                 ?>
-                <tr id="presentation-<?php echo $row['id'] ?>">
+                <tr>
                     <td><?php echo $row['project_owner'] ?></td>
                     <td class="text-right nowrap"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
                     <td class="text-right"><?php echo number_format(isnull($costes[$row['id_project_owner']]['coste']), 2, ',', '.').' €' ?></td>
@@ -90,12 +90,23 @@ function isnull($var, $default=0) {
                 <th>Proyecto</th>
                 <th>Cliente</th>
                 <th>Project Owner</th>
-                <th>Facturado</th>
+                <th>
+                    <a href="?order=facturado">
+                        Facturado <span class="glyphicon glyphicon-sort"></span>
+                    </a>
+                </th>
                 <th>Costes</th>
             </tr>
             </thead>
             <tbody>
             <?php
+            $order = "";
+            if(!empty($_GET['order'])) {
+                if($_GET['order'] == 'facturado') {
+                    $order = 'order by acumulado desc';
+                }
+
+            }
             $result = $pdo->prepare("SELECT pr.nombre as proyecto, e.nombre as cliente, sum(fact.subtotal) acumulado, u.nombre as project_owner, pr.id as id_proyecto FROM (
                                                     SELECT * FROM presu14.factura
                                                     UNION ALL
@@ -110,7 +121,7 @@ function isnull($var, $default=0) {
                                                 left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
                                                 left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
                                                 left join presu14.empresa e on e.id_empresa=pr.id_cliente 
-                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=2019 group by pr.nombre,u.nombre order by u.nombre asc;");
+                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=2019 group by pr.nombre,u.nombre ".$order);
             $result->execute();
 
             $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste 
@@ -124,13 +135,17 @@ function isnull($var, $default=0) {
 
             Database::disconnect();
             for ($i = 0; $row = $result->fetch(); $i++) {
+                if(empty( $costes[$row['id_proyecto']]['coste']))
+                    $costeaux=0;
+                else
+                    $costeaux = $costes[$row['id_proyecto']]['coste'];
                 ?>
-                <tr id="presentation-<?php echo $row['id'] ?>">
+                <tr>
                     <td><?php echo $row['proyecto'] ?></td>
                     <td><?php echo $row['cliente'] ?></td>
                     <td><?php echo $row['project_owner'] ?></td>
                     <td class="text-right nowrap"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
-                    <td class="text-right nowrap"><?php echo number_format(isnull($costes[$row['id_proyecto']]['coste']), 2, ',', '.').' €' ?></td>
+                    <td class="text-right nowrap"><?php echo number_format($costeaux, 2, ',', '.').' €' ?></td>
                 </tr>
                 <?php
             }
@@ -143,19 +158,29 @@ function isnull($var, $default=0) {
     <div class="col-md-12">
         <?php
         $pdo = Database::connect();
+
+        $order2 ="";
+        if(!empty($_GET['order2'])) {
+            if($_GET['order2'] == 'facturado') {
+                $order2 = 'order by acumulado desc';
+            }
+
+        }
         ?>
         <h5>Facturado por cliente 2019</h5>
         <table class="table table-striped table-bordered table-curved table-hover">
             <thead>
             <tr>
                 <th>Cliente</th>
-                <th>Facturado</th>
+                <th><a href="?order2=facturado">
+                        Facturado <span class="glyphicon glyphicon-sort"></span>
+                    </a></th>
                 <th>Costes</th>
             </tr>
             </thead>
             <tbody>
             <?php
-            $result = $pdo->prepare("select e.nombre as cliente, e.id_empresa as id_cliente, sum(f.subtotal) acumulado from (
+            $result = $pdo->prepare("select e.nombre as cliente, e.id_empresa as id_cliente, sum(f.subtotal) as acumulado from (
                                                     SELECT  * FROM presu14.factura
                                                     UNION ALL
                                                     SELECT  * FROM presuetal.factura
@@ -169,7 +194,7 @@ function isnull($var, $default=0) {
                                                 left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
                                                 left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
                                                 left join presu14.empresa e on e.id_empresa=pr.id_cliente 
-                                                where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by e.id_empresa order by e.nombre,u.nombre");
+                                                where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by e.id_empresa ".$order2);
             $result->execute();
 
             $result2 = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste 
@@ -184,7 +209,7 @@ function isnull($var, $default=0) {
             Database::disconnect();
             for ($i = 0; $row = $result->fetch(); $i++) {
                 ?>
-                <tr id="presentation-<?php echo $row['id'] ?>">
+                <tr>
                     <td><?php echo $row['cliente'] ?></td>
                     <td class="text-right nowrap"><?php echo number_format($row['acumulado'], 2, ',', '.').' €' ?></td>
                     <td class="text-right"><?php echo number_format(isnull($costes[$row['id_cliente']]['coste']), 2, ',', '.').' €' ?></td>

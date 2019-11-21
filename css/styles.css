@@ -179,7 +179,7 @@ a.logo:hover {
     cursor: pointer;
 }
 
-.listado table th a {
+table th a {
     text-decoration: none;
     display: block;
     color: #333;
