@@ -181,9 +181,9 @@ endif;
 
                     if(!isset($_SESSION['priv']) || isset($_SESSION['priv']) && $_SESSION['priv'] == 0) {
                         if(empty($where))
-                            $privs = " WHERE autor = '".$_SESSION['valid']."' ";
+                            $privs = " WHERE autor LIKE '%".$_SESSION['valid']."%' ";
                         else
-                            $privs = " AND autor = '".$_SESSION['valid']."' ";
+                            $privs = " AND autor LIKE '%".$_SESSION['valid']."%' ";
                     }
                     else {
                         $privs = "";

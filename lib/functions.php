@@ -2503,7 +2503,7 @@ function searchProyecto($text, $cliente)
 {
     $pdo = Database::connect('stack_bbgest');
 
-    $sql = "SELECT p.*, c.nombre as campanya, c.year as year FROM proyectos p left join campaigns c on c.id=p.id_campanya where p.nombre like ? and id_cliente = ? and c.cerrada='no'";
+    $sql = "SELECT p.*, date_format(p.kickoff, \"%Y\") as year FROM proyectos p where p.nombre like ? and id_cliente = ? and p.cerrado=0";
 
     $pdo -> exec('SET NAMES utf8'); // METHOD #3
 
@@ -2520,7 +2520,6 @@ function searchProyecto($text, $cliente)
         $result[$count]['nombre'] = $row['nombre'];
         $result[$count]['id'] = $row['id'];
         $result[$count]['ref_proyecto'] = $row['ref'];
-        $result[$count]['campanya'] = $row['campanya'];
         $result[$count]['year'] = $row['year'];
 
         $count++;
@@ -2538,7 +2537,7 @@ function searchProyecto2($text)
 {
     $pdo = Database::connect('stack_bbgest');
 
-    $sql = "SELECT p.*, c.nombre as campanya, c.year as year FROM proyectos p left join campaigns c on c.id=p.id_campanya where c.cerrada='no' and p.nombre like ?";
+    $sql = "SELECT p.*, date_format(p.kickoff, \"%Y\") as year FROM proyectos p where p.nombre like ? and p.cerrado=0";
 
     $pdo -> exec('SET NAMES utf8'); // METHOD #3
 
@@ -2554,7 +2553,6 @@ function searchProyecto2($text)
         $result[$count]['nombre'] = $row['nombre'];
         $result[$count]['id'] = $row['id'];
         $result[$count]['ref_proyecto'] = $row['ref'];
-        $result[$count]['campanya'] = $row['campanya'];
         $result[$count]['year'] = $row['year'];
 
         $count++;

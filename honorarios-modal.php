@@ -63,7 +63,7 @@ Database::disconnect();
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
                     <tr class="datos">
-                        <td class="cargo">Medical writer</td>
+                        <td class="cargo">Senior Medical Writer</td>
                         <td><input data-idperfil="5" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[4])?$data_honorarios[4]["precio"]:119.05?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
@@ -88,7 +88,7 @@ Database::disconnect();
                     </tr>
                     <tr class="datos">
                         <td class="cargo">Junior Copywriter</td>
-                        <td><input data-idperfil="9" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[8])?$data_honorarios[8]["precio"]:59.52?>"></td>
+                        <td><input data-idperfil="9" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[8])?$data_honorarios[8]["precio"]:64.29?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
@@ -118,36 +118,36 @@ Database::disconnect();
                     </tr>
                     <tr class="datos">
                         <td class="cargo">Senior audiovisual specialist</td>
-                        <td><input data-idperfil="14" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[13])?$data_honorarios[13]["precio"]:119.05?>"></td>
+                        <td><input data-idperfil="14" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[13])?$data_honorarios[13]["precio"]:70.90?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
                     <tr class="datos">
-                        <td class="cargo">Junior audiovisual specialist</td>
-                        <td><input data-idperfil="15" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[14])?$data_honorarios[14]["precio"]:61.90?>"></td>
+                        <td class="cargo">SEO Manager</td>
+                        <td><input data-idperfil="15" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[14])?$data_honorarios[14]["precio"]:70.90?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
                     <tr class="datos">
                         <td class="cargo">Head of engineering/digital</td>
-                        <td><input data-idperfil="16" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[15])?$data_honorarios[15]["precio"]:95.24?>"></td>
+                        <td><input data-idperfil="16" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[15])?$data_honorarios[15]["precio"]:119.05?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
                     <tr class="datos">
                         <td class="cargo">Senior engineer</td>
-                        <td><input data-idperfil="17" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[16])?$data_honorarios[16]["precio"]:71.43?>"></td>
+                        <td><input data-idperfil="17" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[16])?$data_honorarios[16]["precio"]:90.24?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
                     <tr class="datos">
                         <td class="cargo">Junior engineer</td>
-                        <td><input data-idperfil="18" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[17])?$data_honorarios[17]["precio"]:42.86?>"></td>
+                        <td><input data-idperfil="18" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[17])?$data_honorarios[17]["precio"]:61.90?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
                     <tr class="datos">
-                        <td class="cargo">PR Article writer</td>
+                        <td class="cargo">Junior Medical Writer</td>
                         <td><input data-idperfil="19" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[18])?$data_honorarios[18]["precio"]:71.43?>"></td>
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
