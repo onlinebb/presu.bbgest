@@ -31,31 +31,24 @@ if (isset($_GET["allproj"])) {
     $cerrada = " year=".date('Y')." AND ";
 }
 else {
-    $cerrada = " ca.cerrada='no' AND ";
+    $cerrada = " pr.cerrado=0 AND ";
 }
 
 $estados = "('aceptado','facturado totalmente','facturado parcialmente','cobrado')";
 
 //SQL lista proyectos con datos en tabla coeficiente
-$sql_proyectos = "select nombre,id,kickoff,delivery_date,sum(euros) as euros, estado  FROM (
-select pr.nombre as nombre, pr.id as id, pr.kickoff as kickoff, de.f_entrega as delivery_date, sum(presu.suma) as euros, presu.estado as estado 
-				from stack_bbgest.proyectos pr  
-                  left join stack_bbgest.campaigns ca on pr.id_campanya=ca.id 
-                  left join stack_bbgest.deliverables de on ca.id=de.id_campaign 
+$sql_proyectos = "select nombre,id,kickoff, delivery_date, sum(euros) as euros, estado  FROM (
+select pr.nombre as nombre, pr.id as id, pr.kickoff as kickoff, pr.ptc as delivery_date, sum(presu.suma) as euros, presu.estado as estado 
+				from stack_bbgest.proyectos pr   
                   left join presu14.presupuesto presu on presu.id_proyecto=pr.id 
-                  where ".$cerrada." de.nombre='Cierre Proyecto' 
-                  AND presu.estado in ".$estados." group by id
+                  where ".$cerrada."  presu.estado in ".$estados." group by id
     UNION ALL 
                   
-select pr.nombre as nombre, pr.id as id, pr.kickoff as kickoff, de.f_entrega as delivery_date, sum(presu.suma) as euros, presu.estado as estado 
+select pr.nombre as nombre, pr.id as id, pr.kickoff as kickoff, pr.ptc as delivery_date, sum(presu.suma) as euros, presu.estado as estado 
 				from stack_bbgest.proyectos pr  
-                  left join stack_bbgest.campaigns ca on pr.id_campanya=ca.id 
-                  left join stack_bbgest.deliverables de on ca.id=de.id_campaign 
                   left join presuetal.presupuesto presu on presu.id_proyecto=pr.id 
-                  where ".$cerrada." de.nombre='Cierre Proyecto'  
-                  AND presu.estado in ".$estados." group by id) sq group by id";
-				  
-					
+                  where ".$cerrada."  presu.estado in ".$estados." group by id) sq group by id";
+
 $q_proyectos = $pdo->prepare($sql_proyectos);
 $q_proyectos->execute(array());
 $data_proyectos = $q_proyectos->fetchAll(PDO::FETCH_ASSOC);
@@ -148,7 +141,12 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     $semanaDelivery = date('W', $fechaFin);
 
                     if ($i >= $semanakickoff && $i <= $semanaDelivery ) {
-                        $SumaSemanal[$i] = $SumaSemanal[$i] + $euros_semana;
+                        if(isset($SumaSemanal[$i])) {
+                            $SumaSemanal[$i] = isnull($SumaSemanal[$i]) + $euros_semana;
+                        }
+                        else {
+                            $SumaSemanal[$i] = $euros_semana;
+                        }
                     }
                     ?>
                     <td class="text-center">
@@ -214,7 +212,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                     <?= number_format((float)$extras_po, 2, ',', '.') ?>
                 </td>
                 <td class="text-center">
-                    <?= number_format((float)$data_proyectos[$j]['euros'] / ($data_acumulado['suma_acumulado'] + $extras_po), 2, ',', '.') ?>
+                    <?= number_format((float)$data_proyectos[$j]['euros'] / nozero($data_acumulado['suma_acumulado'] + $extras_po), 2, ',', '.') ?>
                 </td>
             </tr>
         <?php
@@ -224,118 +222,118 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
     </table>
 
     <!-- Coef Bruto -->
-    <table class="coef-bruto table table-bordered table-striped table-curved">
-        <thead>
-        <tr>
-            <th>MARGEN REAL</th>
-            <?php
-            for ($i = $semanaIni; $i <= $semanaFin; $i++):
-                ?>
-                <th class="text-center"><?= $i ?></th>
-            <?php
-            endfor;
-            ?>
-        </tr>
-        </thead>
-        <tbody>
-        <?php
-        //Datos guardados de coeficiente
-        $sql_coeficiente_total = 'SELECT sum(coeficiente)/count(coeficiente) from costes where year=?';
-        $q_coeficiente_total = $pdo->prepare($sql_coeficiente_total);
-        $q_coeficiente_total->execute(array(date('Y')));
-        $data_coeficiente_total = $q_coeficiente_total->fetchAll(PDO::FETCH_COLUMN);
-        ?>
-        <tr>
-            <td>
-                <table class="table table-bordered table-striped table-curved">
-                    <tr>
-                        <th>Ganados</th>
-                    </tr>
-                    <tr>
-                        <th>Coste</th>
-                    </tr>
-                    <tr>
-                        <th>Costes extra</th>
-                    </tr>
-                    <tr>
-                        <th>Margen <br>
-                            <small>((costes+costes_extra)/suma_semanal)</small>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th>YTD = <?= number_format($data_coeficiente_total[0], 2, ',', '.'); ?></th>
-                    </tr>
-                </table>
-            </td>
-            <?php
-            //Datos guardados de costes
-            $sql_costes_semana = 'SELECT numSemana,costes from costes where year=?';
-            $q_costes_semana = $pdo->prepare($sql_costes_semana);
-            $q_costes_semana->execute(array(date('Y')));
-            $data_costes_semana = $q_costes_semana->fetchAll(PDO::FETCH_KEY_PAIR);
-
-            //Datos guardados de costes extra
-            $sql_costes_extra_semana = 'SELECT numSemana,costes_extra from costes where year=?';
-            $q_costes_extra_semana = $pdo->prepare($sql_costes_extra_semana);
-            $q_costes_extra_semana->execute(array(date('Y')));
-            $data_costes_extra_semana = $q_costes_extra_semana->fetchAll(PDO::FETCH_KEY_PAIR);
-
-            //Datos guardados de coeficiente
-            $sql_coeficiente_semana = 'SELECT numSemana,coeficiente from costes where year=?';
-            $q_coeficiente_semana = $pdo->prepare($sql_coeficiente_semana);
-            $q_coeficiente_semana->execute(array(date('Y')));
-            $data_coeficiente_semana = $q_coeficiente_semana->fetchAll(PDO::FETCH_KEY_PAIR);
-
-            for ($i = $semanaIni; $i <= $semanaFin; $i++):
-                //Sumatorio de Euros por semana
-                $sql_euros_semana = 'SELECT sum(us.salario/12)/4 as suma_semanal from usuarios us';
-                $q_euros_semana = $pdo->prepare($sql_euros_semana);
-                $q_euros_semana->execute(array());
-                $data_euros_semana = $q_euros_semana->fetch();
-
-                $costes_extra = !empty($data_costes_extra_semana[$i]) ? $data_costes_extra_semana[$i] : 0;
-                $costes = !empty($data_costes_semana[$i]) ? $data_costes_semana[$i] : $data_euros_semana['suma_semanal'];
-
-                ?>
-                <td class="text-center">
-                    <table class="semana-<?= $i ?> table table-bordered table-striped table-curved">
-                        <tr>
-                            <td class="ganados" data-value="<?= $SumaSemanal[$i] ?>">
-                                <?= number_format($SumaSemanal[$i], 2, ',', '.'); ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="costes" contenteditable="true" data-value="<?= $costes ?>"
-                                data-semana="<?= $i ?>">
-                                <?= number_format($costes, 2, ',', '.'); ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="costes-extra" contenteditable="true" data-value="<?= $costes_extra ?>"
-                                data-semana="<?= $i ?>">
-                                <?= number_format($costes_extra, 2, ',', '.') ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <?php
-                            if (empty($SumaSemanal[$i])) {
-                                $calculoCoef = 0;
-                            } else {
-                                $calculoCoef = (($SumaSemanal[$i]) / ($costes + $costes_extra));
-                            }
-                            ?>
-                            <td class="coef" data-value="<?= $SumaSemanal[$i] / ($costes + $costes_extra) ?>">
-                                <?= !empty($data_coeficiente_semana[$i]) ? $data_coeficiente_semana[$i] : number_format($calculoCoef, 2, ',', '.') ?>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            <?php
-            endfor;
-            ?>
-        </tr>
-        </tbody>
-    </table>
+<!--    <table class="coef-bruto table table-bordered table-striped table-curved">-->
+<!--        <thead>-->
+<!--        <tr>-->
+<!--            <th>MARGEN REAL</th>-->
+<!--            --><?php
+//            for ($i = $semanaIni; $i <= $semanaFin; $i++):
+//                ?>
+<!--                <th class="text-center">--><?//= $i ?><!--</th>-->
+<!--            --><?php
+//            endfor;
+//            ?>
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--        --><?php
+//        //Datos guardados de coeficiente
+//        $sql_coeficiente_total = 'SELECT sum(coeficiente)/count(coeficiente) from costes where year=?';
+//        $q_coeficiente_total = $pdo->prepare($sql_coeficiente_total);
+//        $q_coeficiente_total->execute(array(date('Y')));
+//        $data_coeficiente_total = $q_coeficiente_total->fetchAll(PDO::FETCH_COLUMN);
+//        ?>
+<!--        <tr>-->
+<!--            <td>-->
+<!--                <table class="table table-bordered table-striped table-curved">-->
+<!--                    <tr>-->
+<!--                        <th>Ganados</th>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <th>Coste</th>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <th>Costes extra</th>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <th>Margen <br>-->
+<!--                            <small>((costes+costes_extra)/suma_semanal)</small>-->
+<!--                        </th>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <th>YTD = --><?//= number_format($data_coeficiente_total[0], 2, ',', '.'); ?><!--</th>-->
+<!--                    </tr>-->
+<!--                </table>-->
+<!--            </td>-->
+<!--            --><?php
+//            //Datos guardados de costes
+//            $sql_costes_semana = 'SELECT numSemana,costes from costes where year=?';
+//            $q_costes_semana = $pdo->prepare($sql_costes_semana);
+//            $q_costes_semana->execute(array(date('Y')));
+//            $data_costes_semana = $q_costes_semana->fetchAll(PDO::FETCH_KEY_PAIR);
+//
+//            //Datos guardados de costes extra
+//            $sql_costes_extra_semana = 'SELECT numSemana,costes_extra from costes where year=?';
+//            $q_costes_extra_semana = $pdo->prepare($sql_costes_extra_semana);
+//            $q_costes_extra_semana->execute(array(date('Y')));
+//            $data_costes_extra_semana = $q_costes_extra_semana->fetchAll(PDO::FETCH_KEY_PAIR);
+//
+//            //Datos guardados de coeficiente
+//            $sql_coeficiente_semana = 'SELECT numSemana,coeficiente from costes where year=?';
+//            $q_coeficiente_semana = $pdo->prepare($sql_coeficiente_semana);
+//            $q_coeficiente_semana->execute(array(date('Y')));
+//            $data_coeficiente_semana = $q_coeficiente_semana->fetchAll(PDO::FETCH_KEY_PAIR);
+//
+//            for ($i = $semanaIni; $i <= $semanaFin; $i++):
+//                //Sumatorio de Euros por semana
+//                $sql_euros_semana = 'SELECT sum(us.salario/12)/4 as suma_semanal from usuarios us';
+//                $q_euros_semana = $pdo->prepare($sql_euros_semana);
+//                $q_euros_semana->execute(array());
+//                $data_euros_semana = $q_euros_semana->fetch();
+//
+//                $costes_extra = !empty($data_costes_extra_semana[$i]) ? $data_costes_extra_semana[$i] : 0;
+//                $costes = !empty($data_costes_semana[$i]) ? $data_costes_semana[$i] : $data_euros_semana['suma_semanal'];
+//
+//                ?>
+<!--                <td class="text-center">-->
+<!--                    <table class="semana---><?//= $i ?><!-- table table-bordered table-striped table-curved">-->
+<!--                        <tr>-->
+<!--                            <td class="ganados" data-value="--><?//= $SumaSemanal[$i] ?><!--">-->
+<!--                                --><?//= number_format($SumaSemanal[$i], 2, ',', '.'); ?>
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td class="costes" contenteditable="true" data-value="--><?//= $costes ?><!--"-->
+<!--                                data-semana="--><?//= $i ?><!--">-->
+<!--                                --><?//= number_format($costes, 2, ',', '.'); ?>
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td class="costes-extra" contenteditable="true" data-value="--><?//= $costes_extra ?><!--"-->
+<!--                                data-semana="--><?//= $i ?><!--">-->
+<!--                                --><?//= number_format($costes_extra, 2, ',', '.') ?>
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            --><?php
+//                            if (empty($SumaSemanal[$i])) {
+//                                $calculoCoef = 0;
+//                            } else {
+//                                $calculoCoef = (($SumaSemanal[$i]) / ($costes + $costes_extra));
+//                            }
+//                            ?>
+<!--                            <td class="coef" data-value="--><?//= $SumaSemanal[$i] / ($costes + $costes_extra) ?><!--">-->
+<!--                                --><?//= !empty($data_coeficiente_semana[$i]) ? $data_coeficiente_semana[$i] : number_format($calculoCoef, 2, ',', '.') ?>
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                    </table>-->
+<!--                </td>-->
+<!--            --><?php
+//            endfor;
+//            ?>
+<!--        </tr>-->
+<!--        </tbody>-->
+<!--    </table>-->
 
     <hr>
 
@@ -598,5 +596,14 @@ if (isset($_GET['save'])) {
     updateCostesCron();
 }
 Database::disconnect();
+
+function isnull($var, $default=0) {
+    return is_null($var) || empty($var) ? $default : $var;
+}
+
+function nozero($var) {
+    if($var == 0) return 1;
+    else return $var;
+}
 require_once('footer.php');
 ?>
