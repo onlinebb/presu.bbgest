@@ -48,18 +48,16 @@ function isnull($var, $default=0) {
                                                     SELECT  * FROM presuetal.presupuesto
                                                 ) as p on p.ref=f.presupuesto_asoc 
                                                 left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
-                                                left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
                                                 left join stack_bbgest.usuarios u on u.id=f.id_owner 
                                                 left join presu14.empresa e on e.id_empresa=pr.id_cliente 
                                                 where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by u.id order by u.nombre");
             $result->execute();
 
-            $result2 = $pdo->prepare("SELECT c.id_usuario as id_project_owner, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste
+            $result2 = $pdo->prepare("SELECT co.id_usuario as id_project_owner, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
-                                                left join stack_bbgest.campaigns c on c.id=p.id_campanya 
-                                                WHERE co.year=2019 group by c.id_usuario");
+                                                WHERE co.year=2019 group by co.id_usuario");
             $result2->execute();
             $costes = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
@@ -117,9 +115,8 @@ function isnull($var, $default=0) {
                                                     UNION ALL
                                                     SELECT * FROM presuetal.presupuesto
                                                 ) as p on p.ref=fact.presupuesto_asoc 
-                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
-                                                left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
-                                                left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
                                                 left join presu14.empresa e on e.id_empresa=pr.id_cliente 
                                                 WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=2019 group by pr.nombre,u.nombre ".$order);
             $result->execute();
@@ -190,9 +187,8 @@ function isnull($var, $default=0) {
                                                     UNION ALL
                                                     SELECT  * FROM presuetal.presupuesto
                                                 ) as p on p.ref=f.presupuesto_asoc 
-                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
-                                                left join stack_bbgest.campaigns ca on ca.id=pr.id_campanya 
-                                                left join stack_bbgest.usuarios u on u.id=ca.id_usuario 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
                                                 left join presu14.empresa e on e.id_empresa=pr.id_cliente 
                                                 where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by e.id_empresa ".$order2);
             $result->execute();
