@@ -880,8 +880,7 @@ function saveFactura($isUpdate = false)
         try {
             $qo = $pdo->prepare("select us.id as owner from presupuesto p 
                                         left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
-                                        left join stack_bbgest.campaigns c on c.id=pr.id_campanya 
-                                        left join stack_bbgest.usuarios us on c.id_usuario=us.id where p.ref=?");
+                                        left join stack_bbgest.usuarios us on pr.project_owner=us.id where p.ref=?");
             $qo->bindValue(1,  $_POST['presupuesto_asoc'], PDO::PARAM_STR);
             $qo->execute();
             $data_owner = $qo->fetch();
@@ -2797,14 +2796,13 @@ function updateCostesCron()
         $q_euros_semana->execute(array());
         $data_euros_semana = $q_euros_semana->fetch();
 
-        $sql_proyectos_semana = "select week(de.f_entrega) as deli, week(now()),pr.nombre, pr.id, pr.kickoff, 
-                                 de.f_entrega as delivery_date, ifnull(sum(presu.suma),0) as euros, presu.estado 
-                                 from proyectos pr left join campaigns ca on pr.id_campanya=ca.id 
-                                 left join deliverables de on ca.id=de.id_campaign 
+        $sql_proyectos_semana = "select week(pr.ptc) as deli, week(now()),pr.nombre, pr.id, pr.kickoff, 
+                                 pr.ptc as delivery_date, ifnull(sum(presu.suma),0) as euros, presu.estado 
+                                 from proyectos pr 
                                  left join presu14.presupuesto presu on presu.id_proyecto=pr.id 
-                                 where de.nombre='PTC' AND pr.kickoff>0 
+                                 where pr.kickoff>0 
                                  AND (presu.estado<>'no aceptado' or presu.estado is null) 
-                                 AND week(de.f_entrega) >= week(now()) group by pr.id ";
+                                 AND week(pr.ptc) >= week(now()) group by pr.id ";
 
     } catch (Exception $e) {
         Database::disconnect();

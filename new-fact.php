@@ -80,8 +80,7 @@ if(isset($id)) {
 
                             $qo = $pdo->prepare("select us.id as owner from presupuesto p 
                                         left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
-                                        left join stack_bbgest.campaigns c on c.id=pr.id_campanya 
-                                        left join stack_bbgest.usuarios us on c.id_usuario=us.id where p.ref=?");
+                                        left join stack_bbgest.usuarios us on pr.project_owner=us.id where p.ref=?");
                             $qo->bindValue(1,  $data['ref'], PDO::PARAM_STR);
                             $qo->execute();
                             $data_owner = $qo->fetch();
