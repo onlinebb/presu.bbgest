@@ -68,6 +68,15 @@ if (isset($_GET["action"])) {
         case "logExcelPerformance":
             logExcelPerformance();
             break;
+        case "logExcelByOwner":
+            logExcelByOwner();
+            break;
+        case "logExcelByProyecto":
+            logExcelByProyecto();
+            break;
+        case "logExcelByClient":
+            logExcelByClient();
+            break;
         case "bbgest":
             bbgest();
             break;
@@ -1442,6 +1451,7 @@ function logExcel() {
     foreach ($list as $ferow) {
         fputcsv($fp, $ferow, ';');
     }
+    Database::disconnect();
 }
 
 /**
@@ -1510,6 +1520,298 @@ function logExcelPerformance() {
     foreach ($list as $ferow) {
         fputcsv($fp, $ferow, ';');
     }
+    Database::disconnect();
+}
+
+//Exportar archivo excel con el histórico de facturado vs costes por año hasta 2017
+function logExcelByOwner(){
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $currentYear = date('Y');
+
+    $list = array ();
+
+    try {
+        $qOwners = $pdo->prepare("select u.id as id_project_owner, u.nombre as nombre from (
+                                                SELECT  * FROM presu14.factura
+                                                UNION ALL
+                                                SELECT  * FROM presuetal.factura
+                                            ) as f 
+                                            left join (
+                                                SELECT  * FROM presu14.presupuesto
+                                                UNION ALL
+                                                SELECT  * FROM presuetal.presupuesto
+                                            ) as p on p.ref=f.presupuesto_asoc 
+                                            left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
+                                            left join stack_bbgest.usuarios u on u.id=f.id_owner 
+                                            left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                            WHERE f.estado <> 'abonada' and YEAR(f.fecha_emision)>=2017 group by u.id");
+        $qOwners->execute();
+        $listOwners = $qOwners->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch(PDOException $e) {
+        print_r($e);
+    }
+
+    $header = [];
+    $header[] = "project Owner";
+
+    $dataFacturado = [];
+    $dataCostes = [];
+
+    for($y=2017;$y<=$currentYear;$y++){
+        $header[] = "Facturado ".$y;
+        $header[] = "Costes ".$y;
+
+        $result = $pdo->prepare("select u.id as id_project_owner, u.nombre as project_owner, sum(f.subtotal) acumulado from (
+                                                    SELECT  * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.factura
+                                                ) as f 
+                                                left join (
+                                                    SELECT  * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.presupuesto
+                                                ) as p on p.ref=f.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto 
+                                                left join stack_bbgest.usuarios u on u.id=f.id_owner 
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                where f.estado <> 'abonada' and YEAR(f.fecha_emision)=".$y." group by u.id order by u.nombre");
+        $result->execute();
+        $dataFacturado[$y] = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+
+        $result2 = $pdo->prepare("SELECT p.project_owner as id_project_owner, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste
+                                                FROM stack_bbgest.coeficiente co 
+                                                left join stack_bbgest.usuarios us on us.id=co.id_usuario 
+                                                left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
+                                                WHERE co.year=".$y." group by p.project_owner");
+        $result2->execute();
+        $dataCostes[$y] = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+    }
+    array_push($list, $header);
+
+    $fila = [];
+    foreach ($listOwners as $row){
+        if($row['id_project_owner'] != null && $row['id_project_owner'] != 0){
+            $fila[] = $row['nombre'];
+            for($y=2017;$y<=$currentYear;$y++){
+                $fila[] = isset($dataFacturado[$y][$row['id_project_owner']])?number_format($dataFacturado[$y][$row['id_project_owner']]['acumulado'], 2, ',', ''):"";
+                $fila[] = isset($dataCostes[$y][$row['id_project_owner']])?number_format(isnull($dataCostes[$y][$row['id_project_owner']]['coste']), 2, ',', ''):"";
+            }
+            array_push($list, $fila);
+            $fila = [];
+        }
+    }
+
+    // Output array into CSV file
+    $fp = fopen('php://output', 'w');
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="log_performance_by_owner.csv"');
+    foreach ($list as $ferow) {
+        fputcsv($fp, $ferow, ';');
+    }
+
+    Database::disconnect();
+}
+
+//Exportar archivo excel con el histórico de facturado por proyecto vs costes por año hasta 2017
+function logExcelByProyecto(){
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $currentYear = date('Y');
+
+    $list = array ();
+
+    try {
+        $qProjects = $pdo->prepare("SELECT pr.id as id_proyecto, pr.nombre as proyecto, e.nombre as cliente, u.nombre as project_owner, sum(fact.subtotal) acumulado FROM (
+                                                    SELECT * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.factura
+                                                ) as fact
+                                                left join (
+                                                    SELECT * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.presupuesto
+                                                ) as p on p.ref=fact.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)>=2017 group by pr.id,u.nombre");
+        $qProjects->execute();
+        $listProjects = $qProjects->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch(PDOException $e) {
+        print_r($e);
+    }
+
+    $header = [];
+    $header[] = "Proyecto";
+    $header[] = "Cliente";
+    $header[] = "Project Owner";
+
+    $dataFacturado = [];
+    $dataCostes = [];
+
+    for($y=2017;$y<=$currentYear;$y++){
+        $header[] = "Facturado ".$y;
+        $header[] = "Costes ".$y;
+
+        $result = $pdo->prepare("SELECT pr.id as id_proyecto, pr.nombre as proyecto, e.nombre as cliente, sum(fact.subtotal) acumulado, u.nombre as project_owner FROM (
+                                                    SELECT * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.factura
+                                                ) as fact
+                                                left join (
+                                                    SELECT * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.presupuesto
+                                                ) as p on p.ref=fact.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=".$y." group by pr.id,u.nombre");
+        $result->execute();
+        $dataFacturado[$y] = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+
+        $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste 
+                                                FROM stack_bbgest.coeficiente co 
+                                                left join stack_bbgest.usuarios us on us.id=co.id_usuario 
+                                                left join stack_bbgest.proyectos p on p.id=co.id_proyecto
+                                                WHERE co.year = ".$y." group by co.id_proyecto");
+        $result2->execute();
+        $dataCostes[$y] = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+    }
+    array_push($list, $header);
+
+    $fila = [];
+    foreach ($listProjects as $row){
+        if($row['id_proyecto'] != null && $row['id_proyecto'] != 0){
+            $fila[] = $row['proyecto'];
+            $fila[] = $row['cliente'];
+            $fila[] = $row['project_owner'];
+            for($y=2017;$y<=$currentYear;$y++){
+                $fila[] = isset($dataFacturado[$y][$row['id_proyecto']])?number_format($dataFacturado[$y][$row['id_proyecto']]['acumulado'], 2, ',', ''):"";
+                $fila[] = isset($dataCostes[$y][$row['id_proyecto']])?number_format(isnull($dataCostes[$y][$row['id_proyecto']]['coste']), 2, ',', ''):"";
+            }
+            array_push($list, $fila);
+            $fila = [];
+        }
+    }
+
+    // Output array into CSV file
+    header('Content-Encoding: UTF-8');
+    header('Content-type: text/csv; charset=UTF-8');
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="log_performance_by_proyecto.csv"');
+    echo "\xEF\xBB\xBF";
+    $fp = fopen('php://output', 'w');
+    foreach ($list as $ferow) {
+        fputcsv($fp, $ferow, ';');
+    }
+
+    Database::disconnect();
+}
+
+//Exportar archivo excel con el histórico de facturado por cliente vs costes por año hasta 2017
+function logExcelByClient(){
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $currentYear = date('Y');
+
+    $list = array ();
+
+    try {
+        $qClients = $pdo->prepare("select e.nombre as cliente, e.id_empresa as id_cliente, sum(f.subtotal) as acumulado from (
+                                                    SELECT  * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.factura
+                                                ) as f 
+                                                left join (
+                                                    SELECT  * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.presupuesto
+                                                ) as p on p.ref=f.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                where f.estado <> 'abonada' and YEAR(f.fecha_emision)>=2017 group by e.id_empresa");
+        $qClients->execute();
+        $listClients = $qClients->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch(PDOException $e) {
+        print_r($e);
+    }
+
+    $header = [];
+    $header[] = "Cliente";
+
+    $dataFacturado = [];
+    $dataCostes = [];
+
+    for($y=2017;$y<=$currentYear;$y++){
+        $header[] = "Facturado ".$y;
+        $header[] = "Costes ".$y;
+
+        $result = $pdo->prepare("select e.id_empresa as id_cliente, e.nombre as cliente, sum(f.subtotal) as acumulado from (
+                                                    SELECT  * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.factura
+                                                ) as f 
+                                                left join (
+                                                    SELECT  * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.presupuesto
+                                                ) as p on p.ref=f.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                where f.estado <> 'abonada' and YEAR(f.fecha_emision)=".$y." group by e.id_empresa");
+        $result->execute();
+        $dataFacturado[$y] = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+
+        $result2 = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste 
+                                                FROM stack_bbgest.coeficiente co 
+                                                left join stack_bbgest.usuarios us on us.id=co.id_usuario 
+                                                left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
+                                                left join presu14.empresa e on e.id_empresa=p.id_cliente 
+                                                WHERE co.year = ".$y." group by e.id_empresa");
+        $result2->execute();
+        $dataCostes[$y] = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+    }
+    array_push($list, $header);
+
+    $fila = [];
+    foreach ($listClients as $row){
+        if($row['cliente'] != null){
+            $fila[] = $row['cliente'];
+            for($y=2017;$y<=$currentYear;$y++){
+                $fila[] = isset($dataFacturado[$y][$row['id_cliente']])?number_format($dataFacturado[$y][$row['id_cliente']]['acumulado'], 2, ',', ''):"";
+                $fila[] = isset($dataCostes[$y][$row['id_cliente']])?number_format(isnull($dataCostes[$y][$row['id_cliente']]['coste']), 2, ',', ''):"";
+            }
+            array_push($list, $fila);
+            $fila = [];
+        }
+    }
+
+    // Output array into CSV file
+    header('Content-Encoding: UTF-8');
+    header('Content-type: text/csv; charset=UTF-8');
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="log_performance_by_cliente.csv"');
+    echo "\xEF\xBB\xBF";
+    $fp = fopen('php://output', 'w');
+    foreach ($list as $ferow) {
+        fputcsv($fp, $ferow, ';');
+    }
+
+    Database::disconnect();
+}
+
+function isnull($var, $default=0) {
+    return is_null($var) ? $default : $var;
 }
 
 /**
