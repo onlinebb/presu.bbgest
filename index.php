@@ -115,6 +115,8 @@ endif;
                             <?php
                             include 'lib/database.php';
                             $pdo = Database::connect();
+                            $where = '';
+                            $pagAllPresus = '';
 
                             if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
 
@@ -237,17 +239,11 @@ endif;
                                         <span class="glyphicon icons-fontawesome-webfont"></span>
                                     </a>&nbsp;
                                     <a class="copy-presupuesto" data-origen="1" href="new.php?id=<?php echo $row['id'] ?>" title="Negociar (con origen)" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                        <span class="glyphicon icons-fontawesome-webfont"></span>+
+                                        <span class="glyphicon icons-fontawesome-webfont"></span>
                                     </a>&nbsp;
-                                    <?php
-                                    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
-                                        ?>
-                                        <a class="new-fact" href="new-fact.php?pre=<?php echo $row['id'] ?>" title="Nueva factura" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
-                                            <span class="glyphicon icons-fontawesome-webfont-11"></span>
-                                        </a>&nbsp;
-                                    <?php
-                                    endif;
-                                    ?>
+                                    <a class="new-fact" href="new-fact.php?pre=<?php echo $row['id'] ?>" title="Nueva factura" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                        <span class="glyphicon icons-fontawesome-webfont-11"></span>
+                                    </a>&nbsp;
                             </td>
                         </tr>
                         <?php
@@ -285,13 +281,15 @@ endif;
 
 <?php
 if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
-    ?>
+?>
     <div class="row center-block text-center">
         <a href="new-fact.php" class="btn btn-primary btn-lg dnew-fact">
             <span class="glyphicon glyphicon-plus"></span> Nueva factura
         </a>
     </div>
-
+<?php
+endif;
+?>
     <div class="listado">
         <div class="row">
             <div class="col-md-10">
@@ -376,8 +374,12 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                             $q_i->execute(/*array($id)*/);
                             $data_i = $q_i->fetch();
                             ?>
+                            <?php if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1): ?>
                             Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)<br>
                             Total I (<?= number_format($data_i['total_fact_i'], 2, ',', '.') ?>)
+                            <?php else: ?>
+                            Total
+                            <?php endif; ?>
                         </th>
                         <th>Acciones</th>
                     </tr>
@@ -399,7 +401,10 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                     }
 
                     $start_from = ($page_fact - 1) * $rows_per_page;
-                    $result = $pdo->prepare("SELECT * FROM factura ". $whereFact ." ORDER BY $order_fact DESC, ref_factura DESC LIMIT $start_from, $rows_per_page");
+//                    $result = $pdo->prepare("SELECT * FROM factura ". $whereFact ." ORDER BY $order_fact DESC, ref_factura DESC LIMIT $start_from, $rows_per_page");
+                    $result = $pdo->prepare("SELECT * FROM factura ". $whereFact . " AND autor LIKE '%".$_SESSION['valid']."%'  
+                                                      ORDER BY $order_fact DESC, 
+                                                      ref_factura DESC LIMIT $start_from, $rows_per_page");
                     $result->execute();
                     for ($i = 0; $row = $result->fetch(); $i++) {
                         ?>
@@ -427,12 +432,14 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                                         ?>
                                         <span class="glyphicon icons-fontawesome-webfont-2"></span>
                                     </a>&nbsp;
+                                    <?php if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1): ?>
                                     <a class="delete-factura" href="" title="Abonar" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">
                                         <span class="glyphicon icons-fontawesome-webfont-3"></span>
                                     </a>&nbsp;
                                     <a class="factura-cobrada" href="" title="Dar por cobrada" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">
                                         <span class="glyphicon icons-fontawesome-webfont-12"></span>
                                     </a>&nbsp;
+                                    <?php endif; ?>
                             </td>
                         </tr>
                         <?php
@@ -469,7 +476,9 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
         </div>
     </div> <!-- /listado -->
 
-
+<?php
+if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+?>
     <div class="listado">
         <div class="row">
             <div class="col-md-10">

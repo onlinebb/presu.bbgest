@@ -22,7 +22,9 @@ $pdo = Database::connect('stack_bbgest');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 //SQL lista usuarios
-$sql_usuarios = "select id, nombre, salario from usuarios where estado=1";
+$sql_usuarios = "select id, nombre, 
+       (select salario from stack_bbgest.salarios s where s.id_usuario=usuarios.id order by s.fecha desc limit 1) as salario 
+        from usuarios where estado=1";
 $q_usuarios = $pdo->prepare($sql_usuarios);
 $q_usuarios->execute(array());
 $data_usuarios = $q_usuarios->fetchAll(PDO::FETCH_ASSOC);
@@ -125,7 +127,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
             </td>
             <?php
             //Sumatorio de Euros por proyecto
-            $sql_acumulado = 'SELECT ifnull(sum(co.horas*(us.salario/1400)),0) as suma_acumulado from coeficiente co 
+            $sql_acumulado = 'SELECT ifnull(sum(co.horas*((select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400)),0) as suma_acumulado from coeficiente co 
                                           left join usuarios us on us.id=co.id_usuario 
                                           where co.id_proyecto=' . $data_proyectos[$j]['id'] . ';';
             $q_acumulado = $pdo->prepare($sql_acumulado);
@@ -174,9 +176,11 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
                         echo number_format((float)$sumaSemana, 2, ',', '.');
                     } //semana actual
                     else {*/
-                    $sql_euros = 'SELECT id_usuario, ifnull(sum(co.horas*(us.salario/1400)),0) as suma_euros from coeficiente co 
+                    $sql_euros = 'SELECT id_usuario, ifnull(sum(co.horas*((select salario from stack_bbgest.salarios s 
+                                          where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400)),0) as suma_euros from coeficiente co 
                                           left join usuarios us on us.id=co.id_usuario 
-                                          where co.numSemana=' . $i . ' and year=' . date('Y') . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . ' group by co.id_usuario;';
+                                          where co.numSemana=' . $i . ' and year=' . date('Y') . ' and co.id_proyecto=' . $data_proyectos[$j]['id'] . ' 
+                                          group by co.id_usuario;';
                     $q_euros = $pdo->prepare($sql_euros);
                     $q_euros->execute(array());
                     $data_euros = $q_euros->fetchAll(PDO::FETCH_ASSOC);

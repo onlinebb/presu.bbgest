@@ -22,7 +22,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 <?php
     for ($i = $semanaIni; $i <= $semanaFin; $i++):
         //Sumatorio de Euros por semana y proyecto
-        $sql_euros = "SELECT co.id_proyecto, sum(co.horas*(us.salario/1400)) as suma_euros from coeficiente co 
+        $sql_euros = "SELECT co.id_proyecto, sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as suma_euros from coeficiente co 
                       left join usuarios us on us.id=co.id_usuario 
                       where co.numSemana=".$i." and year=".$year." group by co.id_proyecto;";
         $q_euros = $pdo->prepare($sql_euros);

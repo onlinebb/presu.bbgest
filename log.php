@@ -488,7 +488,8 @@ $result = $pdo->prepare("select u.nombre as project_owner, u.id as id_project_ow
                                                 where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by u.id order by u.nombre");
 $result->execute();
 
-$result2 = $pdo->prepare("SELECT co.id_usuario as id_project_owner, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste
+$result2 = $pdo->prepare("SELECT co.id_usuario as id_project_owner, co.id_proyecto, p.nombre, 
+       sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 

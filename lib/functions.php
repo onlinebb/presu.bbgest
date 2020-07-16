@@ -1581,7 +1581,8 @@ function logExcelByOwner(){
         $result->execute();
         $dataFacturado[$y] = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
-        $result2 = $pdo->prepare("SELECT p.project_owner as id_project_owner, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste
+        $result2 = $pdo->prepare("SELECT p.project_owner as id_project_owner, co.id_proyecto, p.nombre, 
+        sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -1675,7 +1676,8 @@ function logExcelByProyecto(){
         $result->execute();
         $dataFacturado[$y] = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
-        $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste 
+        $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, 
+        sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto
@@ -1772,7 +1774,8 @@ function logExcelByClient(){
         $result->execute();
         $dataFacturado[$y] = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
-        $result2 = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste 
+        $result2 = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, 
+        sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -2987,14 +2990,15 @@ function updateSalario()
     if (!empty($_POST)) {
         $id_usuario = $_POST['userid'];
         $salario = $_POST['salario'];
+        $fecha = date('Y-m-d');
 
         if (!empty($id_usuario)) {
             $pdo = Database::connect('stack_bbgest');
             //Update
             try {
-                $sql_update = "UPDATE usuarios SET salario = ? where id=?";
+                $sql_update = "insert into salarios (id_usuario, salario, fecha) values (?,?,?)";
                 $q_update = $pdo->prepare($sql_update);
-                $q_update->execute(array($salario, $id_usuario));
+                $q_update->execute(array($id_usuario, $salario, $fecha));
             } catch (Exception $e) {
                 Database::disconnect();
                 echo "Error al actualizar los datos " . $e;
@@ -3089,7 +3093,7 @@ function updateCostesCron()
         $q->execute(array($weekToSave, $currentYear));
         $data = $q->fetch();
 
-        $sql_euros_semana = "SELECT ifnull(sum(co.horas*(us.salario/1560)),0) as suma_semanal from coeficiente co 
+        $sql_euros_semana = "SELECT ifnull(sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1560),0) as suma_semanal from coeficiente co 
                                               left join usuarios us on us.id=co.id_usuario 
                                               left join proyectos pr on pr.id=co.id_proyecto 
                                               where co.numSemana=' . $weekToSave . '";

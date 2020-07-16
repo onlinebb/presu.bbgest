@@ -32,10 +32,10 @@ while ($fecha_actual <= strtotime($end_date)) {
     echo "$fecha_actual <br>";
     $fecha_actual = strtotime("+1 days", $fecha_actual);
 	$fecha_fin = date('Y-m-d', $fecha_actual);
-	
+
 	//Presupuestado
 	$sql_totales = "SELECT sum(suma), count(*) from presupuesto where fecha_emision >= '".$fecha_origen."' and fecha_emision is not null and fecha_emision <= '".$fecha_fin."' and presu_origen is null";
-	//echo $sql_totales.'<br>'; 
+	//echo $sql_totales.'<br>';
 	$q_totales = $pdo->prepare($sql_totales);
 	$q_totales->execute();
 	$data_totales = $q_totales->fetch();
@@ -51,7 +51,7 @@ while ($fecha_actual <= strtotime($end_date)) {
 	//echo $sql_pendientes.'<br>';
 	$sql_pendiente_parcial = "SELECT SUM(suma-(SELECT sum(factura.subtotal) FROM factura where presupuesto_asoc = presupuesto.ref and estado <>'abonada')) AS total_presus from presupuesto WHERE estado ='facturado parcialmente' and fecha_emision <= '".$fecha_fin."'";
 	//echo $sql_pendiente_parcial.'<br>';
-	
+
 	$q_aceptados = $pdo->prepare($sql_aceptados);
 	$q_pendientes = $pdo->prepare($sql_pendientes);
 	$q_pendiente_parcial = $pdo->prepare($sql_pendiente_parcial);
@@ -150,8 +150,8 @@ while ($fecha_actual <= strtotime($end_date)) {
 	else {
 		$ratio3b = 0;
 	}
-	
-	
+
+
 	$ratio3b = number_format($ratio3b, 2, '.', '');
 
 	//Ratio6
@@ -252,7 +252,7 @@ while ($fecha_actual <= strtotime($end_date)) {
 
 
 	////////////////////////GUARDAR//////////////////////
-	//Guardar 
+	//Guardar
 	$sql = "INSERT INTO log (
 							fecha,
 							aceptado,
@@ -309,7 +309,8 @@ echo '<br><br>hola<br><br>';
 													where f.estado <> 'abonada' and YEAR(f.fecha_emision)=2019 group by u.id order by u.nombre");
 	$result->execute();
 
-	$result2 = $pdo->prepare("SELECT c.id_usuario as id_project_owner, co.id_proyecto, p.nombre, sum(co.horas*us.salario/1400) as coste
+	$result2 = $pdo->prepare("SELECT c.id_usuario as id_project_owner, co.id_proyecto, p.nombre, 
+       sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
 													FROM stack_bbgest.coeficiente co 
 													left join stack_bbgest.usuarios us on us.id=co.id_usuario 
 													left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -342,9 +343,9 @@ echo '<br><br>hola<br><br>';
 			echo 'fail';
 		}
 	}
-	
+
 	/////////////////////////////////////////////
-	
+
 }
 
 
