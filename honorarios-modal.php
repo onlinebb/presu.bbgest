@@ -164,6 +164,12 @@ Database::disconnect();
                         <td><input class="form-control horas" type="text" value="0"></td>
                         <td><input class="form-control total" type="text" value="0"></td>
                     </tr>
+                    <tr class="datos">
+                        <td class="cargo">Senior Producer</td>
+                        <td><input data-idperfil="21" class="form-control rate" type="text" value="<?= ($data_honorarios && $data_honorarios[22])?$data_honorarios[22]["precio"]:64.29?>"></td>
+                        <td><input class="form-control horas" type="text" value="0"></td>
+                        <td><input class="form-control total" type="text" value="0"></td>
+                    </tr>
                     <tr>
                         <td><strong>TOTAL</strong></td>
                         <td colspan="3"><strong><input class="form-control total-honorarios" type="text" value="0"></strong></td>
