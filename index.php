@@ -374,10 +374,14 @@ endif;
                             $q_i->execute(/*array($id)*/);
                             $data_i = $q_i->fetch();
                             ?>
-                            <?php if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1): ?>
+                            <?php if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+                                $wherePriv = '';
+                            ?>
                             Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)<br>
                             Total I (<?= number_format($data_i['total_fact_i'], 2, ',', '.') ?>)
-                            <?php else: ?>
+                            <?php else:
+                                $wherePriv = "AND autor LIKE '%".$_SESSION['valid']."%'";
+                            ?>
                             Total
                             <?php endif; ?>
                         </th>
@@ -402,7 +406,7 @@ endif;
 
                     $start_from = ($page_fact - 1) * $rows_per_page;
 //                    $result = $pdo->prepare("SELECT * FROM factura ". $whereFact ." ORDER BY $order_fact DESC, ref_factura DESC LIMIT $start_from, $rows_per_page");
-                    $result = $pdo->prepare("SELECT * FROM factura ". $whereFact . " AND autor LIKE '%".$_SESSION['valid']."%'  
+                    $result = $pdo->prepare("SELECT * FROM factura ". $whereFact .$wherePriv. "   
                                                       ORDER BY $order_fact DESC, 
                                                       ref_factura DESC LIMIT $start_from, $rows_per_page");
                     $result->execute();
@@ -454,7 +458,7 @@ endif;
             <div class="col-md-12">
                 <ul class="pagination">
                     <?php
-                    $result = $pdo->prepare("SELECT COUNT(id) FROM factura ". $whereFact);
+                    $result = $pdo->prepare("SELECT COUNT(id) FROM factura ". $whereFact.$wherePriv);
                     $result->execute();
                     $row = $result->fetch();
                     $total_records = $row[0];

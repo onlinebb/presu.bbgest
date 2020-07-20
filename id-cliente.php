@@ -36,7 +36,7 @@ foreach ($data as $row) {
 }
 
 function updateRef($ref_cliente, $id, $index) {
-    $pdo = Database::connect();
+    $pdo = Database::connect('presu14');
     $sql = "UPDATE empresa set ref_cliente = ? where id_empresa = ?";
     $q = $pdo->prepare($sql);
 
@@ -50,6 +50,7 @@ function updateRef($ref_cliente, $id, $index) {
             $ref_cliente = substr_replace($ref_cliente, $index, 2, 1);
         }
 
+        echo $ref_cliente;
         $ok = $q->execute(array($ref_cliente, $id));
 
         if(!$ok)
