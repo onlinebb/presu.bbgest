@@ -99,7 +99,7 @@ function isnull($var, $default=0) {
 //            var_dump($dataCurrentYear);
 
             $result2 = $pdo->prepare("SELECT p.project_owner as id_project_owner, co.id_proyecto, p.nombre, 
-            sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
+            ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -147,7 +147,7 @@ function isnull($var, $default=0) {
 //            var_dump($dataPrevYear);
 
             $result2prev = $pdo->prepare("SELECT p.project_owner as id_project_owner, co.id_proyecto, p.nombre, 
-            sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
+            ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -233,7 +233,7 @@ function isnull($var, $default=0) {
 //            var_dump($dataProyectosCurrentYear);
 
             $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, 
-                        sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+                        ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto
@@ -285,7 +285,7 @@ function isnull($var, $default=0) {
             //            var_dump($dataProyectosCurrentYear);
 
             $result2Prev = $pdo->prepare("SELECT co.id_proyecto, p.nombre, 
-sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto
@@ -363,7 +363,7 @@ sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.
             $dataClientes = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
             $result2 = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, 
-                        sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+                        ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -408,7 +408,7 @@ sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.
             $dataClientesPrev = $resultClientesPrev->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
             $result2Prev = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, 
-            sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+            ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
