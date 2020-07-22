@@ -69,7 +69,7 @@ if(isset($id)) {
 
             <!-- Owner factura -->
             <div class="form-group">
-                <label class="col-md-6 control-label" for="owner">Owner</label>
+                <label class="col-md-6 control-label" for="owner">Asignar a (por defecto project onwner)</label>
 
                 <div class="col-md-6">
                         <?php
@@ -89,7 +89,7 @@ if(isset($id)) {
                                 $id_owner=$data_owner[0];
                             }
 
-                            $qol = $pdo->prepare("select id, nombre from stack_bbgest.usuarios where estado<>-1 and permisos=3");
+                            $qol = $pdo->prepare("select id, nombre from stack_bbgest.usuarios where estado<>-1 and permisos>=3");
                             $qol->execute();
                             $dataol = $qol->fetchAll(PDO::FETCH_ASSOC);
                         } catch (Exception $e) {

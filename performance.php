@@ -52,24 +52,25 @@ function isnull($var, $default=0) {
         </div>
     </form>
 </div>
-<div class="row">
-    <div class="col-md-2 col-md-offset-10 text-right">
-        <a id="excel" href="lib/functions.php?action=logExcelPerformance" target="_blank" class="btn btn-primary btn-md text-right">
-            Log en Excel
-        </a>
-    </div>
-</div>
+<!--QUITAR TABLA EN DESUSO
+<div class="row">-->
+<!--    <div class="col-md-2 col-md-offset-10 text-right">-->
+<!--        <a id="excel" href="lib/functions.php?action=logExcelPerformance" target="_blank" class="btn btn-primary btn-md text-right">-->
+<!--            Log en Excel-->
+<!--        </a>-->
+<!--    </div>-->
+<!--</div>-->
 <div class="row">
     <div class="col-md-12">
         <?php
         include 'lib/database.php';
         $pdo = Database::connect();
         ?>
-        <h5>Facturado por project owner&nbsp;<a href="lib/functions.php?action=logExcelByOwner" id="export-owner" class="btn btn-primary btn-sm">Exportar excel</a></h5>
+        <h5>Facturación asignada (histórico - acumulado)&nbsp;<a href="lib/functions.php?action=logExcelByOwner" id="export-owner" class="btn btn-primary btn-sm">Exportar excel</a></h5>
         <table class="table table-striped table-bordered table-curved table-hover">
             <thead>
             <tr>
-                <th>Project Owner</th>
+                <th>Responsable</th>
                 <th>Facturado <?=$prevYear?></th>
                 <th>Costes <?=$prevYear?></th>
                 <th>Facturado <?=$currentYear?></th>
@@ -80,6 +81,7 @@ function isnull($var, $default=0) {
             <?php
 
             //Resultados current year
+            //en la query de la suma usamos el owner de la factura porque el owner de la factura no tiene por qué ser el owner del proyecto de este año
             $result = $pdo->prepare("select u.id as id_project_owner, u.nombre as project_owner, sum(f.subtotal) acumulado from (
                                                     SELECT  * FROM presu14.factura
                                                     UNION ALL

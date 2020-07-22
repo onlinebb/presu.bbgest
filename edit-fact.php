@@ -83,13 +83,13 @@ if (null == $id) {
 
                     <!-- Owner factura -->
                     <div class="form-group">
-                        <label class="col-md-6 control-label" for="owner">Owner</label>
+                        <label class="col-md-6 control-label" for="owner">Asignar a</label>
                         <div class="col-md-6">
                             <select id="owner" name="owner" class="form-control input-sm">
                                 <?php
                                 $pdo = Database::connect();
                                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $qol = $pdo->prepare("select id, nombre from stack_bbgest.usuarios where estado<>-1 and permisos=3");
+                                $qol = $pdo->prepare("select id, nombre from stack_bbgest.usuarios where estado<>-1 and permisos>=3");
                                 $qol->execute();
                                 $dataol = $qol->fetchAll(PDO::FETCH_ASSOC);
                                 foreach ($dataol as $row) {

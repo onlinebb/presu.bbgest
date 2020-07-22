@@ -1555,7 +1555,7 @@ function logExcelByOwner(){
     }
 
     $header = [];
-    $header[] = "project Owner";
+    $header[] = "Responsable";
 
     $dataFacturado = [];
     $dataCostes = [];
