@@ -176,9 +176,9 @@ $(function () {
         var total = 0;
 
         $('.precio').each(function (i) {
-			
+
 			if($(this).val() != 0 && $(this).data('sumar') == 1) {
-			
+
 				if ($(this).val().length > 0)
 					total += parseFloat($(this).val());
 			}
@@ -388,12 +388,12 @@ $(function () {
     });
 
     $('#honorarios-modal').on('show.bs.modal', function () {
-        if($('#id-empresa').val() == "") {
-            $('#alerta-no-cliente').removeClass('hidden');
-        }
-        else {
-            $('#alerta-no-cliente').addClass('hidden');
-        }
+        // if($('#id-empresa').val() == "") {
+        //     $('#alerta-no-cliente').removeClass('hidden');
+        // }
+        // else {
+        //     $('#alerta-no-cliente').addClass('hidden');
+        // }
     });
 
     loadEventHonorarios();
@@ -430,12 +430,17 @@ $(function () {
         $('#honorarios-modal .form-control').unbind("change paste keyup");
         $('#honorarios-modal .form-control').bind("change paste keyup", function(){
             var totalHonorarios = 0;
+            var totalHonorariosCoste = 0;
             $('#honorarios-modal tr.datos').each(function(index, elem){
                 var total = parseFloat($(this).find('.rate').val()) * parseFloat($(this).find('.horas').val());
+                var cost = parseFloat($(this).find('.cost').val()) * parseFloat($(this).find('.horas').val());
                 $(this).find('.total').val(total.toFixed(2));
                 totalHonorarios += total;
+                totalHonorariosCoste += cost;
             });
             $('#honorarios-modal .total-honorarios').val(totalHonorarios.toFixed(2));
+            $('#honorarios-modal .total-honorarios-coste').val(totalHonorariosCoste.toFixed(2));
+            $('#honorarios-modal .total-honorarios-coef').val((totalHonorarios/totalHonorariosCoste).toFixed(2));
         });
 
         $('#export-honorarios').off('click');

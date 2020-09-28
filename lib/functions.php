@@ -1282,7 +1282,7 @@ function deleteFactura($id_fact, $presu)
     }
     else {
         //Buscar Id ultima factura abonada
-        $sql = "SELECT ref_abono from factura where ref_abono like ? order by id desc";
+        $sql = "SELECT ref_abono from factura where ref_abono like ? order by ref_abono desc";
         $q = $pdo->prepare($sql);
 
         $curYear = date('y');

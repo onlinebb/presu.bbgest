@@ -380,7 +380,7 @@ endif;
                             Total (<?= number_format($data['total_fact'], 2, ',', '.') ?>)<br>
                             Total I (<?= number_format($data_i['total_fact_i'], 2, ',', '.') ?>)
                             <?php else:
-                                $wherePriv = "AND autor LIKE '%".$_SESSION['valid']."%'";
+                                $wherePriv = " AND autor LIKE '%".$_SESSION['valid']."%'";
                             ?>
                             Total
                             <?php endif; ?>
