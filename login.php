@@ -62,6 +62,7 @@
                 if($login && count($login) > 0) {
                     $_SESSION['valid'] = $user;
                     $_SESSION['priv'] = $login['priv'];
+                    $_SESSION['id_stack'] = $login['id_stack'];
                     access_log('login usuario: '.$user);
                     header("location: index.php");
                 }

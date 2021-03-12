@@ -58,6 +58,10 @@
                     <li class=""><a href="performance.php">Performance</a></li>
                     <li class=""><a href="coeficiente.php">Coeficientes</a></li>
                     <?php
+                    else:
+                    ?>
+                    <li class=""><a href="performance-individual.php">Performance</a></li>
+                    <?php
                     endif;
                     ?>
                 </ul>

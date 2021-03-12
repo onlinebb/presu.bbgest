@@ -1110,7 +1110,7 @@ function saveFactura($isUpdate = false)
     if($suma_presu && $data && $data[0]) {
         $cobrado = $data[0];
 
-        if($cobrado >= $suma_presu)
+        if(round($cobrado,0) >= round($suma_presu,0))
             $estado_presu = 'facturado totalmente';
         else
             $estado_presu = 'facturado parcialmente';
@@ -1201,7 +1201,7 @@ function updateClienteFact()
     if($suma_presu && $data && $data[0]) {
         $cobrado = $data[0];
 
-        if($cobrado >= $suma_presu)
+        if(round($cobrado,0) >= round($suma_presu,0))
             $estado_presu = 'facturado totalmente';
         else
             $estado_presu = 'facturado parcialmente';
@@ -1382,7 +1382,7 @@ function cobrarFactura($id, $presu)
     if($suma_presu && $data && $data[0]) {
         $cobrado = $data[0];
 
-        if($cobrado >= $suma_presu) {
+        if(round($cobrado,0) >= round($suma_presu,0)) {
             //Actualizar presupuesto
             $sql = "UPDATE presupuesto SET estado = 'cobrado' WHERE ref = ?";
             $q = $pdo->prepare($sql);

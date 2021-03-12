@@ -239,8 +239,8 @@ foreach ($conceptos as $concepto) {
     $html = '';
 }
 
-$confi= '<p style="font-size:80%">Confidencialidad:<br>Este documento es confidencial y propiedad de Bubblegum Communication Services, S.L., SLNE (CIF ESB64521271). 
-         Esta exclusivamente dirigido al destinatario del mismo (especificado en la tabla al pie) 
+$confi= '<p style="font-size:80%">Confidencialidad:<br>Este documento es confidencial y propiedad de Bubblegum Communication Services, S.L. (CIF ESB64521271). 
+         Está exclusivamente dirigido al destinatario del mismo (especificado en la tabla al pie) 
          y puede contener información confidencial y/o privilegiada desde el punto de vista legal. 
          Si usted no es el destinatario o su representante, le notificamos que la diseminación, distribución, 
          copia o uso de este mensaje o sus ficheros adjuntos está estrictamente prohibida.</p>';
