@@ -287,9 +287,7 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
             <span class="glyphicon glyphicon-plus"></span> Nueva factura
         </a>
     </div>
-<?php
-endif;
-?>
+
     <div class="listado">
         <div class="row">
             <div class="col-md-10">
@@ -479,7 +477,9 @@ endif;
             </div>
         </div>
     </div> <!-- /listado -->
-
+<?php
+endif;
+?>
 <?php
 if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
 ?>
