@@ -1302,11 +1302,11 @@ function deleteFactura($id_fact, $presu)
         $ref_abono = "AB" . $curYear . $id . $ref_cliente;
 
         //Abonar factura
-        $sql = "UPDATE factura set estado = 'abonada', ref_abono = ?, fecha_abono = ? where id = ?";
+        $sql = "UPDATE factura set estado = 'abonada', ref_abono = ?, fecha_abono = ?, razon_abono = ?, user_ultima_accion = ? where id = ?";
         $q = $pdo->prepare($sql);
 
         $fecha = date('Y-m-d');
-        $q->execute(array($ref_abono, $fecha, $id_fact));
+        $q->execute(array($ref_abono, $fecha, $_POST['razon'], $_SESSION['valid'], $id_fact));
     }
 
     //Eliminar conceptos
@@ -1354,9 +1354,9 @@ function cobrarFactura($id, $presu)
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     //Actualizar factura
-    $sql = "UPDATE factura SET estado = 'cobrada', fecha_cobro = NOW() WHERE id = ?";
+    $sql = "UPDATE factura SET estado = 'cobrada', fecha_cobro = NOW(), user_ultima_accion = ? WHERE id = ?";
     $q = $pdo->prepare($sql);
-    $q->execute(array($id));
+    $q->execute(array($_SESSION['valid'], $id));
 
     if(empty($presu)) {
         Database::disconnect();

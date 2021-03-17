@@ -10,11 +10,15 @@
 
             <!-- Modal body-->
             <strong>¿Quieres abonar la factura <span id="ref-fact"></span>?</strong>
+            <br><br>
+            <label>Indica por qué se va a realizar el abono</label>
+            <textarea class="form-control input-sm" id="razon-abono" name="razon-abono"></textarea><br>
+            <div id="error-razon" class="alert alert-danger small">Es obligatorio indicar la razón del abono.</div>
             <!-- /modal body -->
 
         </div>
         <div class="modal-footer">
-            <button id="confirmar-fact-si" type="submit" class="btn btn-primary" data-id="" data-dismiss="modal">Sí</button>
+            <button id="confirmar-fact-si" type="submit" class="btn btn-primary" data-id="">Sí</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
         </div>
     </div>

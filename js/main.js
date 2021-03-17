@@ -992,26 +992,36 @@ $(function () {
         $('#confirmar-fact-si').data('id', $(this).data('id'));
         $('#confirmar-fact-si').data('presu', $(this).data('presu'));
         $('#confirmar-fact-si').data('ref', $(this).data('ref'));
+        $('#razon-abono').val('');
+        $('#error-razon').hide();
 
         $('#confirmar-modal-fact').modal('show');
 
         $('#confirmar-fact-si').on('click', function (e) {
 
-            $.ajax({
+          if($('#razon-abono').val() !== '') {
+              $('#confirmar-modal-fact').modal('hide');
+              $('#error-razon').hide();
+              $.ajax({
                 type: "POST",
                 url: "lib/functions.php?action=deleteFact",
                 data: {
-                    id: $(this).data('id'),
-                    presu: $(this).data('presu'),
-                    ref: $(this).data('ref')
+                  id: $(this).data('id'),
+                  presu: $(this).data('presu'),
+                  ref: $(this).data('ref'),
+                  razon: $('#razon-abono').val()
                 },
                 success: function (data) {
-                    window.location.reload();
+                  window.location.reload();
                 },
                 error: function (e) {
-                    console.log("Error: " + e.message);
+                  console.log("Error: " + e.message);
                 }
-            });
+              });
+            }
+          else {
+              $('#error-razon').show();
+          }
 
         });
         e.preventDefault();
