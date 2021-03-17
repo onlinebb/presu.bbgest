@@ -229,9 +229,15 @@ endif;
                                     <a class="noaceptar-presupuesto" href="" title="No aceptar" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
                                         <span class="glyphicon glyphicon-remove-circle"></span>
                                     </a>&nbsp;
-<!--                                    <a class="delete-presupuesto" href="" title="Eliminar" data-id="--><?php //echo $row['id'] ?><!--" data-ref="--><?php //echo $row['ref'] ?><!--">-->
-<!--                                        <span class="glyphicon icons-fontawesome-webfont-3"></span>-->
-<!--                                    </a>&nbsp;-->
+                                    <?php
+                                    if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
+                                    ?>
+                                    <a class="delete-presupuesto" href="" title="Eliminar" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
+                                        <span class="glyphicon icons-fontawesome-webfont-3"></span>
+                                    </a>&nbsp;
+                                    <?php
+                                    endif;
+                                     ?>
                                     <a class="po-presupuesto" href="" title="Orden de compra" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref'] ?>">
                                         <b>PO</b>
                                     </a>&nbsp;
