@@ -122,12 +122,14 @@ endif;
                             $pdo = Database::connect();
                             $where = '';
                             $pagAllPresus = '';
+                            $pagSearch = '';
 
                             if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
 
                                 //Busqueda
                                 if (isset($_GET["search"])) {
                                     $search = "concat(ref, nombre_cliente, ifnull(ref_cliente,''), ifnull(nombre_propuesta,''), ifnull(proyecto,'')) like '%".$_GET["search"]."%'";
+                                    $pagSearch = '&search='.$_GET["search"];
                                 }
                                 else {
                                     $search = "1=1";
@@ -269,7 +271,7 @@ endif;
             <div class="col-md-12">
                 <ul class="pagination">
                     <?php
-                    $result = $pdo->prepare("SELECT COUNT(id) FROM presupuesto ".$where.$privs);
+                    $result = $pdo->prepare("SELECT COUNT(id) FROM listado_presus ".$where.$privs);
                     $result->execute();
                     $row = $result->fetch();
                     $total_records = $row[0];
@@ -278,7 +280,7 @@ endif;
                     for ($i = 1; $i <= $total_pages; $i++) {
                         ?>
                         <li <?php if ($page == $i): ?>class="disabled"<?php endif; ?>>
-                            <a href="index.php?page=<?= $i.$pagAllPresus ?>">
+                            <a href="index.php?page=<?= $i.$pagAllPresus.$pagSearch ?>">
                                 <?= $i ?>
                             </a>
                         </li>
@@ -477,7 +479,7 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                     for ($i = 1; $i <= $total_pages; $i++) {
                         ?>
                         <li <?php if ($page_fact == $i): ?>class="disabled"<?php endif; ?>>
-                            <a href="index.php?page_fact=<?= $i.'&'.$pagAllFact ?>#fact">
+                            <a href="index.php?page_fact=<?= $i.'&'.$pagAllFact.$pagSearch ?>#fact">
                                 <?= $i ?>
                             </a>
                         </li>
@@ -615,7 +617,7 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                     for ($i = 1; $i <= $total_pages; $i++) {
                         ?>
                         <li <?php if ($page_fact == $i): ?>class="disabled"<?php endif; ?>>
-                            <a href="index.php?page_abonos=<?= $i.'&'.$pagAllFact ?>#abon">
+                            <a href="index.php?page_abonos=<?= $i.'&'.$pagAllFact.$pagSearch ?>#abon">
                                 <?= $i ?>
                             </a>
                         </li>
