@@ -92,6 +92,11 @@ endif;
                             </a>
                         </th>
                         <th>
+                            <a href="index.php?order=proyecto">
+                                Ref. Proyecto <span class="glyphicon glyphicon-sort"></span>
+                            </a>
+                        </th>
+                        <th>
                             <a href="index.php?order=nombre_propuesta">
                                 Título Propuesta <span class="glyphicon glyphicon-sort"></span>
                             </a>
@@ -204,6 +209,7 @@ endif;
                         <tr id="presu-<?php echo $row['id'] ?>">
                             <td><?php echo $row['ref'] ?></td>
                             <td><?php echo $row['proyecto'] ?></td>
+                            <td><?php echo $row['ref_proyecto'] ?></td>
                             <td><?php echo $row['nombre_propuesta'] ?></td>
                             <td><?php echo $row['estado'] ?></td>
                             <td class="fecha"><?php echo date('d-m-Y', strtotime($row['fecha'])); ?></td>

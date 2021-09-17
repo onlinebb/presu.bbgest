@@ -20,7 +20,7 @@ require_once('header.php');
                 <div class="form-group">
                     <input type="text" class="form-control input-lg" id="meses" name="meses" placeholder="Núm. meses análisis">
                 </div>
-                <button  id="calcular" type="submit" class="btn btn-default btn-lg">
+                <button id="calcular" type="submit" class="btn btn-default btn-lg">
                     Calcular
                 </button>
 
@@ -70,13 +70,13 @@ else
         </div>
 <?php
 
-$sql_aceptados = "SELECT sum(suma), count(*) from presupuesto where estado in ('aceptado','facturado totalmente', 'facturado parcialmente') and fecha_emision is not null and fecha_emision >= '".$fecha_origen."'";
+$sql_aceptados = "SELECT sum(suma), count(*) from presupuesto where estado in ('aceptado','facturado totalmente', 'facturado parcialmente') and fecha_emision >= '".$fecha_origen."' and fecha_emision is not null";
 $q_aceptados = $pdo->prepare($sql_aceptados);
 $q_aceptados->execute();
 $data_aceptados = $q_aceptados->fetch();
 
 //presus finales: aceptados o no aceptados sin fecha_negociacion
-$sql_totales = "SELECT sum(suma), count(*) from presupuesto where fecha_emision is not null and fecha_emision >= '".$fecha_origen."' and fecha_negociacion is null and estado in ('pendiente','aceptado','facturado totalmente', 'facturado parcialmente','aceptado','no aceptado')";
+$sql_totales = "SELECT sum(suma), count(*) from presupuesto where fecha_emision >= '".$fecha_origen."' and fecha_emision is not null and fecha_negociacion is null and estado in ('aceptado','no aceptado')";
 $q_totales = $pdo->prepare($sql_totales);
 $q_totales->execute();
 $data_totales = $q_totales->fetch();

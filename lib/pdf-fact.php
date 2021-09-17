@@ -18,13 +18,13 @@ else {
         $idFact = $_GET['id'];
         $datosFactura = loadFactura($idFact);
         $conceptos = loadConceptosFactura($idFact);
-
-
-        $estado_factura = $datosFactura['estadof'];
-        $abonada = 0;
-        if($estado_factura == 'abonada') {
-            $abonada = 1;
-        }
+		
+		
+		$estado_factura = $datosFactura['estadof'];
+		$abonada = 0;
+		if($estado_factura == 'abonada') {
+			$abonada = 1;
+		}
 
         if(empty($datosFactura['po_ref']) && !empty($datosFactura['ref_po'])) {
             $datosFactura['po_ref'] = $datosFactura['ref_po'];
@@ -57,7 +57,7 @@ else {
             "iva" => isset($_POST['iva']) ? str_replace(array('.',','),array('','.'),$_POST['iva']):"",
             "total" => isset($_POST['total']) ? str_replace(array('.',','),array('','.'),$_POST['total']):"",
             "ref" => "PREVIEW",
-            "ref_factura" => "PREVIEW"
+			"ref_factura" => "PREVIEW"
         );
 
         $conceptos = json_decode($_POST['conceptos'], true);
@@ -247,34 +247,34 @@ foreach ($conceptos as $concepto) {
 function pintarConcepto($concepto, $precio, $estilo, $abonada)
 {
     if (isset($precio) && $precio != 0) {
-        if($abonada) {
-            $precio = '-'.number_format($precio, 2, ',', '.') . ' €';
-        }
-        else {
-            $precio = number_format($precio, 2, ',', '.') . ' €';
-        }
-
-        $texto_precio = "Precio:";
-        $add = '<tr><td colspan="3">&nbsp;</td></tr>';
-    }
+		if($abonada) {
+			$precio = '-'.number_format($precio, 2, ',', '.') . ' €';
+		}
+		else {
+			$precio = number_format($precio, 2, ',', '.') . ' €';
+		}
+        
+		$texto_precio = "Precio:";
+		$add = '<tr><td colspan="3">&nbsp;</td></tr>';
+	}
     else {
         $precio = "";
-        $texto_precio = "";
-        $add = '';
-    }
+		$texto_precio = "";
+		$add = '';
+	}
 
     if(empty($concepto)) {
-        $html = '<tr><td colspan="3">&nbsp;</td></tr>';
-    }
-    else {
-        $html =
-            '<tr nobr="true">
+		$html = '<tr><td colspan="3">&nbsp;</td></tr>';
+	}
+	else {
+		$html =
+			'<tr nobr="true">
 				<td width="60%" style="color: #999999;">'. $estilo . $concepto . '</span></td>
 				<td width="20%" style="color: #F95978;">'. $estilo . $texto_precio.'</span></td>
 				<td width="20%" style="color: #999999; text-align: right;">'. $estilo . $precio . '</span></td>
 			 </tr>'.$add;
-    }
-
+	}    
+		 
     return $html;
 }
 
