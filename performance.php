@@ -4,6 +4,10 @@
  * User: Judit
  * Date: 17/10/14
  * Time: 12:53
+ * NOTA RB: 5/10/21. El cálculo del coste en PERFORMANCE (Facturación asignada (histórico - acumulado)) = nºde horas IMPUTADAS A UN PROJECT OWNER * coste horario (= bruto / 1400h) + extras DESDE EL PRINCIPIO (sea o no del POW)
+ * No es un dato ajustado!!! (en esta tabla) * Ahora los extras están imputadas a un proyecto 
+ * (hacemos ahora tabla agregado "saco" -> hora metida * coste h en ese momento + costes POs metidas)
+ *  LA FACTURACION SI ES CORRECTA, porque las facturas SI se guardan con POW
  */
 require_once('header.php');
 require_once('config.php');
@@ -66,6 +70,39 @@ function isnull($var, $default=0) {
         include 'lib/database.php';
         $pdo = Database::connect();
         ?>
+        <h5>Costes Project Owner <?=$currentYear?> (tabla costes_pow)</h5>
+        <table class="table table-striped table-bordered table-curved table-hover">
+            <thead>
+            <tr>
+                <th>POW</th>
+                <th>Costes</th>
+            </tr>
+            </thead>
+            <tbody>
+			<?php
+
+            //Resultados current year
+            $result_pow = $pdo->prepare("select us.nombre, sum(coste) as coste from costes_pow left join stack_bbgest.usuarios us on us.id=id_usuario where YEAR(fecha)=".$currentYear." group by id_usuario");
+            $result_pow->execute();
+			
+            $data_pow = $result_pow->fetchAll(PDO::FETCH_ASSOC);
+			Database::disconnect();
+
+            foreach ($data_pow as $row):
+                ?>
+                <tr>
+                    <td><?php echo $row['nombre'] ?></td>
+                    <td class="text-right"><?php echo number_format(isnull($row['coste']), 2, ',', '.').' €' ?></td>
+                </tr>
+                <?php
+            endforeach;
+            ?>
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="row">
+    <div class="col-md-12">
         <h5>Facturación asignada (histórico - acumulado)&nbsp;<a href="lib/functions.php?action=logExcelByOwner" id="export-owner" class="btn btn-primary btn-sm">Exportar excel</a></h5>
         <table class="table table-striped table-bordered table-curved table-hover">
             <thead>
@@ -79,9 +116,10 @@ function isnull($var, $default=0) {
             </thead>
             <tbody>
             <?php
-
+			$pdo = Database::connect();
             //Resultados current year
             //en la query de la suma usamos el owner de la factura porque el owner de la factura no tiene por qué ser el owner del proyecto de este año
+			//
             $result = $pdo->prepare("select u.id as id_project_owner, u.nombre as project_owner, sum(f.subtotal) acumulado from (
                                                     SELECT  * FROM presu14.factura
                                                     UNION ALL
@@ -101,7 +139,8 @@ function isnull($var, $default=0) {
 //            var_dump($dataCurrentYear);
 
             $result2 = $pdo->prepare("SELECT p.project_owner as id_project_owner, co.id_proyecto, p.nombre, 
-            ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
+			ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.project_owner=p.project_owner and year(pos.fecha_entrega)=".$currentYear."),0) as extras, 
+            ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.project_owner=p.project_owner and year(pos.fecha_entrega)=".$currentYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -149,7 +188,8 @@ function isnull($var, $default=0) {
 //            var_dump($dataPrevYear);
 
             $result2prev = $pdo->prepare("SELECT p.project_owner as id_project_owner, co.id_proyecto, p.nombre, 
-            ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
+			ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.project_owner=p.project_owner and year(pos.fecha_entrega)=".$prevYear."),0) as extras, 
+            ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.project_owner=p.project_owner and year(pos.fecha_entrega)=".$prevYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -165,9 +205,15 @@ function isnull($var, $default=0) {
                 <tr>
                     <td><?php echo $row['nombre'] ?></td>
                     <td class="text-right nowrap"><?php echo number_format($dataPrevYear[$row['id_project_owner']]['acumulado'], 2, ',', '.').' €' ?></td>
-                    <td class="text-right"><?php echo number_format(isnull($costesprev[$row['id_project_owner']]['coste']), 2, ',', '.').' €' ?></td>
+                    <td class="text-right">
+						<?php echo number_format(isnull($costesprev[$row['id_project_owner']]['coste']), 2, ',', '.').' €' ?>
+						<br><small>Extras: <?php echo number_format(isnull($costesprev[$row['id_project_owner']]['extras']), 2, ',', '.').' €' ?></small>
+					</td>
                     <td class="text-right nowrap"><?php echo number_format($dataCurrentYear[$row['id_project_owner']]['acumulado'], 2, ',', '.').' €' ?></td>
-                    <td class="text-right"><?php echo number_format(isnull($costes[$row['id_project_owner']]['coste']), 2, ',', '.').' €' ?></td>
+                    <td class="text-right">
+						<?php echo number_format(isnull($costes[$row['id_project_owner']]['coste']), 2, ',', '.').' €' ?>
+						<br><small>Extras: <?php echo number_format(isnull($costes[$row['id_project_owner']]['extras']), 2, ',', '.').' €' ?></small>
+					</td>
 <!--                    <td class="text-right nowrap">--><?php //echo number_format($row['acumulado'], 2, ',', '.').' €' ?><!--</td>-->
 <!--                    <td class="text-right">--><?php //echo number_format(isnull($costes[$row['id_project_owner']]['coste']), 2, ',', '.').' €' ?><!--</td>-->
                 </tr>
@@ -183,6 +229,63 @@ function isnull($var, $default=0) {
     <div class="col-md-12">
         <?php
         $pdo = Database::connect();
+
+        $resultPrevTotal = $pdo->prepare("SELECT sum(fact.subtotal) acumulado FROM (
+                                                    SELECT * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.factura
+                                                ) as fact
+                                                left join (
+                                                    SELECT * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.presupuesto
+                                                ) as p on p.ref=fact.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=".$prevYear." 
+                                                group by YEAR(fact.fecha_emision) ");
+        $resultPrevTotal->execute();
+        $dataProyectosPrevYearTotal = $resultPrevTotal->fetch();
+//                                var_dump($dataProyectosPrevYearTotal);
+
+        $resultTotal = $pdo->prepare("SELECT sum(fact.subtotal) acumulado FROM (
+                                                    SELECT * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.factura
+                                                ) as fact
+                                                left join (
+                                                    SELECT * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT * FROM presuetal.presupuesto
+                                                ) as p on p.ref=fact.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                WHERE fact.estado <> 'abonada' and YEAR(fact.fecha_emision)=".$currentYear." 
+                                                group by YEAR(fact.fecha_emision)");
+        $resultTotal->execute();
+        $dataProyectosCurrentYearTotal = $resultTotal->fetch();
+
+        $result2PrevTotal = $pdo->prepare("SELECT ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where year(pos.fecha_entrega)=".$prevYear."),0) as extras, 
+												ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where year(pos.fecha_entrega)=".$prevYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+                                                FROM stack_bbgest.coeficiente co 
+                                                left join stack_bbgest.usuarios us on us.id=co.id_usuario 
+                                                left join stack_bbgest.proyectos p on p.id=co.id_proyecto
+                                                WHERE co.year = ".$prevYear." group by co.year");
+        $result2PrevTotal->execute();
+        $costesPrevTotal = $result2PrevTotal->fetch();
+
+        $result2Total = $pdo->prepare("SELECT ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where year(pos.fecha_entrega)=".$currentYear."),0) as extras, 
+												ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where year(pos.fecha_entrega)=".$currentYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+                                                FROM stack_bbgest.coeficiente co 
+                                                left join stack_bbgest.usuarios us on us.id=co.id_usuario 
+                                                left join stack_bbgest.proyectos p on p.id=co.id_proyecto
+                                                WHERE co.year = ".$currentYear." group by co.year");
+
+        $result2Total->execute();
+        $costesTotal = $result2Total->fetch();
+
         ?>
         <h5>Facturado por proyecto&nbsp;<a href="lib/functions.php?action=logExcelByProyecto" id="export-proyecto" class="btn btn-primary btn-sm">Exportar excel</a></h5>
         <table class="table table-striped table-bordered table-curved table-hover">
@@ -191,18 +294,22 @@ function isnull($var, $default=0) {
                 <th>Proyecto</th>
                 <th>Cliente</th>
                 <th>Project Owner</th>
-                <th>
+                <th style="white-space: initial;">
                     <a href="?order=facturado">
-                        Facturado <?=$prevYear?> <span class="glyphicon glyphicon-sort"></span>
+                        Facturado <?=$prevYear?> (Total: <?=number_format($dataProyectosPrevYearTotal['acumulado'],2, ',', '.') ?> €) <span class="glyphicon glyphicon-sort"></span>
                     </a>
                 </th>
-                <th>Costes <?=$prevYear?></th>
-                <th>
+                <th style="white-space: initial;">
+                    Costes <?=$prevYear?> (Total: <?=number_format($costesPrevTotal['coste'],2, ',', '.') ?> €)
+                </th>
+                <th style="white-space: initial;">
                     <a href="?order=facturado">
-                        Facturado <?=$currentYear?> <span class="glyphicon glyphicon-sort"></span>
+                        Facturado <?=$currentYear?> (Total: <?=number_format($dataProyectosCurrentYearTotal['acumulado'],2, ',', '.') ?> €) <span class="glyphicon glyphicon-sort"></span>
                     </a>
                 </th>
-                <th>Costes <?=$currentYear?></th>
+                <th style="white-space: initial;">
+                    Costes <?=$currentYear?> (Total: <?=number_format($costesTotal['coste'],2, ',', '.') ?> €)
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -234,8 +341,8 @@ function isnull($var, $default=0) {
             $dataProyectosCurrentYear = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 //            var_dump($dataProyectosCurrentYear);
 
-            $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, 
-                        ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+            $result2 = $pdo->prepare("SELECT co.id_proyecto, p.nombre, ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.id=p.id and year(pos.fecha_entrega)=".$currentYear."),0) as extras,
+                        ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.id=p.id and year(pos.fecha_entrega)=".$currentYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto
@@ -286,8 +393,8 @@ function isnull($var, $default=0) {
             $dataProyectosPrevYear = $resultPrev->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
             //            var_dump($dataProyectosCurrentYear);
 
-            $result2Prev = $pdo->prepare("SELECT co.id_proyecto, p.nombre, 
-ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+            $result2Prev = $pdo->prepare("SELECT co.id_proyecto, p.nombre, ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.id=p.id and year(pos.fecha_entrega)=".$prevYear."),0) as extras,
+												ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto where pr.id=p.id and year(pos.fecha_entrega)=".$prevYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto
@@ -297,17 +404,25 @@ ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyect
             //            var_dump($costes);
 
             Database::disconnect();
+            $totalProyectosAcumulado = 0;
             foreach ($projectList as $row):
                 if($row['id_proyecto'] != null):
+                    $totalProyectosAcumulado += $dataProyectosPrevYear[$row['id_proyecto']]['acumulado'];
                 ?>
                 <tr>
                     <td><?php echo $row['proyecto'] ?></td>
                     <td><?php echo $row['cliente'] ?></td>
                     <td><?php echo $row['project_owner'] ?></td>
                     <td class="text-right nowrap"><?= isset($dataProyectosPrevYear[$row['id_proyecto']])?number_format($dataProyectosPrevYear[$row['id_proyecto']]['acumulado'], 2, ',', '.').' €':"-" ?></td>
-                    <td class="text-right nowrap"><?= isset($costesPrev[$row['id_proyecto']])?number_format(empty($costesPrev[$row['id_proyecto']]['coste'])?0:$costesPrev[$row['id_proyecto']]['coste'], 2, ',', '.').' €':"-" ?></td>
+                    <td class="text-right nowrap">
+						<?= isset($costesPrev[$row['id_proyecto']])?number_format(empty($costesPrev[$row['id_proyecto']]['coste'])?0:$costesPrev[$row['id_proyecto']]['coste'], 2, ',', '.').' €':"-" ?>
+						<br><small>Extras: <?php echo number_format(isnull($costesprev[$row['id_proyecto']]['extras']), 2, ',', '.').' €' ?></small>
+					</td>
                     <td class="text-right nowrap"><?= isset($dataProyectosCurrentYear[$row['id_proyecto']])?number_format($dataProyectosCurrentYear[$row['id_proyecto']]['acumulado'], 2, ',', '.').' €':"-" ?></td>
-                    <td class="text-right nowrap"><?= isset($costes[$row['id_proyecto']])?number_format(empty($costes[$row['id_proyecto']]['coste'])?0:$costes[$row['id_proyecto']]['coste'], 2, ',', '.').' €':"-" ?></td>
+                    <td class="text-right nowrap">
+						<?= isset($costes[$row['id_proyecto']])?number_format(empty($costes[$row['id_proyecto']]['coste'])?0:$costes[$row['id_proyecto']]['coste'], 2, ',', '.').' €':"-" ?>
+						<br><small>Extras: <?php echo number_format(isnull($costes[$row['id_proyecto']]['extras']), 2, ',', '.').' €' ?></small>
+					</td>
                 </tr>
                 <?php
                 endif;
@@ -329,20 +444,81 @@ ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyect
             }
 
         }
+
+        $resultTotal = $pdo->prepare("select sum(f.subtotal) as acumulado from (
+                                                    SELECT  * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.factura
+                                                ) as f 
+                                                left join (
+                                                    SELECT  * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.presupuesto
+                                                ) as p on p.ref=f.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                where f.estado <> 'abonada' and YEAR(f.fecha_emision)=".$currentYear." group by YEAR(f.fecha_emision) ".$order2);
+        $resultTotal->execute();
+        $dataClientesTotal = $resultTotal->fetch();
+
+        $resultClientesPrevTotal = $pdo->prepare("select sum(f.subtotal) as acumulado from (
+                                                    SELECT  * FROM presu14.factura
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.factura
+                                                ) as f 
+                                                left join (
+                                                    SELECT  * FROM presu14.presupuesto
+                                                    UNION ALL
+                                                    SELECT  * FROM presuetal.presupuesto
+                                                ) as p on p.ref=f.presupuesto_asoc 
+                                                left join stack_bbgest.proyectos pr on pr.id=p.id_proyecto  
+                                                left join stack_bbgest.usuarios u on u.id=pr.project_owner  
+                                                left join presu14.empresa e on e.id_empresa=pr.id_cliente 
+                                                where f.estado <> 'abonada' and YEAR(f.fecha_emision)=".$prevYear." group by YEAR(f.fecha_emision) ".$order2);
+        $resultClientesPrevTotal->execute();
+        $dataClientesPrevTotal = $resultClientesPrevTotal->fetch();
+
+        $result2PrevTotal = $pdo->prepare("SELECT ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto left join empresa em on em.id_empresa=pr.id_cliente where year(pos.fecha_entrega)=".$prevYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
+                                                FROM stack_bbgest.coeficiente co 
+                                                left join stack_bbgest.usuarios us on us.id=co.id_usuario 
+                                                left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
+                                                left join presu14.empresa e on e.id_empresa=p.id_cliente 
+                                                WHERE co.year = ".$prevYear." group by co.year");
+        $result2PrevTotal->execute();
+        $costesClientesPrevTotal = $result2PrevTotal->fetch();
+
+        $result2Total = $pdo->prepare("SELECT ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto left join empresa em on em.id_empresa=pr.id_cliente where year(pos.fecha_entrega)=".$currentYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+                                                FROM stack_bbgest.coeficiente co 
+                                                left join stack_bbgest.usuarios us on us.id=co.id_usuario 
+                                                left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
+                                                left join presu14.empresa e on e.id_empresa=p.id_cliente 
+                                                WHERE co.year = ".$currentYear." group by co.year");
+        $result2Total->execute();
+        $costesClientesTotal = $result2Total->fetch();
+
         ?>
         <h5>Facturado por cliente&nbsp;<a href="lib/functions.php?action=logExcelByClient" id="export-cliente" class="btn btn-primary btn-sm">Exportar excel</a></h5>
         <table class="table table-striped table-bordered table-curved table-hover">
             <thead>
             <tr>
                 <th>Cliente</th>
-                <th><a href="?order2=facturado">
-                        Facturado <?=$prevYear?> <span class="glyphicon glyphicon-sort"></span>
-                    </a></th>
-                <th>Costes <?=$prevYear?></th>
-                <th><a href="?order2=facturado">
-                        Facturado <?=$currentYear?> <span class="glyphicon glyphicon-sort"></span>
-                    </a></th>
-                <th>Costes <?=$currentYear?></th>
+                <th style="white-space: initial;">
+                    <a href="?order2=facturado">
+                        Facturado <?=$prevYear?> (Total: <?=number_format($dataClientesPrevTotal['acumulado'],2, ',', '.') ?> €) <span class="glyphicon glyphicon-sort"></span>
+                    </a>
+                </th>
+                <th style="white-space: initial;">
+                    Costes <?=$prevYear?> (Total: <?=number_format($costesClientesPrevTotal['coste'],2, ',', '.') ?> €)
+                </th>
+                <th style="white-space: initial;">
+                    <a href="?order2=facturado">
+                        Facturado <?=$currentYear?> (Total: <?=number_format($dataClientesTotal['acumulado'],2, ',', '.') ?> €) <span class="glyphicon glyphicon-sort"></span>
+                    </a>
+                </th>
+                <th style="white-space: initial;">
+                    Costes <?=$currentYear?> (Total: <?=number_format($costesClientesTotal['coste'],2, ',', '.') ?> €)
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -364,13 +540,14 @@ ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyect
             $result->execute();
             $dataClientes = $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
-            $result2 = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, 
-                        ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
+            $result2 = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto left join empresa em on em.id_empresa=pr.id_cliente where em.id_empresa=p.id_cliente and year(pos.fecha_entrega)=".$currentYear."),0) as extras,
+                        ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto left join empresa em on em.id_empresa=pr.id_cliente where em.id_empresa=p.id_cliente and year(pos.fecha_entrega)=".$currentYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste 
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
                                                 left join presu14.empresa e on e.id_empresa=p.id_cliente 
                                                 WHERE co.year = ".$currentYear." group by e.id_empresa");
+												
             $result2->execute();
             $costesClientes = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
@@ -409,8 +586,8 @@ ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyect
             $resultClientesPrev->execute();
             $dataClientesPrev = $resultClientesPrev->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
-            $result2Prev = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, 
-            ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyecto = co.id_proyecto),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
+            $result2Prev = $pdo->prepare("SELECT e.id_empresa as id_cliente, e.nombre as cliente, co.id_proyecto, p.nombre, ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto left join empresa em on em.id_empresa=pr.id_cliente where em.id_empresa=p.id_cliente and year(pos.fecha_entrega)=".$prevYear."),0) as extras,
+            ifnull((SELECT sum(pos.base) FROM `pos_proveedores` pos left join stack_bbgest.proyectos pr on pr.id=pos.id_proyecto left join empresa em on em.id_empresa=pr.id_cliente where em.id_empresa=p.id_cliente and year(pos.fecha_entrega)=".$prevYear."),0) + sum(co.horas*(select salario from stack_bbgest.salarios s where s.id_usuario=co.id_usuario and s.fecha <= co.fecha order by s.fecha desc limit 1)/1400) as coste
                                                 FROM stack_bbgest.coeficiente co 
                                                 left join stack_bbgest.usuarios us on us.id=co.id_usuario 
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
@@ -430,9 +607,15 @@ ifnull((select sum(base) as extras from presu14.pos_proveedores where id_proyect
 <!--                    <td class="text-right">--><?php //echo number_format(isnull($costes[$row['id_cliente']]['coste']), 2, ',', '.').' €' ?><!--</td>-->
 
                     <td class="text-right nowrap"><?= isset($dataClientesPrev[$row['id_cliente']])?number_format($dataClientesPrev[$row['id_cliente']]['acumulado'], 2, ',', '.').' €':"-" ?></td>
-                    <td class="text-right nowrap"><?= isset($costesClientesPrev[$row['id_cliente']])?number_format(empty($costesClientesPrev[$row['id_cliente']]['coste'])?0:$costesClientesPrev[$row['id_cliente']]['coste'], 2, ',', '.').' €':"-" ?></td>
+                    <td class="text-right nowrap">
+						<?= isset($costesClientesPrev[$row['id_cliente']])?number_format(empty($costesClientesPrev[$row['id_cliente']]['coste'])?0:$costesClientesPrev[$row['id_cliente']]['coste'], 2, ',', '.').' €':"-" ?>
+						<br><small>Extras: <?php echo number_format(isnull($costesClientesPrev[$row['id_cliente']]['extras']), 2, ',', '.').' €' ?></small>
+					</td>
                     <td class="text-right nowrap"><?= isset($dataClientes[$row['id_cliente']])?number_format($dataClientes[$row['id_cliente']]['acumulado'], 2, ',', '.').' €':"-" ?></td>
-                    <td class="text-right nowrap"><?= isset($costesClientes[$row['id_cliente']])?number_format(empty($costesClientes[$row['id_cliente']]['coste'])?0:$costesClientes[$row['id_cliente']]['coste'], 2, ',', '.').' €':"-" ?></td>
+                    <td class="text-right nowrap">
+						<?= isset($costesClientes[$row['id_cliente']])?number_format(empty($costesClientes[$row['id_cliente']]['coste'])?0:$costesClientes[$row['id_cliente']]['coste'], 2, ',', '.').' €':"-" ?>
+						<br><small>Extras: <?php echo number_format(isnull($costesClientes[$row['id_cliente']]['extras']), 2, ',', '.').' €' ?></small>
+					</td>
                 </tr>
                 <?php
                 endif;

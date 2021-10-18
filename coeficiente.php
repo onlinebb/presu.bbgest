@@ -347,7 +347,7 @@ $data = $q->fetchAll(PDO::FETCH_ASSOC);
     <thead>
     <tr>
         <th>PERSONA</th>
-        <th>BRUTO/AÑO</th>
+        <th>BRUTO/AÑO (1400)</th>
     </tr>
     </thead>
     <tbody>
