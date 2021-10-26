@@ -57,6 +57,7 @@
                     ?>
                     <li class=""><a href="control.php">Control</a></li>
                     <li class=""><a href="performance.php">Performance</a></li>
+                    <li class=""><a href="costes-pow.php">Costes POW</a></li>
                     <li class=""><a href="coeficiente.php">Coeficientes</a></li>
                     <?php
                     else:

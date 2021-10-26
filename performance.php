@@ -5,7 +5,7 @@
  * Date: 17/10/14
  * Time: 12:53
  * NOTA RB: 5/10/21. El cálculo del coste en PERFORMANCE (Facturación asignada (histórico - acumulado)) = nºde horas IMPUTADAS A UN PROJECT OWNER * coste horario (= bruto / 1400h) + extras DESDE EL PRINCIPIO (sea o no del POW)
- * No es un dato ajustado!!! (en esta tabla) * Ahora los extras están imputadas a un proyecto 
+ * No es un dato ajustado!!! (en esta tabla) * Ahora los extras están imputadas a un proyecto
  * (hacemos ahora tabla agregado "saco" -> hora metida * coste h en ese momento + costes POs metidas)
  *  LA FACTURACION SI ES CORRECTA, porque las facturas SI se guardan con POW
  */
@@ -70,40 +70,7 @@ function isnull($var, $default=0) {
         include 'lib/database.php';
         $pdo = Database::connect();
         ?>
-        <h5>Costes Project Owner <?=$currentYear?> (tabla costes_pow)</h5>
-        <table class="table table-striped table-bordered table-curved table-hover">
-            <thead>
-            <tr>
-                <th>POW</th>
-                <th>Costes</th>
-            </tr>
-            </thead>
-            <tbody>
-			<?php
-
-            //Resultados current year
-            $result_pow = $pdo->prepare("select us.nombre, sum(coste) as coste from costes_pow left join stack_bbgest.usuarios us on us.id=id_usuario where YEAR(fecha)=".$currentYear." group by id_usuario");
-            $result_pow->execute();
-			
-            $data_pow = $result_pow->fetchAll(PDO::FETCH_ASSOC);
-			Database::disconnect();
-
-            foreach ($data_pow as $row):
-                ?>
-                <tr>
-                    <td><?php echo $row['nombre'] ?></td>
-                    <td class="text-right"><?php echo number_format(isnull($row['coste']), 2, ',', '.').' €' ?></td>
-                </tr>
-                <?php
-            endforeach;
-            ?>
-			</tbody>
-		</table>
-	</div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <h5>Facturación asignada (histórico - acumulado)&nbsp;<a href="lib/functions.php?action=logExcelByOwner" id="export-owner" class="btn btn-primary btn-sm">Exportar excel</a></h5>
+        <h5>Facturación asignada (fact/costes histórico - acumulado. El total incluye los extras)&nbsp;<br>Solo costes directos, no se incluyen costes de estructura <a href="lib/functions.php?action=logExcelByOwner" id="export-owner" class="btn btn-primary btn-sm">Exportar excel</a></h5>
         <table class="table table-striped table-bordered table-curved table-hover">
             <thead>
             <tr>
@@ -547,7 +514,7 @@ function isnull($var, $default=0) {
                                                 left join stack_bbgest.proyectos p on p.id=co.id_proyecto 
                                                 left join presu14.empresa e on e.id_empresa=p.id_cliente 
                                                 WHERE co.year = ".$currentYear." group by e.id_empresa");
-												
+
             $result2->execute();
             $costesClientes = $result2->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
 
