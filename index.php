@@ -120,11 +120,11 @@ endif;
                             <?php
                             include 'lib/database.php';
                             $pdo = Database::connect();
+
+
                             $where = '';
                             $pagAllPresus = '';
                             $pagSearch = '';
-
-                            if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
 
                                 //Busqueda
                                 if (isset($_GET["search"])) {
@@ -142,7 +142,7 @@ endif;
                                     $where = " WHERE estado IN ('pendiente', 'aceptado', 'facturado parcialmente') AND ".$search;
                                     $pagAllPresus = "";
                                 }
-
+                            if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                                 $sql_aceptados = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'aceptado'";
                                 $sql_pendientes = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'pendiente'";
                                 $sql_pendiente_parcial = "SELECT SUM(suma-(SELECT sum(factura.subtotal) FROM factura where presupuesto_asoc = presupuesto.ref and estado <>'abonada')) AS total_presus from presupuesto WHERE estado ='facturado parcialmente'";
@@ -190,16 +190,19 @@ endif;
 
                     if(!isset($_SESSION['priv']) || isset($_SESSION['priv']) && $_SESSION['priv'] == 0) {
                         if(empty($where))
-                            $privs = " WHERE autor LIKE '%".$_SESSION['valid']."%' ";
+                            $privs = " WHERE pr.autor LIKE '%".$_SESSION['valid']."%' or (select sp.project_owner from stack_bbgest.proyectos sp where sp.id = pr.id_proyecto and sp.project_owner=".$_SESSION['id_stack'].")";
                         else
-                            $privs = " AND autor LIKE '%".$_SESSION['valid']."%' ";
+                            $privs = " AND (pr.autor LIKE '%".$_SESSION['valid']."%' or (select sp.project_owner from stack_bbgest.proyectos sp where sp.id = pr.id_proyecto and sp.project_owner=".$_SESSION['id_stack']."))";
                     }
                     else {
                         $privs = "";
                     }
 
                     $start_from = ($page - 1) * $rows_per_page;
-                    $result = $pdo->prepare("SELECT * FROM listado_presus ". $where .$privs." ORDER BY $order DESC, ref DESC LIMIT $start_from, $rows_per_page");
+					//echo "SELECT * FROM listado_presus pr ". $where .$privs." ORDER BY $order DESC, ref DESC LIMIT $start_from, $rows_per_page";
+					$result = $pdo->prepare("SELECT * FROM listado_presus pr". $where .$privs." ORDER BY pr.$order DESC, ref DESC LIMIT $start_from, $rows_per_page");
+					//SELECT * FROM listado_presus pr WHERE pr.autor LIKE '%josemaria%' or (select sp.project_owner from stack_bbgest.proyectos sp where sp.id = pr.id_proyecto and sp.project_owner=113)  ORDER BY pr.ref DESC;
+//                    echo "SELECT * FROM listado_presus pr". $where .$privs." ORDER BY pr.$order DESC, ref DESC LIMIT $start_from, $rows_per_page";
                     $result->execute();
                     for ($i = 0; $row = $result->fetch(); $i++) {
 
@@ -271,7 +274,8 @@ endif;
             <div class="col-md-12">
                 <ul class="pagination">
                     <?php
-                    $result = $pdo->prepare("SELECT COUNT(id) FROM listado_presus ".$where.$privs);
+                    $result = $pdo->prepare("SELECT COUNT(id) FROM listado_presus pr ".$where.$privs);
+//                    echo "SELECT COUNT(id) FROM listado_presus pr ".$where.$privs;
                     $result->execute();
                     $row = $result->fetch();
                     $total_records = $row[0];
