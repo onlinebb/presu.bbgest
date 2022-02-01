@@ -345,3 +345,7 @@ table td[contenteditable=true]:focus {
 .nowrap {
     white-space: nowrap;
 }
+
+.honorarios-novartis-wrapper .modal-dialog {
+    min-width: 700px !important;
+}

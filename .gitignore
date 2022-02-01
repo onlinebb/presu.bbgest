@@ -4,3 +4,4 @@
 /po/*
 /access.log
 /lib/files/*
+/lib/database.php

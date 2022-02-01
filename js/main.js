@@ -281,6 +281,25 @@ $(function () {
         return honorarios;
     }
 
+    var wrapHonorariosNovartis = function () {
+
+        var honorarios = [];
+
+        $('#honorarios-modal .rate').each(function (i) {
+            //guardamos el objeto con los campos llenos de cada item
+            var content = {};
+            var item = $(this);
+            var index = item.data('idperfil');
+
+            content["id_perfil"] = index;
+            content["precio"] = item.val();
+
+            honorarios.push(content);
+        });
+
+        return honorarios;
+    }
+
     var wrapConceptos = function () {
 
         var conceptos = [];
@@ -446,6 +465,34 @@ $(function () {
         $('#export-honorarios').off('click');
         $('#export-honorarios').click(function(){
             exportHonorarios();
+        });
+
+
+        $('#honorarios-novartis-modal .form-control').unbind("change paste keyup");
+        $('#honorarios-novartis-modal .form-control').bind("change paste keyup", function(){
+            var totalHonorarios;
+            var totalHonorariosTier = 0;
+            var totalHonorariosFixed = 0;
+
+            $('#honorarios-novartis-modal table.datos-tier tr.datos').each(function(index, elem){
+                var total = parseFloat($(this).find('.rate').val()) * parseFloat($(this).find('.horas').val());
+                $(this).find('.total').val(total.toFixed(2));
+                totalHonorariosTier += total;
+            });
+            $('#honorarios-novartis-modal table.datos-fixed tr.datos').each(function(index, elem){
+                var total = parseFloat($(this).find('.rate').val()) * parseFloat($(this).find('.horas').val());
+                $(this).find('.total').val(total.toFixed(2));
+                totalHonorariosFixed += total;
+            });
+            totalHonorarios = totalHonorariosTier + totalHonorariosFixed;
+            $('#honorarios-novartis-modal #total-novartis').text(totalHonorarios.toFixed(2));
+            $('#honorarios-novartis-modal #total-tier').text(totalHonorariosTier.toFixed(2));
+            $('#honorarios-novartis-modal #total-fixed').text(totalHonorariosFixed.toFixed(2));
+        });
+
+        $('#export-honorarios-novartis').off('click');
+        $('#export-honorarios-novartis').click(function(){
+            exportHonorariosNovartis();
         });
     }
 
@@ -1349,6 +1396,56 @@ $(function () {
         loadEvents();
     }
 
+    function exportHonorariosNovartis() {
+        var textoHonorarios = '';
+        $('#honorarios-novartis-modal tr.datos').each(function(index, elem){
+            var valor = parseFloat($(this).find('.total').val());
+            var rate = parseFloat($(this).find('.rate').val());
+            if(valor != 0) {
+                var horas_element = $(this).find('.horas');
+                if(horas_element.data('descripcion') == 'hours') {
+                    var linea = $(this).find('.cargo').text() + " (" + horas_element.val() + " hours): " + valor + " €\n";
+
+                }
+                else {
+                    var linea = $(this).find('.cargo').text() + " (" + horas_element.val() + " x "+ rate + " € " + horas_element.data('descripcion')+"): " + valor + " €\n";
+                }
+                textoHonorarios += linea;
+            }
+        });
+
+        var concepto = $('#concepto_group_0').clone().hide();
+
+        concepto.removeClass('hide');
+
+        concepto.attr('id', 'concepto_group_' + counter);
+
+        concepto.attr('data-index', counter);
+
+        concepto.find('legend').text('Concepto ' + counter);
+
+        concepto.find('#tit1_0').val('HONORARIOS NOVARTIS');
+        concepto.find('#tit1_0_precio').val($('#honorarios-novartis-modal #total-novartis').text());
+
+        concepto.find('#concepto_0').attr('id', 'concepto_' + counter).attr('name', 'concepto_' + counter);
+        concepto.find('#concepto_0_precio').attr('id', 'concepto_' + counter + '_precio').attr('name', 'concepto_' + counter + '_precio');
+
+
+        concepto.find('.wrap-concepto[data-tipo="concepto"]').remove();
+        concepto.find('.wrap-concepto[data-tipo="concepto_subtitulo"]').remove();
+        concepto.find('.wrap-concepto[data-tipo="titulo2"]').remove();
+        concepto.find('.wrap-concepto[data-tipo="titulo3"]').remove();
+
+        concepto.find('#texto_0').text(textoHonorarios);
+        concepto.find('#texto_0').attr('id', 'texto_' + counter).attr('name', 'texto_' + counter);
+        concepto.find('#texto_0_precio').attr('id', 'texto_' + counter + '_precio').attr('name', 'texto_' + counter + '_precio');
+
+        concepto.insertBefore($('button.add-concepto')).fadeIn();
+
+        counter++;
+        loadEvents();
+    }
+
     /*FILE UPLOAD*/
     //Crea una carpeta con el ID el Debbrief si ya existe o el siguiente ID que toca en BBDD
     var url = 'lib/functions.php?action=uploadFiles&otherDir='+$('#ref').val();
@@ -1426,7 +1523,7 @@ $(function () {
         var userid = $(this).data("userid") ;
         var salario = $(this).text();
 
-        console.log('user '+userid + "=" + salario);
+        // console.log('user '+userid + "=" + salario);
 
         $.post('lib/functions.php?action=updateSalario' , {"userid":userid,"salario":salario}, function(data){
             if(data != '')
@@ -1478,7 +1575,7 @@ $(function () {
         //guardar en db
         var fields = costes.toFixed(2)+':'+costesExtra.toFixed(2)+':'+coef.toFixed(2);
 
-        console.log('enviar '+fields + "=" + semana);
+        // console.log('enviar '+fields + "=" + semana);
 
         $.post('lib/functions.php?action=updateCostes' , fields + "=" + semana, function(data){
             if(data != '')

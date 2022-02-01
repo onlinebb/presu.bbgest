@@ -54,6 +54,10 @@ require_once('header.php');
                     <span class="glyphicon glyphicon-euro"></span> Cálculo Honorarios
                 </button>
                 <br><br>
+                <button type="button" class="btn btn-primary btn-sm add-honorarios-novartis" title="Honorarios" data-toggle="modal" data-target="#honorarios-novartis-modal">
+                    <span class="glyphicon glyphicon-euro"></span> Tarificador Novartis
+                </button>
+                <br><br>
                 <button type="button" class="btn btn-primary btn-sm add-total" title="Total">
                     <span class="glyphicon glyphicon-euro"></span> Añadir Total
                 </button>
@@ -148,6 +152,8 @@ require_once('header.php');
                     <span class="glyphicon glyphicon-euro"></span> Cálculo Honorarios
                 </button>
                 <span class="honorarios-wrapper"><?php require_once('honorarios-modal.php'); ?></span>
+                <br><br>
+                <span class="honorarios-novartis-wrapper"><?php require_once('honorarios-novartis-modal.php'); ?></span>
                 <br><br>
 
                 <fieldset id="concepto_group_0" class="concepto hide" data-index="0">
