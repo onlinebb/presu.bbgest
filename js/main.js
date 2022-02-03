@@ -494,6 +494,14 @@ $(function () {
         $('#export-honorarios-novartis').click(function(){
             exportHonorariosNovartis();
         });
+
+        $('#reset-honorarios-novartis').off('click');
+        $('#reset-honorarios-novartis').click(function(){
+            $('#honorarios-novartis-modal table .horas').each(function(index, elem){
+               $(this).val(0);
+               $(this).trigger('change');
+            });
+        });
     }
 
 
@@ -1427,8 +1435,8 @@ $(function () {
         concepto.find('#tit1_0').val('HONORARIOS NOVARTIS');
         concepto.find('#tit1_0_precio').val($('#honorarios-novartis-modal #total-novartis').text());
 
-        concepto.find('#concepto_0').attr('id', 'concepto_' + counter).attr('name', 'concepto_' + counter);
-        concepto.find('#concepto_0_precio').attr('id', 'concepto_' + counter + '_precio').attr('name', 'concepto_' + counter + '_precio');
+        concepto.find('#tit1_0').attr('id', 'tit1_' + counter).attr('name', 'tit1_' + counter);
+        concepto.find('#tit1_0_precio').attr('id', 'tit1_' + counter + '_precio').attr('name', 'tit1_' + counter + '_precio');
 
 
         concepto.find('.wrap-concepto[data-tipo="concepto"]').remove();

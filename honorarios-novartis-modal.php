@@ -27,8 +27,9 @@ Database::disconnect();
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Calcular honorarios Novartis</h4><br>
-            <!--<button id="save-honorarios" data-idcliente="<?=$id_cliente?>" type="button" class="btn btn-sm btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk"></span> Guardar precios</button>-->
-            <div id="alerta-no-cliente" class="alert alert-warning hidden" role="alert">Es necesario asignar algún cliente al presu antes de guardar honorarios</div>
+            <button id="reset-honorarios-novartis" type="button" class="btn btn-primary">Reset</button>
+            <button id="export-honorarios-novartis" type="submit" class="btn btn-primary" data-id="" data-dismiss="modal">Insertar</button>
+
         </div>
         <div class="modal-body">
             <h5>TOTAL: <span id="total-novartis">0</span>&euro;</h5>
@@ -115,7 +116,6 @@ Database::disconnect();
 
         </div>
         <div class="modal-footer">
-            <button id="export-honorarios-novartis" type="submit" class="btn btn-primary" data-id="" data-dismiss="modal">Insertar</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
         </div>
     </div>

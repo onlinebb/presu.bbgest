@@ -336,6 +336,11 @@ table td[contenteditable=true]:focus {
     background-color: #f9f9f9;
 }
 
+#honorarios-novartis-modal .modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
 /*.headcol {
     position:absolute;
     width: 300px;

@@ -23,12 +23,12 @@
     <script src="js/jquery.iframe-transport.js"></script>
     <script src="js/jquery.fileupload.js"></script>
     <script src="js/jquery.fileupload-process.js"></script>
-    <script type="text/javascript" src="js/main.js?v=0102202201"></script>
+    <script type="text/javascript" src="js/main.js?v=0302202201"></script>
     <link rel="shortcut icon" href="../img/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/datepicker3.css">
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css?v=0302202201">
     <link rel="stylesheet" type="text/css" href="css/icons.css">
     <link rel="stylesheet" type="text/css" href="css/jquery.fileupload.css">
 </head>
