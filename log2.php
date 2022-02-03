@@ -29,7 +29,7 @@ $fecha_actual = strtotime('2019-07-03');
 $end_date = '2019-09-30';
 
 while ($fecha_actual <= strtotime($end_date)) {
-    echo "$fecha_actual <br>";
+    //echo "$fecha_actual <br>";
     $fecha_actual = strtotime("+1 days", $fecha_actual);
 	$fecha_fin = date('Y-m-d', $fecha_actual);
 
@@ -42,8 +42,8 @@ while ($fecha_actual <= strtotime($end_date)) {
 	$presupuestado = $data_totales[0];
 	if(empty($presupuestado))
 		$presupuestado = 0;
-	echo 'pres: '.$presupuestado;
-	echo '<br>';
+//	echo 'pres: '.$presupuestado;
+//	echo '<br>';
 
 	$sql_aceptados = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'aceptado' and fecha_emision <= '".$fecha_fin."'";
 	//echo $sql_aceptados.'<br>';
@@ -68,8 +68,8 @@ while ($fecha_actual <= strtotime($end_date)) {
 
 	if(empty($aceptado))
 		$aceptado = 0;
-	echo 'acep: '.$aceptado;
-	echo '<br>';
+//	echo 'acep: '.$aceptado;
+//	echo '<br>';
 
 	//Pendiente
 	$sql_pendientes = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'pendiente' and fecha_emision <= '".$fecha_fin."'";
@@ -80,8 +80,8 @@ while ($fecha_actual <= strtotime($end_date)) {
 	$pendiente = $data_pendientes['total_presus'];
 	if(empty($pendiente))
 		$pendiente = 0;
-	echo 'pend: '.$pendiente;
-	echo '<br>';
+//	echo 'pend: '.$pendiente;
+//	echo '<br>';
 
 	//Facturado pendiente
 	$sql = "SELECT SUM(subtotal) AS total_fact from factura WHERE estado IN ('emitida') and fecha_emision <= '".$fecha_fin."'";
@@ -92,8 +92,8 @@ while ($fecha_actual <= strtotime($end_date)) {
 	$facturas_pendientes = $data['total_fact'];
 	if(empty($facturas_pendientes))
 		$facturas_pendientes = 0;
-	echo 'f pend: '.$facturas_pendientes;
-	echo '<br>';
+//	echo 'f pend: '.$facturas_pendientes;
+//	echo '<br>';
 
 	//Facturado total
 	$sql = "SELECT SUM(subtotal) AS total_fact from factura WHERE fecha_emision >= '".$fecha_origen."' and fecha_emision is not null and fecha_emision <= '".$fecha_fin."' and estado <>'abonada'";
@@ -105,7 +105,7 @@ while ($fecha_actual <= strtotime($end_date)) {
 	$facturado_total = $data['total_fact'];
 	if(empty($facturado_total))
 		$facturado_total = 0;
-	echo 'f total: '.$facturado_total;
+//	echo 'f total: '.$facturado_total;
 
 	$fd = $fecha_actual;
 	$fecha_limite = date('Y-m-d', $fd);
@@ -113,7 +113,7 @@ while ($fecha_actual <= strtotime($end_date)) {
 	//Ratio3
 	$fecha_menos_3meses = strtotime("-3 months", $fd);
 	$fecha_origen3 = date('Y-m-d', $fecha_menos_3meses);
-	echo $fecha_origen3.'<br>';
+//	echo $fecha_origen3.'<br>';
 
 	//Aceptados + emitidos en el periodo
 	$sql_aceptados3 = "SELECT sum(suma), count(*) from presupuesto where estado in ('aceptado','facturado totalmente', 'facturado parcialmente') and fecha_emision is not null and fecha_emision >= '".$fecha_origen3."' and fecha_emision <= '".$fecha_limite."' and fecha_aceptacion is not null and fecha_aceptacion >= '".$fecha_origen3."' and fecha_aceptacion <= '".$fecha_limite."'";
@@ -290,7 +290,7 @@ while ($fecha_actual <= strtotime($end_date)) {
 			));
 
 
-echo '<br><br>hola<br><br>';
+//echo '<br><br>hola<br><br>';
 	//guardar datos performance
 	$result = $pdo->prepare("select u.nombre as project_owner, u.id as id_project_owner, sum(f.total) acumulado from (
 														SELECT  * FROM presu14.factura
@@ -340,7 +340,7 @@ echo '<br><br>hola<br><br>';
 				)
 			);
 		} catch (Exception $e) {
-			echo 'fail';
+//			echo 'fail';
 		}
 	}
 

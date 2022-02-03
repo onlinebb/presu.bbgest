@@ -26,8 +26,8 @@ $data_totales = $q_totales->fetch();
 $presupuestado = $data_totales[0];
 if(empty($presupuestado))
     $presupuestado = 0;
-echo 'pres: '.$presupuestado;
-echo '<br>';
+//echo 'pres: '.$presupuestado;
+//echo '<br>';
 
 //Aceptado
 /*$sql_aceptados = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'aceptado'";
@@ -56,8 +56,8 @@ $aceptado = $data_aceptados['total_presus']+$data_pendiente_parcial['total_presu
 
 if(empty($aceptado))
     $aceptado = 0;
-echo 'acep: '.$aceptado;
-echo '<br>';
+//echo 'acep: '.$aceptado;
+//echo '<br>';
 
 //Pendiente
 $sql_pendientes = "SELECT SUM(suma) AS total_presus from presupuesto WHERE estado = 'pendiente'";
@@ -67,8 +67,8 @@ $data_pendientes = $q_pendientes->fetch();
 $pendiente = $data_pendientes['total_presus'];
 if(empty($pendiente))
     $pendiente = 0;
-echo 'pend: '.$pendiente;
-echo '<br>';
+//echo 'pend: '.$pendiente;
+//echo '<br>';
 
 //Facturado pendiente
 $sql = "SELECT SUM(subtotal) AS total_fact from factura WHERE estado IN ('emitida')";
@@ -78,8 +78,8 @@ $data = $q->fetch();
 $facturas_pendientes = $data['total_fact'];
 if(empty($facturas_pendientes))
     $facturas_pendientes = 0;
-echo 'f pend: '.$facturas_pendientes;
-echo '<br>';
+//echo 'f pend: '.$facturas_pendientes;
+//echo '<br>';
 
 //Facturado total
 $sql = "SELECT SUM(subtotal) AS total_fact from factura WHERE fecha_emision >= '".$fecha_origen."' and fecha_emision is not null and estado <>'abonada'";
@@ -89,7 +89,7 @@ $data = $q->fetch();
 $facturado_total = $data['total_fact'];
 if(empty($facturado_total))
     $facturado_total = 0;
-echo 'f total: '.$facturado_total;
+//echo 'f total: '.$facturado_total;
 
 /*
 //Ratio3
@@ -464,7 +464,7 @@ try {
         )
     );
 } catch (Exception $e) {
-    echo 'fail';
+    //echo 'fail';
 }
 
 function isnull($var, $default=0) {
@@ -518,7 +518,7 @@ for ($i = 0; $row = $result->fetch(); $i++) {
             )
         );
     } catch (Exception $e) {
-        echo 'fail';
+        //echo 'fail';
     }
 }
 
