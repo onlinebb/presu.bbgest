@@ -47,6 +47,9 @@ if (isset($_GET["action"])) {
         case "savePO":
             savePO($_POST['id'], $_POST['po-ref'], $_POST['presu-ref']);
             break;
+        case "saveObservacionesFactura":
+            saveObservacionesFactura($_POST['id'], $_POST['obs-text']);
+            break;
         case "saveFact":
             saveFactura();
             break;
@@ -861,6 +864,26 @@ function savePO($id, $ref, $presu_ref)
         print 'Error: '.$message;
     }
 
+}
+
+function saveObservacionesFactura($id, $obs)
+{
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $sql = "UPDATE factura set observaciones = ? where id = ?";
+    $q = $pdo->prepare($sql);
+
+    try {
+        $q->execute(array($obs, $id));
+    }
+    catch (Exception $e) {
+        print $e;
+    }
+
+    Database::disconnect();
+
+    print 1;
 }
 
 /**

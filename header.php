@@ -23,7 +23,7 @@
     <script src="js/jquery.iframe-transport.js"></script>
     <script src="js/jquery.fileupload.js"></script>
     <script src="js/jquery.fileupload-process.js"></script>
-    <script type="text/javascript" src="js/main.js?v=0302202201"></script>
+    <script type="text/javascript" src="js/main.js?v=1702202201"></script>
     <link rel="shortcut icon" href="../img/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">

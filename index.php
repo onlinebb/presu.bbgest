@@ -459,6 +459,9 @@ if(isset($_SESSION['priv']) && $_SESSION['priv'] == 1):
                                     <a class="factura-cobrada" href="" title="Dar por cobrada" data-id="<?= $row['id'] ?>" data-ref="<?= $row['ref_factura'] ?>" data-presu="<?= $row['presupuesto_asoc'] ?>">
                                         <span class="glyphicon icons-fontawesome-webfont-12"></span>
                                     </a>&nbsp;
+                                    <a class="obs-factura" href="" title="Observaciones" data-id="<?php echo $row['id'] ?>" data-ref="<?php echo $row['ref_factura'] ?>" data-obs="<?= empty($row['observaciones'])?'':$row['observaciones'] ?>">
+                                        <b>Obs</b>
+                                    </a>
                                     <?php endif; ?>
                             </td>
                         </tr>
@@ -639,5 +642,6 @@ endif;
 require_once('confirmar-modal.php');
 require_once('confirmar-modal-fact.php');
 require_once('po-modal.php');
+require_once('obs-modal.php');
 
 require_once('footer.php');

@@ -1109,6 +1109,22 @@ $(function () {
         e.preventDefault();
     });
 
+    $('.obs-factura').on('click', function(e) {
+
+        $('#obs-form #id').val($(this).data('id'));
+        $('#obs-form #fact-ref').val($(this).data('ref'));
+        $('#obs-ref').text($(this).data('ref'));
+        $('#obs-text').text($(this).data('obs'));
+        $('#obs-modal').modal('show');
+
+        e.preventDefault();
+    });
+
+    $('#obs-form').ajaxForm(function() {window.location.reload();});
+    $('#save-obs').on('click', function(e) {
+        $('#obs-form').submit();
+    });
+
     /**
      * Duplicar presupuesto
      */
